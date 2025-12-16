@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { account } from '@/lib/appwrite';
 import { getUserListings } from '@/lib/properties';
 import { getKYCStatus } from '@/lib/kyc';
-import { PropertyCard } from '@/components/property/PropertyCard';
-import PayHereButton from '@/components/payments/PayHereButton';
+import { saveTransaction } from '@/lib/transactions';
+import { PayHereButton } from '@/components/payments/PayHereButton';
 import { User, ShieldCheck, Grid, Heart, Settings, Plus, LogOut, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -185,24 +185,37 @@ export default function ProfilePage() {
 
                                     <div className="flex justify-center">
                                         <PayHereButton
+                                            orderId={`SUB-${user.$id}-${Date.now()}`}
+                                            items="Premium Membership"
                                             amount={5000}
-                                            orderId={`PREMIUM_${user.$id}_${Date.now()}`}
-                                            items="Premium Membership (1 Year)"
                                             customer={{
                                                 first_name: user.name.split(' ')[0],
                                                 last_name: user.name.split(' ').slice(1).join(' ') || 'User',
                                                 email: user.email,
                                                 phone: user.phone || '0777123456',
                                             }}
-                                            onSuccess={(oid) => toast.success(`Payment Successful! Order: ${oid}`)}
-                                            onDismiss={() => toast.info("Payment cancelled.")}
+                                            onSuccess={async (orderId) => {
+                                                toast.success("Payment Successful! Welcome to Premium.");
+                                                try {
+                                                    await saveTransaction({
+                                                        userId: user.$id,
+                                                        amount: 5000,
+                                                        status: 'success',
+                                                        referenceId: orderId,
+                                                        type: 'subscription'
+                                                    });
+                                                } catch (e) {
+                                                    console.error("Failed to save transaction", e);
+                                                }
+                                            }}
+                                            onDismiss={() => toast.info("Payment Cancelled")}
                                         />
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* Settings Tab (Placeholder) */}
+                        {/* Settings Tab */}
                         {activeTab === 'settings' && (
                             <div className="bg-white rounded-3xl p-8 border border-slate-200">
                                 <h3 className="font-bold text-slate-900 mb-6">Account Settings</h3>
