@@ -1,8 +1,8 @@
 import { Outfit, Inter } from "next/font/google";
 import "./app.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { Toaster } from "sonner";
+import { Navbar } from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import { Toaster } from 'sonner';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -24,16 +24,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${outfit.variable} ${inter.variable}`}>
-      <body className="font-sans bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+      <body className={`${outfit.className} bg-slate-50`}>
         <Navbar />
-        <main className="flex-grow pt-16">
-          {/* pt-16 to offset fixed navbar */}
+        <main className="pt-20">
           {children}
         </main>
         <Footer />
-        <Toaster position="top-right" richColors />
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   );
 }
-

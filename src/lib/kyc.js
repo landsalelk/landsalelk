@@ -76,3 +76,48 @@ export async function getKYCStatus() {
         return null;
     }
 }
+
+/**
+ * ADMIN: Get all pending KYC requests.
+ */
+export async function getPendingKYCRequests() {
+    try {
+        const result = await databases.listDocuments(
+            DB_ID,
+            COLLECTION_KYC,
+            [
+                Query.equal('status', 'pending'),
+                Query.orderDesc('submitted_at'),
+            ]
+        );
+        return result.documents;
+    } catch (error) {
+        console.error("Admin Fetch Error:", error);
+        return [];
+    }
+}
+
+/**
+ * ADMIN: Approve or Reject a KYC request.
+ * @param {string} docId 
+ * @param {string} status 'approved' | 'rejected'
+ */
+export async function updateKYCStatus(docId, status) {
+    return await databases.updateDocument(
+        DB_ID,
+        COLLECTION_KYC,
+        docId,
+        {
+            status: status,
+            reviewed_at: new Date().toISOString()
+        }
+    );
+}
+
+/**
+ * Helper to get file view URL
+ */
+export function getKYCFileView(fileId) {
+    if (!fileId) return null;
+    return storage.getFileView(BUCKET_KYC, fileId);
+}
