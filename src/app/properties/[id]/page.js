@@ -97,10 +97,26 @@ export default function PropertyDetailsPage() {
     // Safe image parsing
     let images = [];
     try {
+        const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+        const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+        const bucketId = 'listing_images'; // Correct bucket ID
+
+        const resolveUrl = (val) => {
+            if (!val) return null;
+            if (val.startsWith('http')) return val; // Already a URL
+            // Assume it's a File ID
+            return `${endpoint}/storage/buckets/${bucketId}/files/${val}/view?project=${projectId}`;
+        };
+
+        let rawImages = [];
         if (Array.isArray(property.images)) {
-            images = property.images;
+            rawImages = property.images;
         } else if (typeof property.images === 'string') {
-            images = JSON.parse(property.images);
+            rawImages = JSON.parse(property.images);
+        }
+
+        if (Array.isArray(rawImages)) {
+            images = rawImages.map(resolveUrl).filter(Boolean);
         }
     } catch (e) {
         console.warn("Image parse error:", e);

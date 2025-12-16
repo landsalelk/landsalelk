@@ -89,7 +89,7 @@ export default function CreateListingPage() {
             const { createProperty } = await import('@/lib/properties');
 
             const imageIds = [];
-            const bucketId = 'listings';
+            const bucketId = 'listing_images';
 
             for (const img of images) {
                 try {
@@ -628,8 +628,8 @@ export default function CreateListingPage() {
                                     onClick={prevStep}
                                     disabled={step === 1}
                                     className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${step === 1
-                                            ? 'text-slate-300 cursor-not-allowed'
-                                            : 'text-slate-600 hover:bg-slate-100'
+                                        ? 'text-slate-300 cursor-not-allowed'
+                                        : 'text-slate-600 hover:bg-slate-100'
                                         }`}
                                 >
                                     <ChevronLeft className="w-5 h-5" />

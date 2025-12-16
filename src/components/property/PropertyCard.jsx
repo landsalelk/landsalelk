@@ -21,10 +21,20 @@ export function PropertyCard({ property }) {
     // Smart image extraction: Try primary_image, then images array, then fallback
     const getImageUrl = () => {
         const fallback = "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
+        const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+        const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+        const bucketId = 'listing_images'; // Correct bucket ID
+
+        const resolveUrl = (val) => {
+            if (!val) return null;
+            if (val.startsWith('http')) return val; // Already a URL
+            // Assume it's a File ID
+            return `${endpoint}/storage/buckets/${bucketId}/files/${val}/view?project=${projectId}`;
+        };
 
         // Try primary_image first
         if (property?.primary_image && property.primary_image.trim()) {
-            return property.primary_image;
+            return resolveUrl(property.primary_image) || fallback;
         }
 
         // Try parsing images field
@@ -35,18 +45,18 @@ export function PropertyCard({ property }) {
 
         try {
             if (Array.isArray(imagesField)) {
-                return imagesField[0] || fallback;
+                return resolveUrl(imagesField[0]) || fallback;
             }
             if (typeof imagesField === 'string' && imagesField.startsWith('[')) {
                 const parsed = JSON.parse(imagesField);
-                return (Array.isArray(parsed) && parsed[0]) || fallback;
+                return (Array.isArray(parsed) && resolveUrl(parsed[0])) || fallback;
             }
-            // If it's a plain URL string
-            if (typeof imagesField === 'string' && imagesField.startsWith('http')) {
-                return imagesField;
+            // If it's a plain string (URL or ID)
+            if (typeof imagesField === 'string') {
+                return resolveUrl(imagesField) || fallback;
             }
         } catch (e) {
-            // Silent fallback for JSON parse errors
+            // Silent fallback
         }
 
         return fallback;
