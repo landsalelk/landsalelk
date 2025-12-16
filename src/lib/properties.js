@@ -109,6 +109,27 @@ export async function searchProperties(filters = {}) {
 }
 
 /**
+ * Fetch listings created by a specific user.
+ * @param {string} userId
+ */
+export async function getUserListings(userId) {
+    try {
+        const result = await databases.listDocuments(
+            DB_ID,
+            COLLECTION_LISTINGS,
+            [
+                Query.equal('user_id', userId),
+                Query.orderDesc('$createdAt')
+            ]
+        );
+        return result.documents;
+    } catch (error) {
+        console.error("Error fetching user listings:", error);
+        return [];
+    }
+}
+
+/**
  * Get all available filter options (could be fetched from DB aggregations in future)
  */
 export function getFilterOptions() {
