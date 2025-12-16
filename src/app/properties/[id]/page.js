@@ -6,6 +6,7 @@ import { getPropertyById } from '@/lib/properties';
 import { ChatWidget } from '@/components/chat/ChatWidget';
 import { ValuationCard } from '@/components/property/ValuationCard';
 import MortgageCalculator from '@/components/property/MortgageCalculator';
+import ROICalculator from '@/components/property/ROICalculator';
 import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees } from 'lucide-react';
 import Link from 'next/link';
 
@@ -227,6 +228,11 @@ export default function PropertyDetailsPage() {
                             </div>
                         </div>
 
+                        {/* Financial Tools */}
+                        <div className="mt-8 space-y-6">
+                            <MortgageCalculator price={property.price} />
+                            <ROICalculator price={property.price} />
+                        </div>
                     </div>
 
                     {/* Right Column: Agent & Actions */}
