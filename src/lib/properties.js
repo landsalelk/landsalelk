@@ -55,14 +55,45 @@ export async function getFeaturedProperties(limit = 4) {
  * @returns {Promise<Array>}
  */
 export async function searchProperties(filters = {}) {
-    // Implementation placeholder for the Search Phase
     const queries = [Query.orderDesc('$createdAt')];
 
-    if (filters.type) {
-        queries.push(Query.search('listing_type', filters.type));
+    // 1. Keyword Search
+    if (filters.search) {
+        queries.push(Query.search('title', filters.search));
     }
 
-    // Add more filters as needed
+    // 2. Property Type (Sale/Rent/Land)
+    if (filters.type && filters.type !== 'all') {
+        queries.push(Query.equal('listing_type', filters.type));
+    }
+
+    // 3. Category (House, Apartment, Land)
+    if (filters.category && filters.category !== 'all') {
+        queries.push(Query.equal('land_type', filters.category));
+        // Note: Mapping 'category' UI filter to 'land_type' attribute for now
+    }
+
+    // 4. Price Range
+    if (filters.minPrice) {
+        queries.push(Query.greaterThanEqual('price', parseInt(filters.minPrice)));
+    }
+    if (filters.maxPrice) {
+        queries.push(Query.lessThanEqual('price', parseInt(filters.maxPrice)));
+    }
+
+    // 5. Attributes (Bads/Baths)
+    if (filters.beds && filters.beds !== 'any') {
+        queries.push(Query.greaterThanEqual('beds', parseInt(filters.beds)));
+    }
+
+    // 6. Sri Lankan Specifics
+    if (filters.deedType && filters.deedType !== 'any') {
+        queries.push(Query.equal('deed_type', filters.deedType));
+    }
+
+    if (filters.nbro && filters.nbro === true) {
+        queries.push(Query.equal('nbro_approval', true));
+    }
 
     try {
         const result = await databases.listDocuments(
@@ -75,4 +106,15 @@ export async function searchProperties(filters = {}) {
         console.error("Error searching properties:", error);
         return [];
     }
+}
+
+/**
+ * Get all available filter options (could be fetched from DB aggregations in future)
+ */
+export function getFilterOptions() {
+    return {
+        types: ['Sale', 'Rent', 'Land'],
+        categories: ['House', 'Apartment', 'Commercial', 'Bare Land', 'Coconut Land', 'Tea Estate'],
+        deedTypes: ['Sinnakkara (Freehold)', 'Bim Saviya', 'Jayabhoomi', 'Swarnabhoomi'],
+    };
 }
