@@ -1,26 +1,98 @@
-# Next.js starter kit with Appwrite
+# 🏰 Landsale.lk
 
-Kickstart your Next.js development with this ready-to-use starter project integrated with [Appwrite](https://www.appwrite.io)
+> **The Intelligent Real Estate Ecosystem for Sri Lanka**
 
-## 🚀Getting started
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+[![Appwrite](https://img.shields.io/badge/Appwrite-Powered-fd366e?logo=appwrite)](https://appwrite.io/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
 
-###
-Clone the Project
-Clone this repository to your local machine using Git:
+---
 
-`git clone https://github.com/appwrite/starter-for-nextjs`
+## 🌟 Features
 
-## 🛠️ Development guid
-1. **Configure Appwrite**<br/>
-   Navigate to `.env` and update the values to match your Appwrite project credentials.
-2. **Customize as needed**<br/>
-   Modify the starter kit to suit your app's requirements. Adjust UI, features, or backend
-   integrations as per your needs.
-3. **Install dependencies**<br/>
-   Run `npm install` to install all dependencies.
-4. **Run the app**<br/>
-   Start the project by running `npm run dev`.
+### For Buyers
+- 🔍 **Smart Search** - Filter by Deed Type (Sinnakkara, Bim Saviya), Land Type, District
+- 🤖 **AI Assistant** - 24/7 chatbot to qualify and connect with sellers
+- 💰 **Financial Tools** - Mortgage calculator with live bank rates
 
-## 💡 Additional notes
-- This starter project is designed to streamline your Next.js development with Appwrite.
-- Refer to the [Appwrite documentation](https://appwrite.io/docs) for detailed integration guidance.
+### For Sellers
+- 📝 **AI Listing Wizard** - Auto-generate descriptions & social media posts
+- �️ **Uber-like Agent Finder** - See nearby agents on a live map
+- ✅ **Trust Badges** - Verified Deed & Owner tags
+
+### For Agents
+- 📡 **Lead Radar** - Real-time notifications for buyer/seller leads
+- 🎨 **Marketing Studio** - AI-powered flyer & post generator
+- 📊 **CRM Dashboard** - Track leads from inquiry to closing
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | Next.js 15, React 19, Tailwind CSS 4 |
+| **Backend** | Appwrite (Auth, Database, Storage, Functions) |
+| **AI Engine** | OpenRouter (GPT-4o, Claude) |
+| **Maps** | Google Maps API |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- Appwrite Cloud account (or self-hosted)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/landsalelk/landsalelk.git
+cd landsalelk
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your Appwrite credentials
+
+# Run development server
+npm run dev
+```
+
+---
+
+## � Project Structure
+
+```
+src/
+├── app/
+│   ├── (auth)/             # Login, Register, KYC
+│   ├── (dashboard)/        # User dashboards (Seller, Agent, Admin)
+│   ├── property/           # Listing pages
+│   └── api/                # Server routes (AI, webhooks)
+├── components/
+│   ├── ai/                 # Chat, Marketing Generator
+│   ├── map/                # Agent Map, Property Pins
+│   └── ui/                 # Design System
+└── lib/
+    ├── appwrite.ts         # Appwrite SDK setup
+    └── ai-agent.ts         # OpenRouter integration
+```
+
+---
+
+## 🇱🇰 Sri Lanka Specific
+
+- **Deed Types**: Sinnakkara, Bim Saviya, Jayabhoomi, Swarnabhoomi
+- **Land Units**: Perches, Roods, Acres (auto-conversion)
+- **Languages**: Sinhala, Tamil, English
+- **Approvals**: UDA, NBRO, Pradeshiya Sabha tracking
+
+---
+
+## 📄 License
+
+MIT © [Landsale.lk](https://landsale.lk)

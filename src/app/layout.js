@@ -1,24 +1,39 @@
+import { Outfit, Inter } from "next/font/google";
+import "./app.css";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { Toaster } from "sonner";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: 'swap',
+});
+
 export const metadata = {
-  title: "Appwrite + Next.js",
-  description: "Appwrite starter for Next.js",
+  title: "Landsale.lk | Sri Lanka's Premier Real Estate Platform",
+  description: "Find your dream home, land, or commercial property in Sri Lanka. Connect with verified agents and access AI-driven market insights.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="icon" href="/appwrite.svg" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:opsz,wght@14..32,100..900&family=Poppins:wght@300;400&display=swap"
-          rel="stylesheet"
-        />
-        <link rel="icon" type="image/svg+xml" href="/appwrite.svg" />
-      </head>
-      <body className={"bg-[#FAFAFB] font-[Inter] text-sm text-[#56565C]"}>
-        {children}
+    <html lang="en" className={`${outfit.variable} ${inter.variable}`}>
+      <body className="font-sans bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow pt-16">
+          {/* pt-16 to offset fixed navbar */}
+          {children}
+        </main>
+        <Footer />
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );
 }
+

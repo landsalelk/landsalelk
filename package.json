@@ -1,7 +1,8 @@
 {
-  "name": "starter-for-nextjs",
+  "name": "landsalelk",
   "version": "0.1.0",
   "private": true,
+  "description": "The Intelligent Real Estate Ecosystem for Sri Lanka",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,14 +13,24 @@
     "@appwrite.io/pink-icons": "^1.0.0",
     "@tailwindcss/postcss": "^4.1.11",
     "appwrite": "^18.1.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.26",
+    "lucide-react": "^0.468.0",
     "next": "^15.4.8",
+    "node-appwrite": "^21.0.0",
     "postcss": "^8.5.6",
     "react": "^19.1.2",
     "react-dom": "^19.1.2",
+    "sonner": "^1.7.4",
+    "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
     "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/landsalelk/landsalelk.git"
   }
 }
