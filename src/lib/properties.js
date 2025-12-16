@@ -130,6 +130,36 @@ export async function getUserListings(userId) {
 }
 
 /**
+ * Create a new property listing.
+ * @param {Object} data 
+ */
+export async function createProperty(data) {
+    try {
+        const user = await account.get();
+        // Upload images first (if any) - logic handled in component usually, passing IDs here
+        // But for simplicity, we assume data.images contains File objects we need to upload
+        // or URLs/ID strings.
+
+        // This function assumes `data` is the JSON payload for the document.
+
+        return await databases.createDocument(
+            DB_ID,
+            COLLECTION_LISTINGS,
+            ID.unique(),
+            {
+                ...data,
+                user_id: user.$id,
+                created_at: new Date().toISOString(),
+                status: 'active' // or 'pending'
+            }
+        );
+    } catch (error) {
+        console.error("Create Listing Error:", error);
+        throw error;
+    }
+}
+
+/**
  * Get all available filter options (could be fetched from DB aggregations in future)
  */
 export function getFilterOptions() {

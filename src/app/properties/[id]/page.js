@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { getPropertyById } from '@/lib/properties';
-import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart } from 'lucide-react';
+import { ChatWidget } from '@/components/chat/ChatWidget';
+import { ValuationCard } from '@/components/property/ValuationCard';
+import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees } from 'lucide-react';
 import Link from 'next/link';
 
 export default function PropertyDetailsPage() {
@@ -229,6 +231,9 @@ export default function PropertyDetailsPage() {
                     {/* Right Column: Agent & Actions */}
                     <div className="lg:col-span-4 space-y-6">
 
+                        {/* AI Valuation */}
+                        <ValuationCard property={property} />
+
                         {/* Agent Card */}
                         <div className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 sticky top-24">
                             <div className="flex items-center gap-4 mb-6">
@@ -262,9 +267,9 @@ export default function PropertyDetailsPage() {
                     </div>
                 </div>
             </div>
+            {/* Chat Widget */}
+            <ChatWidget agentId={property.user_id} agentName={property.contact_name || "Agent"} />
         </div>
     );
 }
 
-// Icon for Perches if lucide doesn't have Trees (it does)
-import { Trees } from 'lucide-react';
