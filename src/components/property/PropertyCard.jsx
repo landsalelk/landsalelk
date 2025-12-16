@@ -11,7 +11,6 @@ export function PropertyCard({ property }) {
         currency = "LKR",
         location = "Colombo 7, Cinnamon Gardens",
         specs = { beds: 4, baths: 3, size: 3500 },
-        image = "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop",
         type = "Sale",
         beds,
         baths,
@@ -19,11 +18,73 @@ export function PropertyCard({ property }) {
         badge
     } = property || {};
 
+    // Smart image extraction: Try primary_image, then images array, then fallback
+    const getImageUrl = () => {
+        const fallback = "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
+
+        // Try primary_image first
+        if (property?.primary_image && property.primary_image.trim()) {
+            return property.primary_image;
+        }
+
+        // Try parsing images field
+        const imagesField = property?.images;
+        if (!imagesField || imagesField === '' || imagesField === '[]') {
+            return fallback;
+        }
+
+        try {
+            if (Array.isArray(imagesField)) {
+                return imagesField[0] || fallback;
+            }
+            if (typeof imagesField === 'string' && imagesField.startsWith('[')) {
+                const parsed = JSON.parse(imagesField);
+                return (Array.isArray(parsed) && parsed[0]) || fallback;
+            }
+            // If it's a plain URL string
+            if (typeof imagesField === 'string' && imagesField.startsWith('http')) {
+                return imagesField;
+            }
+        } catch (e) {
+            // Silent fallback for JSON parse errors
+        }
+
+        return fallback;
+    };
+
+    const image = getImageUrl();
+
+    // Parse title if it's JSON
+    const displayTitle = (() => {
+        if (typeof title !== 'string') return title || "Property Listing";
+        try {
+            if (title.startsWith('{')) {
+                const parsed = JSON.parse(title);
+                return parsed.en || parsed.si || Object.values(parsed)[0] || title;
+            }
+        } catch (e) { }
+        return title;
+    })();
+
+    // Parse location if it's JSON  
+    const displayLocation = (() => {
+        const loc = property?.location || location;
+        if (typeof loc !== 'string') return loc || "Sri Lanka";
+        try {
+            if (loc.startsWith('{')) {
+                const parsed = JSON.parse(loc);
+                return parsed.address || parsed.city || parsed.en || Object.values(parsed)[0] || loc;
+            }
+        } catch (e) { }
+        return loc;
+    })();
+
     const actualSpecs = {
         beds: beds || specs.beds || 0,
         baths: baths || specs.baths || 0,
         size: area || specs.size || 0
     };
+
 
     const formatPrice = (val, cur) => {
         return new Intl.NumberFormat('en-LK', {
@@ -43,7 +104,7 @@ export function PropertyCard({ property }) {
                 <div className="relative aspect-[4/3] overflow-hidden m-2 rounded-[1.5rem]">
                     <img
                         src={image}
-                        alt={title}
+                        alt={displayTitle}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
                         onError={(e) => {
                             e.target.src = "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
@@ -83,14 +144,11 @@ export function PropertyCard({ property }) {
                 <div className="p-5 flex flex-col flex-1">
                     <div className="mb-3">
                         <h3 className="font-bold text-slate-800 text-lg line-clamp-1 group-hover:text-primary-600 transition-colors">
-                            {title}
+                            {displayTitle}
                         </h3>
                         <div className="flex items-center text-slate-500 text-sm mt-1 font-medium">
                             <MapPin className="w-4 h-4 mr-1.5 flex-shrink-0 text-primary-400" />
-                            <span className="truncate">{(() => {
-                                try { return typeof location === 'object' ? location.address : (JSON.parse(location)?.city || JSON.parse(location)?.address || location) }
-                                catch { return location }
-                            })()}</span>
+                            <span className="truncate">{displayLocation}</span>
                         </div>
                     </div>
 
