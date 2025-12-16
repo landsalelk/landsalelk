@@ -5,7 +5,8 @@ import { account } from '@/lib/appwrite';
 import { getUserListings } from '@/lib/properties';
 import { getKYCStatus } from '@/lib/kyc';
 import { PropertyCard } from '@/components/property/PropertyCard';
-import { User, ShieldCheck, Grid, Heart, Settings, Plus, LogOut, Loader2, AlertCircle } from 'lucide-react';
+import PayHereButton from '@/components/payments/PayHereButton';
+import { User, ShieldCheck, Grid, Heart, Settings, Plus, LogOut, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -104,14 +105,15 @@ export default function ProfilePage() {
                         {[
                             { id: 'listings', label: 'My Listings', icon: Grid },
                             { id: 'favorites', label: 'Saved Homes', icon: Heart },
+                            { id: 'premium', label: 'Upgrade Premium', icon: Sparkles },
                             { id: 'settings', label: 'Settings', icon: Settings },
                         ].map(tab => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${activeTab === tab.id
-                                        ? 'bg-slate-900 text-white shadow-md'
-                                        : 'bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
+                                    ? 'bg-slate-900 text-white shadow-md'
+                                    : 'bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
                                     }`}
                             >
                                 <tab.icon className="w-4 h-4" /> {tab.label}
@@ -162,6 +164,41 @@ export default function ProfilePage() {
                                 </div>
                                 <h3 className="font-bold text-slate-900 mb-2">No saved homes</h3>
                                 <p className="text-slate-500">Properties you heart will appear here.</p>
+                            </div>
+                        )}
+
+                        {/* Premium Tab */}
+                        {activeTab === 'premium' && (
+                            <div className="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-3xl p-12 text-center relative overflow-hidden text-white">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl -mr-20 -mt-20"></div>
+                                <div className="relative z-10">
+                                    <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <Sparkles className="w-8 h-8 text-amber-400" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold mb-2">Become a Premium Member</h3>
+                                    <p className="text-slate-300 mb-8 max-w-md mx-auto">Get verified badge, priority support, and 5x more visibility on your listings.</p>
+
+                                    <div className="mb-8">
+                                        <span className="text-4xl font-bold">LKR 5,000</span>
+                                        <span className="text-slate-400"> / year</span>
+                                    </div>
+
+                                    <div className="flex justify-center">
+                                        <PayHereButton
+                                            amount={5000}
+                                            orderId={`PREMIUM_${user.$id}_${Date.now()}`}
+                                            items="Premium Membership (1 Year)"
+                                            customer={{
+                                                first_name: user.name.split(' ')[0],
+                                                last_name: user.name.split(' ').slice(1).join(' ') || 'User',
+                                                email: user.email,
+                                                phone: user.phone || '0777123456',
+                                            }}
+                                            onSuccess={(oid) => toast.success(`Payment Successful! Order: ${oid}`)}
+                                            onDismiss={() => toast.info("Payment cancelled.")}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         )}
 
