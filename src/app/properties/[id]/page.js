@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { getPropertyById } from '@/lib/properties';
+import { addFavorite, removeFavorite, isFavorite } from '@/lib/favorites';
 import { ChatWidget } from '@/components/chat/ChatWidget';
 import { ValuationCard } from '@/components/property/ValuationCard';
 import MortgageCalculator from '@/components/property/MortgageCalculator';
 import ROICalculator from '@/components/property/ROICalculator';
-import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function PropertyDetailsPage() {
     const { id } = useParams();
@@ -16,6 +18,8 @@ export default function PropertyDetailsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeImage, setActiveImage] = useState(0);
+    const [isSaved, setIsSaved] = useState(false);
+    const [savingFav, setSavingFav] = useState(false);
 
     useEffect(() => {
         async function loadData() {
@@ -23,6 +27,9 @@ export default function PropertyDetailsPage() {
             try {
                 const data = await getPropertyById(id);
                 setProperty(data);
+                // Check if saved
+                const saved = await isFavorite(id);
+                setIsSaved(saved);
             } catch (err) {
                 console.error(err);
                 // Check if it's a 404 or other error
@@ -66,12 +73,33 @@ export default function PropertyDetailsPage() {
     // Formatting helpers
     const formatPrice = (val) => new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(val);
 
+    // Handle Save/Unsave
+    const handleSave = async () => {
+        setSavingFav(true);
+        try {
+            if (isSaved) {
+                await removeFavorite(id);
+                setIsSaved(false);
+                toast.success("Removed from saved homes");
+            } else {
+                await addFavorite(id);
+                setIsSaved(true);
+                toast.success("Saved to your favorites!");
+            }
+        } catch (e) {
+            toast.error("Please login to save properties");
+        } finally {
+            setSavingFav(false);
+        }
+    };
+
     // Mock image handling (Appwrite storage logic to be added)
     const images = property.images ? JSON.parse(property.images) : [
         "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072",
         "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053",
         "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070"
     ];
+
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
@@ -95,6 +123,16 @@ export default function PropertyDetailsPage() {
                                     <ShieldCheck className="w-3 h-3" /> Premium
                                 </span>
                             )}
+                        </div>
+                        {/* Action Buttons */}
+                        <div className="absolute top-4 right-4 flex gap-2">
+                            <button
+                                onClick={handleSave}
+                                disabled={savingFav}
+                                className={`p-3 rounded-full backdrop-blur-md shadow-sm transition-all ${isSaved ? 'bg-red-500 text-white' : 'bg-white/90 text-slate-600 hover:bg-white'}`}
+                            >
+                                {savingFav ? <Loader2 className="w-5 h-5 animate-spin" /> : <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />}
+                            </button>
                         </div>
                     </div>
 

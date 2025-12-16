@@ -1,9 +1,29 @@
 'use client';
 
-import { ShieldCheck, FileText, Scale, CheckCircle, Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getAgents } from '@/lib/agents';
+import { ShieldCheck, FileText, Scale, CheckCircle, Search, User, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LegalServicesPage() {
+    const [lawyers, setLawyers] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchLawyers() {
+            try {
+                // Try to fetch agents with Legal/Notary specialization
+                const agents = await getAgents(8);
+                setLawyers(agents);
+            } catch (e) {
+                console.error("Failed to load lawyers", e);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchLawyers();
+    }, []);
+
     return (
         <div className="min-h-screen bg-slate-50 py-12 px-4">
             {/* Hero */}
@@ -55,22 +75,44 @@ export default function LegalServicesPage() {
 
             {/* Trusted Lawyers Section */}
             <div className="max-w-6xl mx-auto">
-                <h2 className="text-2xl font-bold text-slate-900 mb-8">Verified Panel Lawyers</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 flex flex-col items-center text-center">
-                            <div className="w-20 h-20 bg-slate-200 rounded-full mb-4"></div>
-                            <h4 className="font-bold text-slate-900 text-lg">M.S. Perera</h4>
-                            <p className="text-slate-500 text-sm mb-2">Notary Public</p>
-                            <div className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded mb-4">
-                                <CheckCircle className="w-3 h-3" /> Verified
+                <h2 className="text-2xl font-bold text-slate-900 mb-8">Verified Panel Lawyers & Agents</h2>
+
+                {loading ? (
+                    <div className="flex justify-center py-12">
+                        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+                    </div>
+                ) : lawyers.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {lawyers.map((agent) => (
+                            <div key={agent.$id} className="bg-white p-6 rounded-2xl border border-slate-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                                <div className="w-20 h-20 bg-slate-200 rounded-full mb-4 flex items-center justify-center text-slate-500">
+                                    {agent.photo ? (
+                                        <img src={agent.photo} alt={agent.name} className="w-full h-full object-cover rounded-full" />
+                                    ) : (
+                                        <User className="w-10 h-10" />
+                                    )}
+                                </div>
+                                <h4 className="font-bold text-slate-900 text-lg">{agent.name || 'Agent'}</h4>
+                                <p className="text-slate-500 text-sm mb-2">{agent.specialization || 'Real Estate Agent'}</p>
+                                {agent.is_verified && (
+                                    <div className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded mb-4">
+                                        <CheckCircle className="w-3 h-3" /> Verified
+                                    </div>
+                                )}
+                                <Link
+                                    href={`/agents/${agent.$id}`}
+                                    className="w-full py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors"
+                                >
+                                    Contact
+                                </Link>
                             </div>
-                            <button className="w-full py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors">
-                                Contact
-                            </button>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-12 text-slate-500">
+                        <p>No agents available at the moment. Please check back later.</p>
+                    </div>
+                )}
             </div>
         </div>
     );

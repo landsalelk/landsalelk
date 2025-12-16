@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { account } from '@/lib/appwrite';
-import { getUserListings } from '@/lib/properties';
+import { getUserListings, getPropertyById } from '@/lib/properties';
 import { getKYCStatus } from '@/lib/kyc';
 import { saveTransaction } from '@/lib/transactions';
+import { getUserFavorites, removeFavorite } from '@/lib/favorites';
 import { PayHereButton } from '@/components/payments/PayHereButton';
+import { PropertyCard } from '@/components/property/PropertyCard';
 import { User, ShieldCheck, Grid, Heart, Settings, Plus, LogOut, Loader2, AlertCircle, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -17,6 +19,7 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('listings');
     const [listings, setListings] = useState([]);
+    const [favorites, setFavorites] = useState([]);
     const [kycStatus, setKycStatus] = useState(null);
 
     useEffect(() => {
@@ -33,6 +36,25 @@ export default function ProfilePage() {
                 // 3. Get Listings
                 const userListings = await getUserListings(userData.$id);
                 setListings(userListings);
+
+                // 4. Get Favorites
+                try {
+                    const favDocs = await getUserFavorites();
+                    // Fetch actual property details for each favorite
+                    const favProperties = await Promise.all(
+                        favDocs.map(async (fav) => {
+                            try {
+                                const prop = await getPropertyById(fav.property_id);
+                                return { ...prop, favoriteDocId: fav.$id };
+                            } catch {
+                                return null;
+                            }
+                        })
+                    );
+                    setFavorites(favProperties.filter(Boolean));
+                } catch (e) {
+                    console.log("Favorites not loaded", e);
+                }
 
             } catch (error) {
                 console.error(error);
@@ -156,14 +178,41 @@ export default function ProfilePage() {
                             </div>
                         )}
 
-                        {/* Favorites Tab (Placeholder) */}
+                        {/* Favorites Tab */}
                         {activeTab === 'favorites' && (
-                            <div className="bg-white rounded-3xl p-12 text-center border border-dashed border-slate-200">
-                                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
-                                    <Heart className="w-8 h-8" />
+                            <div className="space-y-6">
+                                <div className="flex justify-between items-center">
+                                    <h2 className="text-xl font-bold text-slate-900">Saved Homes</h2>
+                                    <span className="text-sm text-slate-500">{favorites.length} Saved</span>
                                 </div>
-                                <h3 className="font-bold text-slate-900 mb-2">No saved homes</h3>
-                                <p className="text-slate-500">Properties you heart will appear here.</p>
+
+                                {favorites.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {favorites.map(prop => (
+                                            <div key={prop.$id} className="relative group">
+                                                <PropertyCard property={prop} />
+                                                <button
+                                                    onClick={async () => {
+                                                        await removeFavorite(prop.$id);
+                                                        setFavorites(prev => prev.filter(f => f.$id !== prop.$id));
+                                                        toast.success("Removed from saved homes");
+                                                    }}
+                                                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <Heart className="w-4 h-4 fill-current" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="bg-white rounded-3xl p-12 text-center border border-dashed border-slate-200">
+                                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                                            <Heart className="w-8 h-8" />
+                                        </div>
+                                        <h3 className="font-bold text-slate-900 mb-2">No saved homes</h3>
+                                        <p className="text-slate-500">Properties you heart will appear here.</p>
+                                    </div>
+                                )}
                             </div>
                         )}
 
