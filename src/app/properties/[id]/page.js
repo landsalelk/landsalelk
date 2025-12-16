@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { getPropertyById } from '@/lib/properties';
 import { ChatWidget } from '@/components/chat/ChatWidget';
 import { ValuationCard } from '@/components/property/ValuationCard';
+import MortgageCalculator from '@/components/property/MortgageCalculator';
 import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees } from 'lucide-react';
 import Link from 'next/link';
 

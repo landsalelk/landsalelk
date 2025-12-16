@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { account } from '@/lib/appwrite';
 import { getPendingKYCRequests, updateKYCStatus, getKYCFileView } from '@/lib/kyc';
-import { ShieldCheck, XCircle, CheckCircle, Loader2, FileText, AlertTriangle } from 'lucide-react';
+import { getPlatformStats } from '@/lib/analytics';
+import { ShieldCheck, XCircle, CheckCircle, Loader2, FileText, AlertTriangle, TrendingUp, Users, Wallet, Building } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
@@ -11,6 +12,7 @@ export default function AdminDashboard() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [requests, setRequests] = useState([]);
+    const [stats, setStats] = useState({ totalListings: 0, totalUsers: 0, verifiedUsers: 0, totalRevenue: 0 });
     const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
@@ -23,8 +25,12 @@ export default function AdminDashboard() {
             // In a real app, check user.labels.includes('admin') or team membership
             // For this demo, we'll try to fetch requests. If it fails (401/403), not admin.
             try {
-                const pending = await getPendingKYCRequests();
+                const [pending, platformStats] = await Promise.all([
+                    getPendingKYCRequests(),
+                    getPlatformStats()
+                ]);
                 setRequests(pending);
+                setStats(platformStats);
                 setIsAdmin(true);
             } catch (err) {
                 console.error("Not admin");
@@ -73,6 +79,49 @@ export default function AdminDashboard() {
                     </h1>
                     <p className="text-slate-500">Manage identity verification requests.</p>
                 </header>
+
+                {/* Analytics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="p-3 bg-emerald-100 text-emerald-600 rounded-xl">
+                                <Wallet className="w-6 h-6" />
+                            </div>
+                            <span className="text-slate-500 font-medium">Est. Revenue</span>
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-900">LKR {stats.totalRevenue.toLocaleString()}</h3>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="p-3 bg-blue-100 text-blue-600 rounded-xl">
+                                <Building className="w-6 h-6" />
+                            </div>
+                            <span className="text-slate-500 font-medium">Total Listings</span>
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-900">{stats.totalListings}</h3>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="p-3 bg-indigo-100 text-indigo-600 rounded-xl">
+                                <Users className="w-6 h-6" />
+                            </div>
+                            <span className="text-slate-500 font-medium">KYC Requests</span>
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-900">{stats.totalUsers}</h3>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="p-3 bg-amber-100 text-amber-600 rounded-xl">
+                                <ShieldCheck className="w-6 h-6" />
+                            </div>
+                            <span className="text-slate-500 font-medium">Verified Members</span>
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-900">{stats.verifiedUsers}</h3>
+                    </div>
+                </div>
 
                 <div className="grid grid-cols-1 gap-6">
                     {requests.length === 0 ? (
