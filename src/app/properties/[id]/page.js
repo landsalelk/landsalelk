@@ -6,9 +6,9 @@ import { getPropertyById } from '@/lib/properties';
 import { addFavorite, removeFavorite, isFavorite } from '@/lib/favorites';
 import { ChatWidget } from '@/components/chat/ChatWidget';
 import { ValuationCard } from '@/components/property/ValuationCard';
-import MortgageCalculator from '@/components/property/MortgageCalculator';
+import EasyPaymentCalculator from '@/components/tools/EasyPaymentCalculator';
 import ROICalculator from '@/components/property/ROICalculator';
-import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2 } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2, Train, Globe, Banknote } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -94,11 +94,44 @@ export default function PropertyDetailsPage() {
     };
 
     // Mock image handling (Appwrite storage logic to be added)
-    const images = property.images ? JSON.parse(property.images) : [
-        "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072",
-        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053",
-        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070"
-    ];
+    // Safe image parsing
+    let images = [];
+    try {
+        if (Array.isArray(property.images)) {
+            images = property.images;
+        } else if (typeof property.images === 'string') {
+            images = JSON.parse(property.images);
+        }
+    } catch (e) {
+        console.warn("Image parse error:", e);
+    }
+
+    // Default fallbacks
+    if (!images || images.length === 0) {
+        images = [
+            "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072",
+            "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053",
+            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070"
+        ];
+    }
+
+    // Helper to safely parse JSON strings (for description/location)
+    const parseSafe = (val, fallback) => {
+        if (!val) return fallback;
+        if (typeof val === 'object') return val; // Already an object
+        try {
+            const parsed = JSON.parse(val);
+            // If it's a description object (e.g. {en: "..."}), return English or first value
+            if (parsed && typeof parsed === 'object') {
+                if (parsed.en) return parsed.en;
+                if (parsed.address) return parsed.address; // For location objects
+                return Object.values(parsed).join(', ');
+            }
+            return parsed;
+        } catch (e) {
+            return val; // Return original string if not JSON
+        }
+    };
 
 
     return (
@@ -111,16 +144,22 @@ export default function PropertyDetailsPage() {
                     <div className="lg:col-span-8 h-full relative group">
                         <img
                             src={images[activeImage]}
-                            alt={property.title}
+                            alt={parseSafe(property.title, "Property Image")}
                             className="w-full h-full object-cover rounded-2xl shadow-sm"
                         />
-                        <div className="absolute top-4 left-4 flex gap-2">
+
+                        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                             <span className="bg-emerald-600/90 backdrop-blur-md text-white px-3 py-1 text-sm font-bold rounded-lg shadow-sm">
-                                {property.listing_type || 'For Sale'}
+                                {property.listing_type === 'sale' ? 'For Sale' : 'For Rent'}
                             </span>
-                            {property.is_premium && (
+                            {property.is_foreign_eligible && (
+                                <span className="bg-blue-500/90 backdrop-blur-md text-white px-3 py-1 text-sm font-bold rounded-lg shadow-sm flex items-center gap-1">
+                                    <Globe className="w-3 h-3" /> Foreign Eligible
+                                </span>
+                            )}
+                            {property.has_payment_plan && (
                                 <span className="bg-amber-500/90 backdrop-blur-md text-white px-3 py-1 text-sm font-bold rounded-lg shadow-sm flex items-center gap-1">
-                                    <ShieldCheck className="w-3 h-3" /> Premium
+                                    <Banknote className="w-3 h-3" /> Payment Plan
                                 </span>
                             )}
                         </div>
@@ -162,10 +201,10 @@ export default function PropertyDetailsPage() {
                         <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-slate-900 mb-2">{property.title}</h1>
+                                    <h1 className="text-3xl font-bold text-slate-900 mb-2">{parseSafe(property.title, "Property Title")}</h1>
                                     <div className="flex items-center text-slate-500">
                                         <MapPin className="w-5 h-5 mr-2 text-emerald-500" />
-                                        {property.location || "Location not specified"}
+                                        {parseSafe(property.location, "Location not specified")}
                                     </div>
                                 </div>
                                 <div className="text-left md:text-right">
@@ -211,16 +250,15 @@ export default function PropertyDetailsPage() {
                             <div className="pt-6">
                                 <h3 className="font-bold text-slate-900 mb-4 text-lg">Description</h3>
                                 <p className="text-slate-600 leading-relaxed whitespace-pre-line">
-                                    {property.description || "No description provided."}
+                                    {parseSafe(property.description, "No description provided.")}
                                 </p>
                             </div>
                         </div>
 
-                        {/* Due Diligence / Legal Info (Sri Lanka Specific) */}
                         <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
                             <h3 className="font-bold text-slate-900 mb-6 flex items-center gap-2">
                                 <ShieldCheck className="w-6 h-6 text-emerald-500" />
-                                Legal & Compliance
+                                Legal & Compliance 🇱🇰
                             </h3>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -229,20 +267,24 @@ export default function PropertyDetailsPage() {
                                         <FileText className="w-4 h-4" /> Deed Type
                                     </div>
                                     <div className="font-semibold text-slate-900 capitalize">
-                                        {property.deed_type || "Sinnakkara (Freehold)"}
+                                        {property.deed_type ? property.deed_type.replace('_', ' ') : "Not Specified"}
                                     </div>
                                 </div>
 
                                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
                                     <div className="text-sm text-slate-500 mb-1 flex items-center gap-2">
-                                        <CheckCircle className="w-4 h-4" /> NBRO Approval
+                                        <CheckCircle className="w-4 h-4" /> Approvals
                                     </div>
-                                    <div className="font-semibold text-slate-900">
-                                        {property.nbro_approval ? (
-                                            <span className="text-emerald-600 flex items-center gap-1">Available <CheckCircle className="w-3 h-3" /></span>
-                                        ) : (
-                                            <span className="text-amber-500">Pending / Not Required</span>
-                                        )}
+                                    <div className="space-y-1">
+                                        <div className={`text-sm flex items-center gap-2 ${property.approval_nbro ? 'text-emerald-600 font-bold' : 'text-slate-400'}`}>
+                                            <CheckCircle className="w-3 h-3" /> NBRO Certified
+                                        </div>
+                                        <div className={`text-sm flex items-center gap-2 ${property.approval_coc ? 'text-emerald-600 font-bold' : 'text-slate-400'}`}>
+                                            <CheckCircle className="w-3 h-3" /> COC Generated
+                                        </div>
+                                        <div className={`text-sm flex items-center gap-2 ${property.approval_uda ? 'text-emerald-600 font-bold' : 'text-slate-400'}`}>
+                                            <CheckCircle className="w-3 h-3" /> UDA Approved
+                                        </div>
                                     </div>
                                 </div>
 
@@ -251,16 +293,20 @@ export default function PropertyDetailsPage() {
                                         <AlertTriangle className="w-4 h-4" /> Flood Risk
                                     </div>
                                     <div className="font-semibold text-slate-900 capitalize">
-                                        {property.flood_risk || "Low Risk"}
+                                        {property.flood_risk ? "Potential Risk" : "No Risk Reported"}
                                     </div>
                                 </div>
 
                                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
                                     <div className="text-sm text-slate-500 mb-1 flex items-center gap-2">
-                                        <MapPin className="w-4 h-4" /> UDA Zoning
+                                        <Train className="w-4 h-4" /> Connectivity
                                     </div>
-                                    <div className="font-semibold text-slate-900 capitalize">
-                                        Residential
+                                    <div className="font-semibold text-slate-900">
+                                        {property.infrastructure_distance ? (
+                                            <span className="text-emerald-600">{property.infrastructure_distance} km to Highway/LRT</span>
+                                        ) : (
+                                            "Distance not specified"
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -268,7 +314,7 @@ export default function PropertyDetailsPage() {
 
                         {/* Financial Tools */}
                         <div className="mt-8 space-y-6">
-                            <MortgageCalculator price={property.price} />
+                            <EasyPaymentCalculator price={property.price} />
                             <ROICalculator price={property.price} />
                         </div>
                     </div>
@@ -286,7 +332,7 @@ export default function PropertyDetailsPage() {
                                     <User className="w-8 h-8 text-slate-400" />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-slate-900 text-lg">Harsha Perera</h4>
+                                    <h4 className="font-bold text-slate-900 text-lg">{property.contact_name || "Land Sale Agent"}</h4>
                                     <p className="text-emerald-600 text-sm font-medium flex items-center gap-1">
                                         <ShieldCheck className="w-3 h-3" /> Verified Agent
                                     </p>
@@ -314,7 +360,7 @@ export default function PropertyDetailsPage() {
             </div>
             {/* Chat Widget */}
             <ChatWidget agentId={property.user_id} agentName={property.contact_name || "Agent"} />
-        </div>
+        </div >
     );
 }
 

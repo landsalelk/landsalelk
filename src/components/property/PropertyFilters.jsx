@@ -60,8 +60,8 @@ export function PropertyFilters({ filters, onChange }) {
                                         key={type}
                                         onClick={() => handleChange('type', type === 'all' ? '' : type)}
                                         className={`flex-1 text-xs font-medium py-2 rounded-md transition-colors capitalize ${(filters.type === type || (!filters.type && type === 'all'))
-                                                ? 'bg-white shadow-sm text-emerald-700'
-                                                : 'text-slate-500 hover:text-slate-700'
+                                            ? 'bg-white shadow-sm text-emerald-700'
+                                            : 'text-slate-500 hover:text-slate-700'
                                             }`}
                                     >
                                         {type === 'all' ? 'Any' : type}
@@ -114,14 +114,14 @@ export function PropertyFilters({ filters, onChange }) {
                             >
                                 <option value="any">Any Deed</option>
                                 {options.deedTypes.map(dt => (
-                                    <option key={dt} value={dt}>{dt}</option>
+                                    <option key={dt.id} value={dt.id}>{dt.label}</option>
                                 ))}
                             </select>
                         </div>
 
                         {/* Checkboxes */}
                         <div className="space-y-3">
-                            <label className="flex items-center gap-2 cursor-pointer">
+                            <label className="flex items-center gap-2 cursor-pointer select-none">
                                 <input
                                     type="checkbox"
                                     className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
@@ -129,6 +129,16 @@ export function PropertyFilters({ filters, onChange }) {
                                     onChange={(e) => handleChange('nbro', e.target.checked)}
                                 />
                                 <span className="text-sm text-slate-600">NBRO Approved Only</span>
+                            </label>
+
+                            <label className="flex items-center gap-2 cursor-pointer select-none">
+                                <input
+                                    type="checkbox"
+                                    className="w-4 h-4 rounded border-emerald-300 text-blue-600 focus:ring-blue-500"
+                                    checked={filters.foreignEligible || false}
+                                    onChange={(e) => handleChange('foreignEligible', e.target.checked)}
+                                />
+                                <span className="text-sm text-slate-600 font-medium">Foreign Buyer Eligible</span>
                             </label>
                         </div>
 

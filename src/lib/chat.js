@@ -1,8 +1,6 @@
 import { client, databases, account } from "./appwrite";
 import { ID, Query } from "appwrite";
-
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk';
-const COLLECTION_MESSAGES = 'messages';
+import { DB_ID, COLLECTION_MESSAGES } from "./constants";
 
 /**
  * Send a message

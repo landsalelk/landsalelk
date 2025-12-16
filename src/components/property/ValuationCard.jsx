@@ -29,7 +29,10 @@ export function ValuationCard({ property }) {
                 <div className="bg-white/10 p-3 rounded-xl border border-white/10 text-sm text-slate-300 flex items-start gap-2">
                     <Info className="w-4 h-4 mt-0.5 shrink-0 text-purple-400" />
                     <p>
-                        Based on {property.location || 'similar'} properties with {property.beds} beds and {property.perch_size} perches.
+                        Based on {(() => {
+                            try { return JSON.parse(property.location)?.city || JSON.parse(property.location)?.address || property.location }
+                            catch { return property.location || 'similar' }
+                        })()} properties with {property.beds} beds and {property.perch_size} perches.
                         <span className="block mt-1 text-purple-300 font-bold">Confidence: {confidence}</span>
                     </p>
                 </div>

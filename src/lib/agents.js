@@ -1,8 +1,6 @@
 import { databases } from "./appwrite";
 import { Query } from "appwrite";
-
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk';
-const COLLECTION_AGENTS = 'agents';
+import { DB_ID, COLLECTION_AGENTS } from "./constants";
 
 /**
  * Get all agents

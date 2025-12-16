@@ -1,9 +1,6 @@
 import { databases } from "./appwrite";
 import { Query } from "appwrite";
-
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk';
-const COLLECTION_LISTINGS = 'listings';
-const COLLECTION_KYC = 'kyc_requests';
+import { DB_ID, COLLECTION_LISTINGS, COLLECTION_KYC } from "./constants";
 // Assuming we might have a users collection or use the count of KYC for now since we can't query auth users directly from client easily without function
 // But we actually DO have a 'users_extended' collection in the schema list, let's use that if it exists, or just use Listings/KYC as proxies.
 // The user previously saw 'users_extended' in collections.json.

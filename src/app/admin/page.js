@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { account } from '@/lib/appwrite';
+import { account, storage } from '@/lib/appwrite';
 import { getPendingKYCRequests, updateKYCStatus, getKYCFileView } from '@/lib/kyc';
 import { getPlatformStats } from '@/lib/analytics';
 import { ShieldCheck, XCircle, CheckCircle, Loader2, FileText, AlertTriangle, TrendingUp, Users, Wallet, Building } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { BUCKET_KYC } from '@/lib/constants';
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -33,11 +34,10 @@ export default function AdminDashboard() {
                 setStats(platformStats);
                 setIsAdmin(true);
             } catch (err) {
-                console.error("Not admin");
-                // router.push('/'); // Uncomment to enforce redirect
+                // Not admin
             }
         } catch (e) {
-            router.push('/login');
+            router.push('/auth/login');
         } finally {
             setLoading(false);
         }
@@ -81,7 +81,9 @@ export default function AdminDashboard() {
                 </header>
 
                 {/* Analytics Cards */}
+                {/* ... (leaving analytics as is for now) ... */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                    {/* ... (reconstruct analytics cards) ... */}
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                         <div className="flex items-center gap-4 mb-2">
                             <div className="p-3 bg-emerald-100 text-emerald-600 rounded-xl">
@@ -166,9 +168,9 @@ export default function AdminDashboard() {
                                         <p className="text-xs font-bold text-slate-500 uppercase mb-2">Front ID</p>
                                         <div className="aspect-video bg-white rounded-lg border border-slate-200 overflow-hidden relative group">
                                             {/* We use getKYCFileView to generate the URL */}
-                                            <img src={`https://cloud.appwrite.io/v1/storage/buckets/kyc_documents/files/${req.nic_front_id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`} className="w-full h-full object-cover" />
+                                            <img src={storage.getFileView(BUCKET_KYC, req.nic_front_id)} className="w-full h-full object-cover" />
                                             <a
-                                                href={`https://cloud.appwrite.io/v1/storage/buckets/kyc_documents/files/${req.nic_front_id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
+                                                href={storage.getFileView(BUCKET_KYC, req.nic_front_id)}
                                                 target="_blank"
                                                 className="absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
                                             >
@@ -179,9 +181,9 @@ export default function AdminDashboard() {
                                     <div>
                                         <p className="text-xs font-bold text-slate-500 uppercase mb-2">Back ID</p>
                                         <div className="aspect-video bg-white rounded-lg border border-slate-200 overflow-hidden relative group">
-                                            <img src={`https://cloud.appwrite.io/v1/storage/buckets/kyc_documents/files/${req.nic_back_id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`} className="w-full h-full object-cover" />
+                                            <img src={storage.getFileView(BUCKET_KYC, req.nic_back_id)} className="w-full h-full object-cover" />
                                             <a
-                                                href={`https://cloud.appwrite.io/v1/storage/buckets/kyc_documents/files/${req.nic_back_id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
+                                                href={storage.getFileView(BUCKET_KYC, req.nic_back_id)}
                                                 target="_blank"
                                                 className="absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
                                             >

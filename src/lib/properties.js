@@ -1,10 +1,6 @@
-import { databases } from "./appwrite"; // Using the client-side/shared instance for now
-import { Query } from "appwrite";
-
-// We should use Environment Variables for ID references to maintain "Configuration Management"
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk'; // Fallback for safety
-const COLLECTION_LISTINGS = 'listings';
-const COLLECTION_AGENTS = 'agents';
+import { databases, account } from "./appwrite";
+import { Query, ID } from "appwrite";
+import { DB_ID, COLLECTION_LISTINGS, COLLECTION_AGENTS } from "./constants";
 
 /**
  * Fetch a single property by its ID.
@@ -91,8 +87,13 @@ export async function searchProperties(filters = {}) {
         queries.push(Query.equal('deed_type', filters.deedType));
     }
 
+
     if (filters.nbro && filters.nbro === true) {
         queries.push(Query.equal('nbro_approval', true));
+    }
+
+    if (filters.foreignEligible) {
+        queries.push(Query.equal('is_foreign_eligible', true));
     }
 
     try {
@@ -136,12 +137,6 @@ export async function getUserListings(userId) {
 export async function createProperty(data) {
     try {
         const user = await account.get();
-        // Upload images first (if any) - logic handled in component usually, passing IDs here
-        // But for simplicity, we assume data.images contains File objects we need to upload
-        // or URLs/ID strings.
-
-        // This function assumes `data` is the JSON payload for the document.
-
         return await databases.createDocument(
             DB_ID,
             COLLECTION_LISTINGS,
@@ -150,11 +145,47 @@ export async function createProperty(data) {
                 ...data,
                 user_id: user.$id,
                 created_at: new Date().toISOString(),
-                status: 'active' // or 'pending'
+                status: 'active'
             }
         );
     } catch (error) {
         console.error("Create Listing Error:", error);
+        throw error;
+    }
+}
+
+/**
+ * Update an existing property listing.
+ * @param {string} id - Property document ID
+ * @param {Object} data - Updated data
+ */
+export async function updateProperty(id, data) {
+    try {
+        return await databases.updateDocument(
+            DB_ID,
+            COLLECTION_LISTINGS,
+            id,
+            {
+                ...data,
+                updated_at: new Date().toISOString()
+            }
+        );
+    } catch (error) {
+        console.error("Update Listing Error:", error);
+        throw error;
+    }
+}
+
+/**
+ * Delete a property listing.
+ * @param {string} id - Property document ID
+ */
+export async function deleteProperty(id) {
+    try {
+        await databases.deleteDocument(DB_ID, COLLECTION_LISTINGS, id);
+        return true;
+    } catch (error) {
+        console.error("Delete Listing Error:", error);
         throw error;
     }
 }
@@ -166,6 +197,12 @@ export function getFilterOptions() {
     return {
         types: ['Sale', 'Rent', 'Land'],
         categories: ['House', 'Apartment', 'Commercial', 'Bare Land', 'Coconut Land', 'Tea Estate'],
-        deedTypes: ['Sinnakkara (Freehold)', 'Bim Saviya', 'Jayabhoomi', 'Swarnabhoomi'],
+        deedTypes: [
+            { id: 'sinnakkara', label: 'Sinnakkara (Freehold)' },
+            { id: 'bim_saviya', label: 'Bim Saviya' },
+            { id: 'jayabhoomi', label: 'Jayabhoomi' },
+            { id: 'condominium', label: 'Condominium' }
+        ],
     };
 }
+

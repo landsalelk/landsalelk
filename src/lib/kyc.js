@@ -1,9 +1,6 @@
 import { databases, storage, account } from "./appwrite";
 import { ID, Query, Permission, Role } from "appwrite";
-
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk';
-const COLLECTION_KYC = 'kyc_requests';
-const BUCKET_KYC = 'kyc_documents';
+import { DB_ID, COLLECTION_KYC, BUCKET_KYC } from "./constants";
 
 /**
  * Submit a KYC request with files.

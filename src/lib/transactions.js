@@ -1,7 +1,7 @@
 import { databases } from "./appwrite";
 import { ID, Permission, Role } from "appwrite";
+import { DB_ID } from "./constants";
 
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk';
 const COLLECTION_TRANSACTIONS = 'transactions';
 
 export async function saveTransaction(data) {

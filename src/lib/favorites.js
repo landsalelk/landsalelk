@@ -1,8 +1,6 @@
 import { databases, account } from "./appwrite";
 import { ID, Query } from "appwrite";
-
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk';
-const COLLECTION_FAVORITES = 'favorites';
+import { DB_ID, COLLECTION_FAVORITES } from "./constants";
 
 /**
  * Add a property to user's favorites

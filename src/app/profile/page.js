@@ -8,7 +8,7 @@ import { saveTransaction } from '@/lib/transactions';
 import { getUserFavorites, removeFavorite } from '@/lib/favorites';
 import { PayHereButton } from '@/components/payments/PayHereButton';
 import { PropertyCard } from '@/components/property/PropertyCard';
-import { User, ShieldCheck, Grid, Heart, Settings, Plus, LogOut, Loader2, AlertCircle, Sparkles } from 'lucide-react';
+import { User, ShieldCheck, Grid, Heart, Settings, Plus, LogOut, Loader2, AlertCircle, Sparkles, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -53,12 +53,12 @@ export default function ProfilePage() {
                     );
                     setFavorites(favProperties.filter(Boolean));
                 } catch (e) {
-                    console.log("Favorites not loaded", e);
+                    // Silent fail for favorites
                 }
 
             } catch (error) {
                 console.error(error);
-                router.push('/'); // Redirect if not logged in
+                router.push('/auth/login'); // Redirect if not logged in
             } finally {
                 setLoading(false);
             }
@@ -84,10 +84,13 @@ export default function ProfilePage() {
         );
     }
 
+    if (!user) return null;
+
+
     // Verification Badge Logic
     const getBadge = () => {
         if (kycStatus === 'approved') return <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Verified</span>;
-        if (kycStatus === 'pending') return <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full flex items-center gap-1"><ClockIcon className="w-3 h-3" /> Pending</span>;
+        if (kycStatus === 'pending') return <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full flex items-center gap-1"><Clock className="w-3 h-3" /> Pending</span>;
         return <Link href="/kyc" className="px-3 py-1 bg-slate-200 text-slate-600 hover:bg-slate-300 text-xs font-bold rounded-full flex items-center gap-1 transition-colors"><AlertCircle className="w-3 h-3" /> Verify Identity</Link>;
     };
 
