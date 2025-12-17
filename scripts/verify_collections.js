@@ -1,21 +1,12 @@
+#!/usr/bin/env node
 /**
- * Quick verification script to check if collections exist
+ * Verify and report on Appwrite collections status
+ * Run: node scripts/verify_collections.js
  */
 
-const { Client, Databases } = require('node-appwrite');
-const fs = require('fs');
-const path = require('path');
-
-// Load env
-const envPath = path.join(__dirname, '..', '.env');
-if (fs.existsSync(envPath)) {
-    fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
-        const [key, ...val] = line.split('=');
-        if (key && val.length && !process.env[key.trim()]) {
-            process.env[key.trim()] = val.join('=').trim();
-        }
-    });
-}
+import { Client, Databases, Storage } from 'node-appwrite';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 
 const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
@@ -23,24 +14,93 @@ const client = new Client()
     .setKey(process.env.APPWRITE_API_KEY);
 
 const databases = new Databases(client);
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelkdb';
+const storage = new Storage(client);
 
-async function verify() {
-    console.log('\\n🔍 Verifying Collections...');
-    console.log(`Database: ${DB_ID}\\n`);
+const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
 
-    const collections = ['messages', 'favorites', 'transactions', 'kyc_requests', 'listings', 'agents'];
+// All required collections
+const REQUIRED_COLLECTIONS = [
+    { id: 'listings', name: 'Property Listings' },
+    { id: 'agents', name: 'Agents' },
+    { id: 'messages', name: 'Messages/Chat' },
+    { id: 'favorites', name: 'User Favorites' },
+    { id: 'kyc_requests', name: 'KYC Requests' },
+    { id: 'training_progress', name: 'Agent Training Progress' },
+    { id: 'certificates', name: 'Agent Certificates' },
+];
 
-    for (const id of collections) {
+// Required buckets
+const REQUIRED_BUCKETS = [
+    { id: 'listings', name: 'Property Images' },
+    { id: 'kyc_documents', name: 'KYC Documents' },
+    { id: 'certificates', name: 'Generated Certificates' },
+    { id: 'agent-ids', name: 'Digital Agent IDs' },
+];
+
+async function main() {
+    console.log('🔍 Appwrite Collection & Bucket Verification\n');
+    console.log('═'.repeat(50));
+    console.log(`Database: ${DB_ID}`);
+    console.log(`Endpoint: ${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}`);
+    console.log('═'.repeat(50));
+
+    if (!DB_ID || !process.env.APPWRITE_API_KEY) {
+        console.error('\n❌ Missing environment variables!');
+        console.error('   Required: NEXT_PUBLIC_APPWRITE_DATABASE_ID, APPWRITE_API_KEY');
+        process.exit(1);
+    }
+
+    let passed = 0, failed = 0;
+
+    // Check Collections
+    console.log('\n📊 COLLECTIONS:\n');
+    for (const col of REQUIRED_COLLECTIONS) {
         try {
-            const col = await databases.getCollection(DB_ID, id);
-            console.log(`✅ ${col.name} (${col.$id}) - ${col.attributes?.length || 0} attributes`);
+            const collection = await databases.getCollection(DB_ID, col.id);
+            const docs = await databases.listDocuments(DB_ID, col.id, []);
+            console.log(`  ✅ ${col.id.padEnd(20)} | ${col.name.padEnd(25)} | ${docs.total} docs`);
+            passed++;
         } catch (e) {
-            console.log(`❌ ${id} - NOT FOUND`);
+            if (e.code === 404) {
+                console.log(`  ❌ ${col.id.padEnd(20)} | ${col.name.padEnd(25)} | NOT FOUND`);
+            } else {
+                console.log(`  ⚠️ ${col.id.padEnd(20)} | ${col.name.padEnd(25)} | ERROR: ${e.message}`);
+            }
+            failed++;
         }
     }
 
-    console.log('\n');
+    // Check Buckets
+    console.log('\n📁 STORAGE BUCKETS:\n');
+    for (const bucket of REQUIRED_BUCKETS) {
+        try {
+            const b = await storage.getBucket(bucket.id);
+            const files = await storage.listFiles(bucket.id, []);
+            console.log(`  ✅ ${bucket.id.padEnd(20)} | ${bucket.name.padEnd(25)} | ${files.total} files`);
+            passed++;
+        } catch (e) {
+            if (e.code === 404) {
+                console.log(`  ❌ ${bucket.id.padEnd(20)} | ${bucket.name.padEnd(25)} | NOT FOUND`);
+            } else {
+                console.log(`  ⚠️ ${bucket.id.padEnd(20)} | ${bucket.name.padEnd(25)} | ERROR: ${e.message}`);
+            }
+            failed++;
+        }
+    }
+
+    // Summary
+    console.log('\n' + '═'.repeat(50));
+    console.log(`\n📋 SUMMARY: ${passed} passed, ${failed} failed`);
+
+    if (failed > 0) {
+        console.log('\n🔧 To fix missing items, run:');
+        console.log('   node scripts/setup_all_collections.js');
+        console.log('   node scripts/setup_storage.js');
+    } else {
+        console.log('\n🎉 All collections and buckets are properly configured!');
+    }
+
+    console.log('');
 }
 
-verify().catch(console.error);
+main().catch(console.error);

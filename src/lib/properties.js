@@ -60,7 +60,15 @@ export async function searchProperties(filters = {}) {
 
     // 2. Property Type (Sale/Rent/Land)
     if (filters.type && filters.type !== 'all') {
-        queries.push(Query.equal('listing_type', filters.type));
+        const type = filters.type.toLowerCase();
+        if (type === 'land') {
+            // Special handling for 'Land' type: Fetch 'sale' query tokens
+            // We use client-side filtering later to avoid SDK limits/errors
+            queries.push(Query.equal('listing_type', 'sale'));
+            queries.push(Query.limit(100)); // Fetch more to enable effective post-filtering
+        } else {
+            queries.push(Query.equal('listing_type', type));
+        }
     }
 
     // 3. Category (House, Apartment, Land)
@@ -102,10 +110,23 @@ export async function searchProperties(filters = {}) {
             COLLECTION_LISTINGS,
             queries
         );
-        return result.documents;
+
+        let documents = result.documents;
+
+        // Post-filter for Land
+        if (filters.type && filters.type.toLowerCase() === 'land') {
+            documents = documents.filter(doc =>
+                (doc.title || '').toLowerCase().includes('land') ||
+                (doc.title || '').toLowerCase().includes('plot') ||
+                (doc.title || '').toLowerCase().includes('acre') ||
+                (doc.title || '').toLowerCase().includes('perch')
+            );
+        }
+
+        return documents;
     } catch (error) {
         console.error("Error searching properties:", error);
-        return [];
+        throw error; // Propagate error to UI
     }
 }
 
@@ -191,6 +212,36 @@ export async function deleteProperty(id) {
 }
 
 /**
+ * Fetch related properties based on type and category.
+ * @param {string} currentId - ID of current property to exclude
+ * @param {string} type - listing_type (sale/rent)
+ * @param {string} category - land_type (house/apartment/land)
+ * @param {number} limit
+ */
+export async function getRelatedProperties(currentId, type, category, limit = 3) {
+    try {
+        const queries = [
+            Query.notEqual('$id', currentId),
+            Query.limit(limit),
+            Query.orderDesc('$createdAt')
+        ];
+
+        if (type) queries.push(Query.equal('listing_type', type));
+        if (category) queries.push(Query.equal('land_type', category));
+
+        const result = await databases.listDocuments(
+            DB_ID,
+            COLLECTION_LISTINGS,
+            queries
+        );
+        return result.documents;
+    } catch (error) {
+        console.error("Error fetching related properties:", error);
+        return [];
+    }
+}
+
+/**
  * Get all available filter options (could be fetched from DB aggregations in future)
  */
 export function getFilterOptions() {
@@ -205,4 +256,3 @@ export function getFilterOptions() {
         ],
     };
 }
-

@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { getPropertyById } from '@/lib/properties';
+import { getPropertyById, getRelatedProperties } from '@/lib/properties';
 import { addFavorite, removeFavorite, isFavorite } from '@/lib/favorites';
 import { ChatWidget } from '@/components/chat/ChatWidget';
 import { ValuationCard } from '@/components/property/ValuationCard';
+import { PropertyCard } from '@/components/property/PropertyCard';
 import EasyPaymentCalculator from '@/components/tools/EasyPaymentCalculator';
 import ROICalculator from '@/components/property/ROICalculator';
 import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2, Train, Globe, Banknote } from 'lucide-react';
@@ -20,6 +21,7 @@ export default function PropertyDetailsPage() {
     const [activeImage, setActiveImage] = useState(0);
     const [isSaved, setIsSaved] = useState(false);
     const [savingFav, setSavingFav] = useState(false);
+    const [relatedProperties, setRelatedProperties] = useState([]);
 
     useEffect(() => {
         async function loadData() {
@@ -30,6 +32,11 @@ export default function PropertyDetailsPage() {
                 // Check if saved
                 const saved = await isFavorite(id);
                 setIsSaved(saved);
+
+                // Fetch related properties
+                const related = await getRelatedProperties(id, data.listing_type, data.land_type);
+                setRelatedProperties(related);
+
             } catch (err) {
                 console.error(err);
                 // Check if it's a 404 or other error
@@ -374,6 +381,19 @@ export default function PropertyDetailsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* 3. Related Properties */}
+            {relatedProperties.length > 0 && (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
+                    <h2 className="text-2xl font-bold text-slate-900 mb-6">Similar Properties</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {relatedProperties.map((p) => (
+                            <PropertyCard key={p.$id} property={p} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Chat Widget */}
             <ChatWidget agentId={property.user_id} agentName={property.contact_name || "Agent"} />
         </div >

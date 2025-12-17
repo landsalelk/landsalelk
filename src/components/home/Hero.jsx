@@ -19,12 +19,12 @@ export function Hero() {
         const activeType = tabs.find(t => t.id === activeTab)?.type || 'sale';
         const params = new URLSearchParams();
         params.set('type', activeType);
-        if (searchQuery) params.set('search', searchQuery);
+        if (searchQuery) params.set('q', searchQuery); // Changed 'search' to 'q' for consistency
         router.push(`/properties?${params.toString()}`);
     };
 
     const handleTrendingClick = (location) => {
-        router.push(`/properties?search=${encodeURIComponent(location)}`);
+        router.push(`/properties?q=${encodeURIComponent(location)}`); // Changed 'search' to 'q'
     };
 
     return (
@@ -85,8 +85,8 @@ export function Hero() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === tab.id
-                                        ? 'bg-slate-900 text-white shadow-md'
-                                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                                    ? 'bg-slate-900 text-white shadow-md'
+                                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                                     }`}
                             >
                                 <tab.icon className="w-4 h-4" />

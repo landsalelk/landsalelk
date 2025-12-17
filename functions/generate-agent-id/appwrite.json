@@ -1,0 +1,12 @@
+{
+    "name": "generate-agent-id",
+    "description": "Generate Digital Agent ID card image with QR code",
+    "runtime": "node-18.0",
+    "entrypoint": "src/main.js",
+    "events": [],
+    "schedule": "",
+    "timeout": 30,
+    "permissions": [
+        "any"
+    ]
+}

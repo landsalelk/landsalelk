@@ -16,16 +16,8 @@ async function main() {
         console.log('Connecting to Appwrite:', process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT);
         console.log('Database ID:', DB_ID);
 
-        const response = await databases.listDocuments(DB_ID, COLLECTION_LISTINGS); // Default limit is 25
-        console.log(`Found ${response.total} documents.`);
-
-        response.documents.forEach(doc => {
-            console.log(`ID: ${doc.$id}`);
-            console.log(`Title:`, doc.title);
-            console.log(`Location:`, doc.location);
-            console.log(`Images:`, doc.images);
-            console.log('---');
-        });
+        const doc = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, '694051020028e51b3036');
+        console.log(JSON.stringify(doc, null, 2));
     } catch (error) {
         console.error('Error fetching documents:', error);
     }

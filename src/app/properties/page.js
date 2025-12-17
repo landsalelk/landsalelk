@@ -12,10 +12,17 @@ function SearchContent() {
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Initial filters from URL
     const [filters, setFilters] = useState({
         search: searchParams.get('search') || searchParams.get('q') || '',
         type: searchParams.get('type') || '',
         category: searchParams.get('category') || '',
+        minPrice: searchParams.get('minPrice') || '',
+        maxPrice: searchParams.get('maxPrice') || '',
+        beds: searchParams.get('beds') || '',
+        deedType: searchParams.get('deedType') || '',
+        nbro: searchParams.get('nbro') === 'true',
+        foreignEligible: searchParams.get('foreignEligible') === 'true',
     });
 
     useEffect(() => {

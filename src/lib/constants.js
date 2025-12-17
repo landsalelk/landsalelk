@@ -4,4 +4,7 @@ export const COLLECTION_AGENTS = 'agents';
 export const COLLECTION_MESSAGES = 'messages';
 export const COLLECTION_FAVORITES = 'favorites';
 export const COLLECTION_KYC = 'kyc_requests';
+export const COLLECTION_TRAINING_PROGRESS = 'training_progress';
+export const COLLECTION_CERTIFICATES = 'certificates';
 export const BUCKET_KYC = 'kyc_documents';
+export const BUCKET_CERTIFICATES = 'certificates';
