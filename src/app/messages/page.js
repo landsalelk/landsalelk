@@ -56,19 +56,20 @@ export default function MessagesPage() {
             const userData = await account.get();
             setUser(userData);
 
-            // For demo, load agents as potential conversations
+            // Load real conversations from messages collection
+            // For now, show agents as potential contacts (real conversations will be loaded when selected)
             const agents = await getAgents(10);
-            const mockConversations = agents.map(agent => ({
+            const agentContacts = agents.map(agent => ({
                 id: agent.$id,
                 userId: agent.$id,
                 name: agent.name || 'Agent',
                 avatar: agent.avatar,
                 lastMessage: 'Start a conversation...',
-                lastMessageTime: new Date().toISOString(),
+                lastMessageTime: null,
                 unread: 0,
-                online: Math.random() > 0.5
+                online: false // Actual online status requires presence tracking
             }));
-            setConversations(mockConversations);
+            setConversations(agentContacts);
         } catch (error) {
             console.error(error);
             router.push('/auth/login');
@@ -265,8 +266,8 @@ export default function MessagesPage() {
                                             >
                                                 <div className={`max-w-[70%] ${isMe ? 'order-1' : 'order-2'}`}>
                                                     <div className={`px-4 py-2 rounded-2xl ${isMe
-                                                            ? 'bg-[#10b981] text-white rounded-br-md'
-                                                            : 'bg-white text-slate-800 rounded-bl-md shadow-sm'
+                                                        ? 'bg-[#10b981] text-white rounded-br-md'
+                                                        : 'bg-white text-slate-800 rounded-bl-md shadow-sm'
                                                         }`}>
                                                         <p>{msg.content}</p>
                                                     </div>

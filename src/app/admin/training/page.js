@@ -53,7 +53,7 @@ export default function AdminTrainingPage() {
                     setCertificates(certsResult.documents);
                 } catch (e) {
                     // Collection might not exist yet
-                    console.log('Certificates collection not set up yet');
+                    // Certificates collection not set up yet - continue gracefully
                 }
 
                 // Calculate stats

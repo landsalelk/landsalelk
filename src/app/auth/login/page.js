@@ -19,9 +19,19 @@ export default function LoginPage() {
 
         try {
             const { account } = await import('@/lib/appwrite');
-            await account.createEmailPasswordSession(email, password);
+            const session = await account.createEmailPasswordSession(email, password);
+            const user = await account.get();
+
             toast.success("ආයුබෝවන්! Welcome back!");
-            router.push('/profile');
+
+            // Check for admin/agent roles or labels
+            if (user.labels && user.labels.includes('admin')) {
+                router.push('/admin');
+            } else if (user.prefs && (user.prefs.role === 'agent' || user.prefs.agent_profile_created)) {
+                router.push('/dashboard');
+            } else {
+                router.push('/dashboard');
+            }
         } catch (error) {
             console.error(error);
             toast.error(error.message || "Login failed. Check your credentials.");

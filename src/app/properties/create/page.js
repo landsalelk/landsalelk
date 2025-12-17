@@ -38,7 +38,9 @@ export default function CreateListingPage() {
         approval_uda: false,
         infrastructure_distance: '',
         is_foreign_eligible: false,
-        has_payment_plan: false
+        has_payment_plan: false,
+        owner_phone: '',
+        agreed_commission: ''
     });
 
     useEffect(() => {
@@ -101,7 +103,7 @@ export default function CreateListingPage() {
                 }
             }
 
-            await createProperty({
+            const newProperty = await createProperty({
                 ...formData,
                 price: parseFloat(formData.price) || 0,
                 beds: parseInt(formData.beds) || 0,
@@ -115,11 +117,17 @@ export default function CreateListingPage() {
                 approval_uda: formData.approval_uda,
                 is_foreign_eligible: formData.is_foreign_eligible,
                 has_payment_plan: formData.has_payment_plan,
-                images: JSON.stringify(imageIds)
+                images: JSON.stringify(imageIds),
+                // Pass owner fields explicitly if not in ...formData (they are)
             });
 
-            toast.success("🎉 දැන්වීම සාර්ථකයි! Property listed!");
-            router.push('/profile');
+            if (newProperty.status === 'pending_owner') {
+                toast.success("Please verify owner consent.");
+                router.push(`/verify/otp?listingId=${newProperty.$id}`);
+            } else {
+                toast.success("🎉 දැන්වීම සාර්ථකයි! Property listed!");
+                router.push('/profile');
+            }
         } catch (error) {
             console.error(error);
             toast.error("Failed to create listing. Please try again.");
@@ -594,6 +602,40 @@ export default function CreateListingPage() {
                                                 onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                                                 placeholder="Email (optional)"
                                                 className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#10b981]"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Owner Details (For Agents) */}
+                                <div className="glass-panel rounded-2xl p-6 mb-8 bg-blue-50/50 border-blue-100">
+                                    <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                        <ShieldCheck className="w-5 h-5 text-blue-600" />
+                                        Owner Verification
+                                    </h3>
+                                    <p className="text-sm text-slate-500 mb-4">
+                                        Enter owner details to initiate the digital consent flow. An SMS will be sent to the owner.
+                                    </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-500 mb-2 uppercase">Owner Phone</label>
+                                            <input
+                                                type="tel"
+                                                value={formData.owner_phone}
+                                                onChange={(e) => setFormData({ ...formData, owner_phone: e.target.value })}
+                                                placeholder="+94 7X XXX XXXX"
+                                                className="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-500 mb-2 uppercase">Commission (%)</label>
+                                            <input
+                                                type="number"
+                                                step="0.1"
+                                                value={formData.agreed_commission}
+                                                onChange={(e) => setFormData({ ...formData, agreed_commission: e.target.value })}
+                                                placeholder="3.0"
+                                                className="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-500"
                                             />
                                         </div>
                                     </div>

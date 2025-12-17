@@ -60,7 +60,7 @@ export default function AgentRegistrationPage() {
                     name: formData.full_name,
                     phone: formData.phone,
                     experience_years: parseInt(formData.experience_years) || 0,
-                    service_areas: formData.service_areas.split(',').map(s => s.trim()),
+                    service_areas: formData.service_areas,
                     license_number: formData.license_number,
                     bio: formData.bio,
                     nic_doc_id: nicUrl,
@@ -102,7 +102,7 @@ export default function AgentRegistrationPage() {
                 <div className="flex items-center justify-center gap-4 mb-8">
                     {[1, 2, 3].map((s) => (
                         <div key={s} className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${step === s ? 'bg-emerald-600 text-white' :
-                                step > s ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-400'
+                            step > s ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-400'
                             }`}>
                             {step > s ? <CheckCircle className="w-5 h-5" /> : s}
                         </div>

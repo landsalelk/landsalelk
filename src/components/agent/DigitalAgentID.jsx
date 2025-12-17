@@ -48,7 +48,7 @@ export function DigitalAgentID({ agent, showDownload = true, compact = false }) 
                     url: verificationUrl,
                 });
             } catch (e) {
-                console.log('Share cancelled');
+                // Share cancelled by user
             }
         } else {
             navigator.clipboard.writeText(verificationUrl);

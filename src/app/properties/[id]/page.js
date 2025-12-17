@@ -11,7 +11,12 @@ import EasyPaymentCalculator from '@/components/tools/EasyPaymentCalculator';
 import ROICalculator from '@/components/property/ROICalculator';
 import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2, Train, Globe, Banknote } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { toast } from 'sonner';
+import { account, databases } from '@/lib/appwrite';
+import { DB_ID, COLLECTION_LISTING_OFFERS } from '@/lib/constants';
+import { ID } from 'appwrite';
+import { X, HandCoins } from 'lucide-react';
 
 export default function PropertyDetailsPage() {
     const { id } = useParams();
@@ -21,7 +26,54 @@ export default function PropertyDetailsPage() {
     const [activeImage, setActiveImage] = useState(0);
     const [isSaved, setIsSaved] = useState(false);
     const [savingFav, setSavingFav] = useState(false);
+
     const [relatedProperties, setRelatedProperties] = useState([]);
+
+    // Offer State
+    const [isOfferOpen, setIsOfferOpen] = useState(false);
+    const [offerAmount, setOfferAmount] = useState('');
+    const [offerMessage, setOfferMessage] = useState('');
+    const [isSubmittingOffer, setIsSubmittingOffer] = useState(false);
+    const [showNumber, setShowNumber] = useState(false);
+
+    // Initial offer amount set to listing price
+    useEffect(() => {
+        if (property?.price) setOfferAmount(property.price);
+    }, [property]);
+
+    const handleMakeOffer = async (e) => {
+        e.preventDefault();
+        setIsSubmittingOffer(true);
+        try {
+            const user = await account.get();
+            await databases.createDocument(
+                DB_ID,
+                COLLECTION_LISTING_OFFERS,
+                ID.unique(),
+                {
+                    user_id: user.$id,
+                    listing_id: id,
+                    offer_amount: parseFloat(offerAmount),
+                    currency_code: 'LKR',
+                    message: offerMessage,
+                    status: 'pending',
+                    created_at: new Date().toISOString()
+                }
+            );
+            toast.success("Offer submitted successfully!");
+            setIsOfferOpen(false);
+            setOfferMessage('');
+        } catch (error) {
+            console.error(error);
+            if (error.code === 401) {
+                toast.error("Please login to make an offer");
+            } else {
+                toast.error("Failed to submit offer");
+            }
+        } finally {
+            setIsSubmittingOffer(false);
+        }
+    };
 
     useEffect(() => {
         async function loadData() {
@@ -165,10 +217,13 @@ export default function PropertyDetailsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[500px] lg:h-[600px]">
                     {/* Main Image */}
                     <div className="lg:col-span-8 h-full relative group">
-                        <img
-                            src={images[activeImage]}
+                        <Image
+                            src={images[activeImage] || '/placeholder.jpg'}
                             alt={parseSafe(property.title, "Property Image")}
-                            className="w-full h-full object-cover rounded-2xl shadow-sm"
+                            fill
+                            className="object-cover rounded-2xl shadow-sm"
+                            priority
+                            unoptimized
                         />
 
                         <div className="absolute top-4 left-4 flex flex-wrap gap-2">
@@ -206,7 +261,13 @@ export default function PropertyDetailsPage() {
                                 onClick={() => setActiveImage(idx)}
                                 className={`relative h-full overflow-hidden rounded-2xl cursor-pointer border-2 transition-all ${activeImage === idx ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-transparent'}`}
                             >
-                                <img src={img} alt={`View ${idx}`} className="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
+                                <Image
+                                    src={img || '/placeholder.jpg'}
+                                    alt={`View ${idx}`}
+                                    fill
+                                    className="object-cover hover:scale-110 transition-transform duration-500"
+                                    unoptimized
+                                />
                             </div>
                         ))}
                     </div>
@@ -366,8 +427,19 @@ export default function PropertyDetailsPage() {
                                 <button className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
                                     <MessageCircle className="w-5 h-5" /> Chat via WhatsApp
                                 </button>
-                                <button className="w-full py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
-                                    <Phone className="w-5 h-5" /> Show Number
+                                <button
+                                    onClick={() => setShowNumber(true)}
+                                    className="w-full py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <Phone className="w-5 h-5" />
+                                    {showNumber ? (property.contact_phone || property.phone || '+94 77 XXX XXXX') : 'Show Number'}
+                                </button>
+
+                                <button
+                                    onClick={() => setIsOfferOpen(true)}
+                                    className="w-full py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
+                                >
+                                    <HandCoins className="w-5 h-5" /> Make an Offer
                                 </button>
                             </div>
 
@@ -396,6 +468,69 @@ export default function PropertyDetailsPage() {
 
             {/* Chat Widget */}
             <ChatWidget agentId={property.user_id} agentName={property.contact_name || "Agent"} />
+
+            {/* Make Offer Modal */}
+            {isOfferOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-3xl w-full max-w-md p-6 relative shadow-2xl animate-scale-up">
+                        <button
+                            onClick={() => setIsOfferOpen(false)}
+                            className="absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-full transition-colors"
+                        >
+                            <X className="w-5 h-5 text-slate-500" />
+                        </button>
+
+                        <div className="text-center mb-6">
+                            <div className="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <HandCoins className="w-8 h-8" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-slate-900">Make an Offer</h3>
+                            <p className="text-slate-500">Send your best offer to the seller</p>
+                        </div>
+
+                        <form onSubmit={handleMakeOffer} className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Offer Amount (LKR)</label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rs.</span>
+                                    <input
+                                        type="number"
+                                        required
+                                        value={offerAmount}
+                                        onChange={(e) => setOfferAmount(e.target.value)}
+                                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl font-bold text-lg outline-none focus:border-amber-500 focus:bg-white"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Message (Optional)</label>
+                                <textarea
+                                    value={offerMessage}
+                                    onChange={(e) => setOfferMessage(e.target.value)}
+                                    placeholder="I am interested in this property..."
+                                    className="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-amber-500 focus:bg-white outline-none resize-none h-24"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isSubmittingOffer}
+                                className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {isSubmittingOffer ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Sending Offer...
+                                    </>
+                                ) : (
+                                    'Submit Offer'
+                                )}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div >
     );
 }

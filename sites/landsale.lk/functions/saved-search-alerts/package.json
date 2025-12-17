@@ -1,0 +1,13 @@
+{
+    "name": "saved-search-alerts",
+    "version": "1.0.0",
+    "description": "Sends daily email notifications for saved search matches",
+    "main": "src/main.js",
+    "type": "module",
+    "scripts": {
+        "start": "node src/main.js"
+    },
+    "dependencies": {
+        "node-appwrite": "^12.0.0"
+    }
+}

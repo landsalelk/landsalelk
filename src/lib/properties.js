@@ -1,6 +1,6 @@
-import { databases, account } from "./appwrite";
+import { databases, account, storage } from "./appwrite";
 import { Query, ID } from "appwrite";
-import { DB_ID, COLLECTION_LISTINGS, COLLECTION_AGENTS } from "./constants";
+import { DB_ID, COLLECTION_LISTINGS, COLLECTION_AGENTS, BUCKET_LISTING_IMAGES } from "./constants";
 
 /**
  * Fetch a single property by its ID.
@@ -198,11 +198,27 @@ export async function updateProperty(id, data) {
 }
 
 /**
- * Delete a property listing.
+ * Delete a property listing and its associated images.
  * @param {string} id - Property document ID
  */
 export async function deleteProperty(id) {
     try {
+        // 1. Fetch the listing to get image IDs
+        const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, id);
+
+        // 2. Delete associated images from storage
+        if (listing.images && Array.isArray(listing.images)) {
+            const deletePromises = listing.images.map(async (imageId) => {
+                try {
+                    await storage.deleteFile(BUCKET_LISTING_IMAGES, imageId);
+                } catch (err) {
+                    console.warn(`Failed to delete image ${imageId}:`, err.message);
+                }
+            });
+            await Promise.all(deletePromises);
+        }
+
+        // 3. Delete the listing document
         await databases.deleteDocument(DB_ID, COLLECTION_LISTINGS, id);
         return true;
     } catch (error) {

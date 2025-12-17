@@ -1,0 +1,505 @@
+'use server'
+
+import { getCurrentUser, createSessionClient } from "@/lib/appwrite/server"
+import { DATABASE_ID, COLLECTIONS, BUCKETS } from "@/lib/appwrite/config"
+import { propertyFormSchema, PropertyFormValues } from "@/lib/schemas"
+import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
+import { ID, Query } from "node-appwrite"
+
+export type ActionState = {
+    error?: string
+    success?: boolean
+}
+
+export async function deleteProperty(propertyId: string): Promise<ActionState> {
+    const user = await getCurrentUser()
+    if (!user) return { error: "Unauthorized" }
+
+    try {
+        const { databases, storage } = await createSessionClient()
+
+        // First verify the property belongs to the user
+        const property = await databases.getDocument(DATABASE_ID, COLLECTIONS.LISTINGS, propertyId)
+
+        if (property.user_id !== user.$id) {
+            return { error: "You don't have permission to delete this property" }
+        }
+
+        // Clean up associated images from storage
+        if (property.images && Array.isArray(property.images)) {
+            for (const imageUrl of property.images) {
+                try {
+                    // Extract file ID from Appwrite URL
+                    const fileIdMatch = imageUrl.match(/files\/([a-zA-Z0-9]+)\//)
+                    if (fileIdMatch && fileIdMatch[1]) {
+                        await storage.deleteFile(BUCKETS.LISTING_IMAGES, fileIdMatch[1])
+                        console.log(`Deleted image file: ${fileIdMatch[1]}`)
+                    }
+                } catch (imageError) {
+                    console.warn(`Failed to delete image: ${imageUrl}`, imageError)
+                    // Continue with deletion even if image cleanup fails
+                }
+            }
+        }
+
+        // Delete the property document
+        await databases.deleteDocument(DATABASE_ID, COLLECTIONS.LISTINGS, propertyId)
+
+        revalidatePath('/dashboard/my-ads')
+        return { success: true }
+    } catch (error: any) {
+        console.error("Delete error:", error)
+        return { error: "Failed to delete property" }
+    }
+}
+
+export async function createProperty(data: PropertyFormValues, teamId?: string): Promise<ActionState> {
+    const user = await getCurrentUser()
+    if (!user) {
+        return { error: "Please log in to post your property listing." }
+    }
+
+    // Validate Data
+    const validatedFields = propertyFormSchema.safeParse(data)
+    if (!validatedFields.success) {
+        const fieldErrors = (validatedFields as any).error.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ')
+        return { error: `Please check your form: ${fieldErrors}` }
+    }
+
+    try {
+        const { databases } = await createSessionClient()
+
+        // Get user's IP address for security
+        const headers = new Headers()
+        const forwarded = headers.get('x-forwarded-for')
+        const ip = forwarded ? forwarded.split(',')[0] : 'unknown'
+
+        // Create slug from title
+        const slug = data.title.toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
+            .substring(0, 200)
+
+        // Build document data - don't include undefined fields
+        const documentData: Record<string, any> = {
+            user_id: user.$id,
+            category_id: 'default_category',
+            title: JSON.stringify({ en: data.title }),
+            description: JSON.stringify({ en: data.description }),
+            slug: slug,
+            listing_type: 'sale',
+            status: 'pending',
+            price: Math.round(data.price * 100),
+            currency_code: 'LKR',
+            price_negotiable: data.priceNegotiable || false,
+            location: JSON.stringify({
+                country: 'LK',
+                country_name: 'Sri Lanka',
+                region: data.district,
+                city: data.city,
+                area: data.district,
+                address: data.address || '',
+                lat: 0,
+                lng: 0,
+            }),
+            contact: JSON.stringify({
+                name: data.contactName,
+                email: user.email,
+                phone: data.contactPhone,
+                whatsapp: data.whatsapp || data.contactPhone,
+                show_email: true,
+                show_phone: true,
+            }),
+            attributes: JSON.stringify({
+                bedrooms: data.bedrooms || 0,
+                bathrooms: data.bathrooms || 0,
+                size: data.size,
+                deed_type: data.deedType,
+                access_road_width: data.accessRoadWidth,
+                has_survey_plan: data.hasSurveyPlan,
+                has_clean_deeds: data.hasCleanDeeds,
+                hazards: data.hazards,
+                boundaries_marked: data.boundariesMarked,
+                seller_type: data.sellerType,
+            }),
+            features: data.features || [],
+            images: data.images || [],
+            is_premium: false,
+            views_count: 0,
+            expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            ip_address: ip,
+            auction_enabled: false,
+            bid_count: 0,
+        }
+
+        // Only add team_id if provided (avoid sending undefined to Appwrite)
+        if (teamId) {
+            documentData.team_id = teamId
+        }
+
+        const property = await databases.createDocument(
+            DATABASE_ID,
+            COLLECTIONS.LISTINGS,
+            ID.unique(),
+            documentData
+        )
+
+        // Trigger lead dispatch to agents
+        try {
+            const { dispatchLeadToAgents } = await import('@/lib/actions/agents')
+            await dispatchLeadToAgents({
+                propertyId: property.$id,
+                propertyTitle: data.title,
+                city: data.city,
+                district: data.district,
+                price: data.price,
+                sellerPhone: data.contactPhone
+            })
+        } catch (dispatchError) {
+            console.error('Failed to dispatch lead to agents:', dispatchError)
+            // Continue with property creation even if lead dispatch fails
+        }
+
+        revalidatePath('/dashboard/my-ads')
+        redirect('/dashboard/my-ads')
+    } catch (error: any) {
+        console.error("Database Error:", {
+            message: error?.message,
+            code: error?.code,
+            type: error?.type,
+            response: error?.response
+        })
+
+        // Provide more specific error messages based on error type
+        if (error?.message?.includes('No session found')) {
+            return { error: "Your session has expired. Please log in again." }
+        }
+        if (error?.code === 401) {
+            return { error: "Authentication failed. Please log in again." }
+        }
+        if (error?.code === 403) {
+            return { error: "You don't have permission to create listings. Please contact support." }
+        }
+        if (error?.code === 400) {
+            return { error: `Invalid data: ${error?.message || 'Please check your form fields.'}` }
+        }
+
+        return { error: "We couldn't save your listing due to a technical issue. Please try again or contact support if the problem persists." }
+    }
+}
+
+export async function getPropertyForEdit(propertyId: string) {
+    const user = await getCurrentUser()
+    if (!user) return null
+
+    try {
+        const { databases } = await createSessionClient()
+        const property = await databases.getDocument(DATABASE_ID, COLLECTIONS.LISTINGS, propertyId)
+
+        if (property.user_id !== user.$id) {
+            return null
+        }
+
+        // Transform new schema back to old format for compatibility
+        // Safely parse JSON fields with fallback to plain text
+        let title = ''
+        let description = ''
+        let location: { region: string; city: string; address?: string } = { region: '', city: '' }
+        let contact: { name?: string; phone?: string; whatsapp?: string } = {}
+        let attributes: {
+            size?: string;
+            bedrooms?: number;
+            bathrooms?: number;
+            deed_type?: string;
+            access_road_width?: number;
+            has_survey_plan?: boolean;
+            has_clean_deeds?: boolean;
+            hazards?: string[];
+            boundaries_marked?: boolean;
+            seller_type?: string;
+        } = {}
+
+        // Handle title field
+        if (property.title) {
+            try {
+                const parsedTitle = JSON.parse(property.title)
+                title = parsedTitle.en || parsedTitle.toString() || property.title
+            } catch {
+                title = property.title
+            }
+        }
+
+        // Handle description field
+        if (property.description) {
+            try {
+                const parsedDescription = JSON.parse(property.description)
+                description = parsedDescription.en || parsedDescription.toString() || property.description
+            } catch {
+                description = property.description
+            }
+        }
+
+        // Handle location field
+        if (property.location) {
+            try {
+                const parsedLocation = JSON.parse(property.location)
+                location = {
+                    region: parsedLocation.region || '',
+                    city: parsedLocation.city || '',
+                    address: parsedLocation.address || ''
+                }
+            } catch {
+                location = { region: property.location, city: property.location, address: property.location }
+            }
+        } else {
+            location = { region: '', city: '', address: '' }
+        }
+
+        // Handle contact field
+        if (property.contact) {
+            try {
+                contact = JSON.parse(property.contact)
+            } catch {
+                contact = { name: property.contact, phone: property.contact, whatsapp: property.contact }
+            }
+        }
+
+        // Handle attributes field
+        if (property.attributes) {
+            try {
+                const parsedAttributes = JSON.parse(property.attributes)
+                attributes = {
+                    size: parsedAttributes.size || '',
+                    bedrooms: parsedAttributes.bedrooms || 0,
+                    bathrooms: parsedAttributes.bathrooms || 0,
+                    deed_type: parsedAttributes.deed_type,
+                    access_road_width: parsedAttributes.access_road_width,
+                    has_survey_plan: parsedAttributes.has_survey_plan,
+                    has_clean_deeds: parsedAttributes.has_clean_deeds,
+                    hazards: parsedAttributes.hazards,
+                    boundaries_marked: parsedAttributes.boundaries_marked,
+                    seller_type: parsedAttributes.seller_type,
+                }
+            } catch {
+                attributes = { size: property.attributes, bedrooms: 0, bathrooms: 0 }
+            }
+        } else {
+            attributes = { size: '', bedrooms: 0, bathrooms: 0 }
+        }
+
+        return {
+            ...property,
+            title,
+            description,
+            type: property.listing_type === 'sale' ? 'land' : property.listing_type,
+            district: location.region || '',
+            city: location.city || '',
+            address: location.address || '',
+            price: property.price ? property.price / 100 : 0, // Convert from cents
+            size: attributes.size || '',
+            bedrooms: attributes.bedrooms || 0,
+
+            bathrooms: attributes.bathrooms || 0,
+            deedType: attributes.deed_type || 'other',
+            accessRoadWidth: attributes.access_road_width || 0,
+            hasSurveyPlan: attributes.has_survey_plan || false,
+            hasCleanDeeds: attributes.has_clean_deeds || false,
+            hazards: attributes.hazards || [],
+            boundariesMarked: attributes.boundaries_marked || false,
+            sellerType: attributes.seller_type || 'owner',
+            contactName: contact.name || '',
+            contactPhone: contact.phone || '',
+            whatsapp: contact.whatsapp || '',
+            features: property.features || [],
+            images: property.images || [],
+            priceNegotiable: property.price_negotiable || false,
+            status: property.status || 'active',
+            user_id: property.user_id,
+        }
+    } catch (error) {
+        console.error("Error fetching property for edit:", error)
+        return null
+    }
+}
+
+export async function updateProperty(propertyId: string, data: PropertyFormValues): Promise<ActionState> {
+    const user = await getCurrentUser()
+    if (!user) {
+        return { error: "Please log in to edit your property listing." }
+    }
+
+    // Validate Data
+    const validatedFields = propertyFormSchema.safeParse(data)
+    if (!validatedFields.success) {
+        const fieldErrors = (validatedFields as any).error.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ')
+        return { error: `Please check your form: ${fieldErrors}` }
+    }
+
+    try {
+        const { databases } = await createSessionClient()
+
+        // Verify ownership
+        const property = await databases.getDocument(DATABASE_ID, COLLECTIONS.LISTINGS, propertyId)
+        if (property.user_id !== user.$id) {
+            return { error: "You don't have permission to edit this property." }
+        }
+
+        // Create slug from title
+        const slug = data.title.toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
+            .substring(0, 200)
+
+        await databases.updateDocument(
+            DATABASE_ID,
+            COLLECTIONS.LISTINGS,
+            propertyId,
+            {
+                title: JSON.stringify({ en: data.title }),
+                description: JSON.stringify({ en: data.description }),
+                slug: slug,
+                price: Math.round(data.price * 100), // Convert to cents
+                price_negotiable: data.priceNegotiable || false,
+                location: JSON.stringify({
+                    country: 'LK',
+                    country_name: 'Sri Lanka',
+                    region: data.district,
+                    city: data.city,
+                    area: data.district,
+                    address: data.address || '',
+                    lat: 0,
+                    lng: 0,
+                }),
+                contact: JSON.stringify({
+                    name: data.contactName,
+                    email: user.email,
+                    phone: data.contactPhone,
+                    whatsapp: data.whatsapp || data.contactPhone,
+                    show_email: true,
+                    show_phone: true,
+                }),
+                attributes: JSON.stringify({
+                    bedrooms: data.bedrooms || 0,
+                    bathrooms: data.bathrooms || 0,
+                    size: data.size,
+                    deed_type: data.deedType,
+                    access_road_width: data.accessRoadWidth,
+                    has_survey_plan: data.hasSurveyPlan,
+                    has_clean_deeds: data.hasCleanDeeds,
+                    hazards: data.hazards,
+                    boundaries_marked: data.boundariesMarked,
+                    seller_type: data.sellerType,
+                }),
+                features: data.features || [],
+                images: data.images || [],
+            }
+        )
+
+        revalidatePath('/dashboard/my-ads')
+        redirect('/dashboard/my-ads')
+    } catch (error: any) {
+        console.error("Database Error:", error)
+        return { error: "We couldn't update your listing due to a technical issue. Please try again or contact support if the problem persists." }
+    }
+}
+
+export async function getSimilarProperties(propertyId: string, type: string, district: string) {
+    try {
+        const { databases } = await createSessionClient()
+
+        const response = await databases.listDocuments(
+            DATABASE_ID,
+            COLLECTIONS.LISTINGS,
+            [
+                Query.equal('listing_type', type === 'land' ? 'sale' : type), // Map old type to new listing_type
+                Query.notEqual('$id', propertyId),
+                Query.equal('status', 'active'),
+                Query.limit(3)
+            ]
+        )
+
+        // Transform new schema back to old format for compatibility
+        return response.documents.map(property => {
+            // Safely parse JSON fields with fallback to plain text
+            let title = ''
+            let location: { region: string; city: string } = { region: '', city: '' }
+            let attributes: { size?: string; bedrooms?: number; bathrooms?: number } = {}
+
+            // Handle title field
+            if (property.title) {
+                try {
+                    const parsedTitle = JSON.parse(property.title)
+                    title = parsedTitle.en || parsedTitle.toString() || property.title
+                } catch {
+                    title = property.title
+                }
+            }
+
+            // Handle location field
+            if (property.location) {
+                try {
+                    const parsedLocation = JSON.parse(property.location)
+                    location = {
+                        region: parsedLocation.region || '',
+                        city: parsedLocation.city || ''
+                    }
+                } catch {
+                    location = { region: property.location, city: property.location }
+                }
+            } else {
+                location = { region: '', city: '' }
+            }
+
+            // Handle attributes field
+            if (property.attributes) {
+                try {
+                    const parsedAttributes = JSON.parse(property.attributes)
+                    attributes = {
+                        size: parsedAttributes.size || '',
+                        bedrooms: parsedAttributes.bedrooms || 0,
+                        bathrooms: parsedAttributes.bathrooms || 0
+                    }
+                } catch {
+                    attributes = { size: property.attributes, bedrooms: 0, bathrooms: 0 }
+                }
+            } else {
+                attributes = { size: '', bedrooms: 0, bathrooms: 0 }
+            }
+
+            return {
+                ...property,
+                title,
+                type: property.listing_type === 'sale' ? 'land' : property.listing_type, // Map back to old type
+                district: location.region || '',
+                city: location.city || '',
+                price: property.price ? property.price / 100 : 0, // Convert from cents
+                size: attributes.size || '',
+                bedrooms: attributes.bedrooms || 0,
+                bathrooms: attributes.bathrooms || 0,
+            }
+        })
+    } catch (error) {
+        console.error("Error fetching similar properties:", error)
+        return []
+    }
+}
+
+export async function incrementPropertyViews(propertyId: string) {
+    try {
+        const { databases } = await createSessionClient()
+
+        const property = await databases.getDocument(DATABASE_ID, COLLECTIONS.LISTINGS, propertyId)
+        const currentViews = property.views_count || 0
+
+        await databases.updateDocument(
+            DATABASE_ID,
+            COLLECTIONS.LISTINGS,
+            propertyId,
+            { views_count: currentViews + 1 }
+        )
+    } catch (error) {
+        // Silent fail for view tracking
+        console.error("Error incrementing views:", error)
+    }
+}

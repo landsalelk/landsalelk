@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Menu, X, User, Search, MapPin, PlusCircle, Heart, Home } from 'lucide-react';
+import NotificationBell from '@/components/ui/NotificationBell';
 
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -77,6 +78,7 @@ export function Navbar() {
                             <div className="hidden md:flex items-center gap-3">
                                 {user ? (
                                     <>
+                                        <NotificationBell />
                                         <Link
                                             href="/dashboard"
                                             className="p-2 rounded-xl bg-slate-100 hover:bg-[#d1fae5] text-slate-600 hover:text-[#10b981] transition-colors"
@@ -98,6 +100,15 @@ export function Navbar() {
                                         >
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                            </svg>
+                                        </Link>
+                                        <Link
+                                            href="/vault"
+                                            className="p-2 rounded-xl bg-slate-100 hover:bg-[#d1fae5] text-slate-600 hover:text-[#10b981] transition-colors"
+                                            title="Legal Vault"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
                                         </Link>
                                         <Link
@@ -160,54 +171,56 @@ export function Navbar() {
                             </div>
                         </div>
                     </div>
-                </div>
-            </nav>
+                </div >
+            </nav >
 
             {/* Mobile Menu */}
-            {isOpen && (
-                <div className="fixed top-20 left-4 right-4 z-40 glass-panel rounded-2xl shadow-xl overflow-hidden md:hidden animate-slide-up">
-                    <div className="p-4 space-y-2">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.name}
-                                href={link.href}
-                                className="block px-4 py-3 rounded-xl text-base font-bold text-slate-700 hover:text-[#10b981] hover:bg-[#ecfdf5] transition-colors"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                {link.name}
-                            </Link>
-                        ))}
-                        <div className="pt-4 mt-4 border-t border-slate-100 flex flex-col gap-3">
-                            {user ? (
+            {
+                isOpen && (
+                    <div className="fixed top-20 left-4 right-4 z-40 glass-panel rounded-2xl shadow-xl overflow-hidden md:hidden animate-slide-up">
+                        <div className="p-4 space-y-2">
+                            {navLinks.map((link) => (
                                 <Link
-                                    href="/profile"
-                                    className="w-full text-center py-3 bg-[#10b981] text-white rounded-xl font-bold"
+                                    key={link.name}
+                                    href={link.href}
+                                    className="block px-4 py-3 rounded-xl text-base font-bold text-slate-700 hover:text-[#10b981] hover:bg-[#ecfdf5] transition-colors"
                                     onClick={() => setIsOpen(false)}
                                 >
-                                    My Profile
+                                    {link.name}
                                 </Link>
-                            ) : (
-                                <>
+                            ))}
+                            <div className="pt-4 mt-4 border-t border-slate-100 flex flex-col gap-3">
+                                {user ? (
                                     <Link
-                                        href="/auth/login"
-                                        className="w-full text-center py-3 bg-slate-100 text-slate-700 rounded-xl font-bold"
-                                        onClick={() => setIsOpen(false)}
-                                    >
-                                        Sign In
-                                    </Link>
-                                    <Link
-                                        href="/auth/register"
+                                        href="/profile"
                                         className="w-full text-center py-3 bg-[#10b981] text-white rounded-xl font-bold"
                                         onClick={() => setIsOpen(false)}
                                     >
-                                        Create Account
+                                        My Profile
                                     </Link>
-                                </>
-                            )}
+                                ) : (
+                                    <>
+                                        <Link
+                                            href="/auth/login"
+                                            className="w-full text-center py-3 bg-slate-100 text-slate-700 rounded-xl font-bold"
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            Sign In
+                                        </Link>
+                                        <Link
+                                            href="/auth/register"
+                                            className="w-full text-center py-3 bg-[#10b981] text-white rounded-xl font-bold"
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            Create Account
+                                        </Link>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Mobile Bottom Nav */}
             <div className="md:hidden mobile-bottom-nav">

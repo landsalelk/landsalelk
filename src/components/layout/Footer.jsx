@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { MapPin, Heart, Send, ShieldCheck, Phone, Mail, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
 
@@ -23,13 +25,20 @@ export default function Footer() {
 
                         {/* Social Icons */}
                         <div className="flex gap-3">
-                            {[Facebook, Twitter, Instagram, Youtube].map((Icon, idx) => (
+                            {[
+                                { Icon: Facebook, url: 'https://facebook.com/landsalelk' },
+                                { Icon: Twitter, url: 'https://twitter.com/landsalelk' },
+                                { Icon: Instagram, url: 'https://instagram.com/landsalelk' },
+                                { Icon: Youtube, url: 'https://youtube.com/@landsalelk' }
+                            ].map((social, idx) => (
                                 <a
                                     key={idx}
-                                    href="#"
+                                    href={social.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-primary-500 hover:text-white text-slate-500 flex items-center justify-center transition-colors"
                                 >
-                                    <Icon className="w-4 h-4" />
+                                    <social.Icon className="w-4 h-4" />
                                 </a>
                             ))}
                         </div>
@@ -73,16 +82,27 @@ export default function Footer() {
                         <p className="text-slate-500 text-sm mb-4 font-medium">
                             Get the latest listings and market insights.
                         </p>
-                        <div className="flex gap-2">
+                        <form className="flex gap-2" onSubmit={(e) => {
+                            e.preventDefault();
+                            const email = e.target.email.value;
+                            if (email) {
+                                import('sonner').then(({ toast }) => {
+                                    toast.success("Subscribed! You'll get updates.");
+                                });
+                                e.target.reset();
+                            }
+                        }}>
                             <input
                                 type="email"
+                                name="email"
+                                required
                                 placeholder="Enter your email..."
                                 className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary-400 focus:bg-white transition-all font-medium"
                             />
-                            <button className="bg-primary-500 hover:bg-primary-600 text-white font-bold p-3 rounded-xl shadow-lg transition-all">
+                            <button type="submit" className="bg-primary-500 hover:bg-primary-600 text-white font-bold p-3 rounded-xl shadow-lg transition-all">
                                 <Send className="w-5 h-5" />
                             </button>
-                        </div>
+                        </form>
 
                         {/* Contact */}
                         <div className="mt-6 space-y-2 text-sm">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { User, Phone, MapPin, ShieldCheck, Star, Search } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AgentsPage() {
     const [agents, setAgents] = useState([]);
@@ -84,7 +85,13 @@ export default function AgentsPage() {
                                         <div className="agent-avatar">
                                             <div className="agent-avatar-inner">
                                                 {agent.photo ? (
-                                                    <img src={agent.photo} alt={agent.name} className="w-full h-full object-cover" />
+                                                    <Image
+                                                        src={agent.photo}
+                                                        alt={agent.name}
+                                                        fill
+                                                        className="object-cover"
+                                                        unoptimized
+                                                    />
                                                 ) : (
                                                     <svg viewBox="0 0 100 100" fill="none" className="w-16 h-16">
                                                         <circle cx="50" cy="50" r="45" fill="#E0F2FE" />

@@ -40,7 +40,7 @@ export default function PayHereModal({
 
             // 2. Prepare PayHere Payment Object
             const payment = {
-                sandbox: true, // TODO: Make this dynamic based on env
+                sandbox: process.env.NODE_ENV !== 'production', // Sandbox in development, live in production
                 merchant_id: merchantId,
                 return_url: window.location.origin + '/dashboard', // Fallback
                 cancel_url: window.location.origin + '/dashboard',
@@ -65,19 +65,19 @@ export default function PayHereModal({
 
                 // Bind callbacks
                 window.payhere.onCompleted = function (orderId) {
-                    console.log("Payment completed. OrderID:" + orderId);
+                    // Payment completed successfully
                     toast.success("Payment Successful!");
                     setLoading(false);
                     if (onCompleted) onCompleted(orderId);
                 };
 
                 window.payhere.onDismissed = function () {
-                    console.log("Payment dismissed");
+                    // Payment dismissed by user
                     setLoading(false);
                 };
 
                 window.payhere.onError = function (error) {
-                    console.log("Error:" + error);
+                    // Payment error occurred
                     toast.error("Payment Error: " + error);
                     setLoading(false);
                 };

@@ -8,60 +8,90 @@ const client = new Client()
 
 const storage = new Storage(client);
 
-const BUCKET_NAME = 'KYC Documents';
-const BUCKET_ID = 'kyc_documents';
+// All required buckets
+const BUCKETS = [
+    {
+        id: 'kyc_documents',
+        name: 'KYC Documents',
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+        maxSize: 10 * 1024 * 1024, // 10MB
+    },
+    {
+        id: 'certificates',
+        name: 'Agent Certificates',
+        allowedExtensions: ['pdf', 'png'],
+        maxSize: 5 * 1024 * 1024, // 5MB
+    },
+    {
+        id: 'agent-ids',
+        name: 'Digital Agent IDs',
+        allowedExtensions: ['png', 'jpg', 'jpeg'],
+        maxSize: 5 * 1024 * 1024, // 5MB
+    },
+    // ========== LEGAL VAULT BUCKETS ==========
+    {
+        id: 'legal_vault',
+        name: 'Legal Vault (Originals)',
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        maxSize: 20 * 1024 * 1024, // 20MB
+    },
+    {
+        id: 'watermarked_docs',
+        name: 'Watermarked Documents',
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        maxSize: 20 * 1024 * 1024, // 20MB
+    },
+];
 
-async function setupStorage() {
-    console.log('🚧 Checking Storage Buckets...');
-
+async function createBucket(bucket) {
     try {
-        // Try to get the bucket
-        await storage.getBucket(BUCKET_ID);
-        console.log(`✅ Bucket '${BUCKET_NAME}' already exists.`);
-    } catch (error) {
-        if (error.code === 404) {
-            console.log(`⚠️ Bucket '${BUCKET_NAME}' not found. Creating...`);
-            try {
-                await storage.createBucket(
-                    BUCKET_ID,
-                    BUCKET_NAME,
-                    Permission.read(Role.any()), // Temporarily public for dev, should be locked down later or presigned
-                    [], // File limits
-                    true, // Enabled
-                    true, // Encryption
-                    true, // Antivirus
-                    ['jpg', 'png', 'pdf'], // Allowed extensions
-                    5 * 1024 * 1024 // 5MB limit
-                );
-
-                // Update permissions: Only owner can write/read, Admins can read
-                await storage.updateBucket(
-                    BUCKET_ID,
-                    BUCKET_NAME,
-                    [
-                        Permission.create(Role.users()), // Authenticated users can upload
-                        Permission.read(Role.users()),   // Users can read (ideally only their own, handled by file-level perms)
-                        Permission.read(Role.team('admins')),
-                        Permission.update(Role.team('admins')),
-                        Permission.delete(Role.team('admins')),
-                    ],
-                    false, // File Security (if true, file perms take precedence)
-                    true, // Enabled
-                    5 * 1024 * 1024,
-                    ['jpg', 'png', 'pdf'],
-                    true, // Compression
-                    true, // Encryption
-                    true // Antivirus
-                );
-
-                console.log(`✅ Bucket '${BUCKET_NAME}' created successfully.`);
-            } catch (createError) {
-                console.error(`❌ Failed to create bucket:`, createError.message);
-            }
-        } else {
-            console.error(`❌ Error checking bucket:`, error.message);
+        // Check if exists
+        try {
+            await storage.getBucket(bucket.id);
+            console.log(`✅ Bucket '${bucket.name}' already exists.`);
+            return true;
+        } catch (e) {
+            if (e.code !== 404) throw e;
         }
+
+        // Create bucket with simple permissions
+        await storage.createBucket(
+            bucket.id,
+            bucket.name,
+            [
+                Permission.create(Role.users()),
+                Permission.read(Role.any()),
+                Permission.update(Role.users()),
+                Permission.delete(Role.users()),
+            ],
+            false, // fileSecurity
+            true,  // enabled
+            bucket.maxSize,
+            bucket.allowedExtensions,
+            undefined, // compression
+            true,  // encryption
+            true   // antivirus
+        );
+        console.log(`✅ Created bucket '${bucket.name}'`);
+        return true;
+    } catch (error) {
+        console.error(`❌ Failed to create '${bucket.name}':`, error.message);
+        return false;
     }
 }
 
-setupStorage();
+async function main() {
+    console.log('🗄️  Setting up Storage Buckets...\n');
+
+    let success = 0, failed = 0;
+    for (const bucket of BUCKETS) {
+        const result = await createBucket(bucket);
+        if (result) success++;
+        else failed++;
+    }
+
+    console.log(`\n📋 Storage Setup: ${success} succeeded, ${failed} failed`);
+}
+
+main().catch(console.error);
+

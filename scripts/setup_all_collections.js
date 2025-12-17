@@ -123,6 +123,122 @@ const collections = [
             { key: 'by_user', type: 'key', attributes: ['user_id'] },
             { key: 'by_status', type: 'key', attributes: ['status'] }
         ]
+    },
+    {
+        id: 'training_progress',
+        name: 'Training Progress',
+        permissions: [
+            Permission.create(Role.users()),
+            Permission.read(Role.users()),
+            Permission.update(Role.users()),
+        ],
+        attributes: [
+            { type: 'string', key: 'user_id', size: 100, required: true },
+            { type: 'string', key: 'module_id', size: 100, required: true },
+            { type: 'boolean', key: 'completed', default: false, required: false },
+            { type: 'float', key: 'score', required: false },
+            { type: 'datetime', key: 'completed_at', required: false },
+        ],
+        indexes: [
+            { key: 'by_user', type: 'key', attributes: ['user_id'] }
+        ]
+    },
+    {
+        id: 'certificates',
+        name: 'Certificates',
+        permissions: [
+            Permission.create(Role.users()),
+            Permission.read(Role.users()),
+            Permission.read(Role.any()),
+        ],
+        attributes: [
+            { type: 'string', key: 'user_id', size: 100, required: true },
+            { type: 'string', key: 'agent_id', size: 100, required: false },
+            { type: 'string', key: 'certificate_type', size: 50, required: true },
+            { type: 'string', key: 'file_id', size: 100, required: false },
+            { type: 'datetime', key: 'issued_at', required: true },
+            { type: 'string', key: 'verification_code', size: 100, required: false },
+        ],
+        indexes: [
+            { key: 'by_user', type: 'key', attributes: ['user_id'] }
+        ]
+    },
+    // ========== LEGAL VAULT COLLECTIONS ==========
+    {
+        id: 'legal_documents',
+        name: 'Legal Documents',
+        permissions: [
+            Permission.create(Role.users()),
+            Permission.read(Role.users()),
+            Permission.update(Role.users()),
+            Permission.delete(Role.users()),
+        ],
+        attributes: [
+            { type: 'string', key: 'user_id', size: 100, required: true },
+            { type: 'string', key: 'listing_id', size: 100, required: false },
+            { type: 'string', key: 'category', size: 50, required: true }, // title, survey, authority, construction, special
+            { type: 'string', key: 'document_type', size: 100, required: true }, // deed, extract, plan, etc.
+            { type: 'string', key: 'file_id', size: 100, required: true },
+            { type: 'string', key: 'watermarked_file_id', size: 100, required: false },
+            { type: 'string', key: 'original_filename', size: 255, required: false },
+            { type: 'boolean', key: 'is_verified', default: false, required: false },
+            { type: 'boolean', key: 'consent_given', default: false, required: false },
+            { type: 'datetime', key: 'uploaded_at', required: true },
+        ],
+        indexes: [
+            { key: 'by_user', type: 'key', attributes: ['user_id'] },
+            { key: 'by_listing', type: 'key', attributes: ['listing_id'] }
+        ]
+    },
+    {
+        id: 'document_purchases',
+        name: 'Document Purchases',
+        permissions: [
+            Permission.create(Role.users()),
+            Permission.read(Role.users()),
+            Permission.read(Role.team('admins')),
+        ],
+        attributes: [
+            { type: 'string', key: 'buyer_id', size: 100, required: true },
+            { type: 'string', key: 'listing_id', size: 100, required: true },
+            { type: 'string', key: 'seller_id', size: 100, required: true },
+            { type: 'float', key: 'amount', required: true },
+            { type: 'float', key: 'agent_share', required: true },
+            { type: 'float', key: 'platform_share', required: true },
+            { type: 'string', key: 'payment_id', size: 100, required: false },
+            { type: 'datetime', key: 'purchased_at', required: true },
+            { type: 'datetime', key: 'expires_at', required: true },
+            { type: 'float', key: 'download_count', required: false },
+        ],
+        indexes: [
+            { key: 'by_buyer', type: 'key', attributes: ['buyer_id'] },
+            { key: 'by_listing', type: 'key', attributes: ['listing_id'] }
+        ]
+    },
+    {
+        id: 'agent_subscriptions',
+        name: 'Agent Subscriptions',
+        permissions: [
+            Permission.create(Role.users()),
+            Permission.read(Role.users()),
+            Permission.update(Role.users()),
+            Permission.read(Role.team('admins')),
+            Permission.update(Role.team('admins')),
+        ],
+        attributes: [
+            { type: 'string', key: 'agent_id', size: 100, required: true },
+            { type: 'string', key: 'package', size: 50, required: true }, // silver, gold, platinum
+            { type: 'float', key: 'price', required: true },
+            { type: 'string', key: 'payment_id', size: 100, required: false },
+            { type: 'string', key: 'status', size: 50, required: true }, // active, expired, cancelled
+            { type: 'datetime', key: 'started_at', required: true },
+            { type: 'datetime', key: 'expires_at', required: true },
+            { type: 'boolean', key: 'auto_renew', default: true, required: false },
+        ],
+        indexes: [
+            { key: 'by_agent', type: 'key', attributes: ['agent_id'] },
+            { key: 'by_status', type: 'key', attributes: ['status'] }
+        ]
     }
 ];
 

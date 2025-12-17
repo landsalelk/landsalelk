@@ -13,8 +13,11 @@ import {
     LayoutDashboard, Home, Heart, MessageCircle, Settings, Plus,
     TrendingUp, Eye, Users, DollarSign, ShieldCheck, Clock,
     AlertCircle, ChevronRight, Bell, Search, LogOut, Loader2,
-    BarChart3, ArrowUpRight, ArrowDownRight, Sparkles
+    BarChart3, ArrowUpRight, ArrowDownRight, Sparkles, Wallet, HandCoins
 } from 'lucide-react';
+import { databases } from '@/lib/appwrite';
+import { DB_ID, COLLECTION_LISTING_OFFERS } from '@/lib/constants';
+import { Query } from 'appwrite';
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -22,16 +25,18 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [listings, setListings] = useState([]);
     const [favorites, setFavorites] = useState([]);
+    const [offersReceived, setOffersReceived] = useState([]);
+    const [offersSent, setOffersSent] = useState([]);
     const [kycStatus, setKycStatus] = useState(null);
     const [activeSection, setActiveSection] = useState('overview');
     const [mounted, setMounted] = useState(false);
 
-    // Mock stats (would come from Appwrite analytics in production)
+    // Stats based on actual data
     const stats = {
-        totalViews: 1234,
-        viewsChange: 12.5,
-        totalInquiries: 45,
-        inquiriesChange: -8.2,
+        totalViews: 0, // TODO: Implement analytics collection to track real views
+        viewsChange: 0,
+        totalInquiries: 0, // TODO: Implement inquiries collection
+        inquiriesChange: 0,
         totalListings: listings.length,
         savedHomes: favorites.length
     };
@@ -60,6 +65,32 @@ export default function DashboardPage() {
             } catch (e) {
                 // Silent fail
             }
+
+            // Fetch Offers
+            try {
+                // 1. Offers Sent by me
+                const sentOffersRes = await databases.listDocuments(
+                    DB_ID,
+                    COLLECTION_LISTING_OFFERS,
+                    [Query.equal('user_id', userData.$id), Query.orderDesc('created_at')]
+                );
+                setOffersSent(sentOffersRes.documents);
+
+                // 2. Offers Received (for my listings)
+                if (userListings.length > 0) {
+                    const listingIds = userListings.map(l => l.$id);
+                    // Appwrite limitation: Query.equal('listing_id', array) works? 
+                    // If array is too big, might fail. For now assume it works for < 100 listings.
+                    const receivedOffersRes = await databases.listDocuments(
+                        DB_ID,
+                        COLLECTION_LISTING_OFFERS,
+                        [Query.equal('listing_id', listingIds), Query.orderDesc('created_at')]
+                    );
+                    setOffersReceived(receivedOffersRes.documents);
+                }
+            } catch (e) {
+                console.error("Error fetching offers:", e);
+            }
         } catch (error) {
             console.error(error);
             router.push('/auth/login');
@@ -78,6 +109,34 @@ export default function DashboardPage() {
         }
     };
 
+    const handleAcceptOffer = async (offerId) => {
+        try {
+            await databases.updateDocument(DB_ID, COLLECTION_LISTING_OFFERS, offerId, {
+                status: 'accepted'
+            });
+            setOffersReceived(prev => prev.map(o =>
+                o.$id === offerId ? { ...o, status: 'accepted' } : o
+            ));
+            toast.success('Offer accepted!');
+        } catch (e) {
+            toast.error('Failed to accept offer');
+        }
+    };
+
+    const handleRejectOffer = async (offerId) => {
+        try {
+            await databases.updateDocument(DB_ID, COLLECTION_LISTING_OFFERS, offerId, {
+                status: 'rejected'
+            });
+            setOffersReceived(prev => prev.map(o =>
+                o.$id === offerId ? { ...o, status: 'rejected' } : o
+            ));
+            toast.success('Offer rejected');
+        } catch (e) {
+            toast.error('Failed to reject offer');
+        }
+    };
+
     if (!mounted) return null;
 
     if (loading) {
@@ -91,6 +150,8 @@ export default function DashboardPage() {
     const navItems = [
         { id: 'overview', label: 'Overview', icon: LayoutDashboard },
         { id: 'listings', label: 'My Listings', icon: Home },
+        { id: 'offers', label: 'Offers', icon: HandCoins },
+        { id: 'wallet', label: 'My Wallet', icon: Wallet, link: '/dashboard/wallet' },
         { id: 'favorites', label: 'Saved Homes', icon: Heart },
         { id: 'messages', label: 'Messages', icon: MessageCircle, link: '/messages' },
         { id: 'settings', label: 'Settings', icon: Settings },
@@ -355,6 +416,124 @@ export default function DashboardPage() {
                             </div>
                         )}
 
+                        {/* Offers Section */}
+                        {activeSection === 'offers' && (
+                            <div className="space-y-8 animate-fade-in">
+                                <h1 className="text-2xl font-bold text-slate-800">Offer Management</h1>
+
+                                {/* Offers Received */}
+                                <div className="glass-card rounded-2xl p-6">
+                                    <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                        <ArrowDownRight className="w-5 h-5 text-emerald-500" />
+                                        Offers Received
+                                    </h2>
+                                    {offersReceived.length > 0 ? (
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left">
+                                                <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-bold">
+                                                    <tr>
+                                                        <th className="px-4 py-3">Property</th>
+                                                        <th className="px-4 py-3">Amount</th>
+                                                        <th className="px-4 py-3">Message</th>
+                                                        <th className="px-4 py-3">Status</th>
+                                                        <th className="px-4 py-3">Date</th>
+                                                        <th className="px-4 py-3">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-100 text-sm">
+                                                    {offersReceived.map(offer => (
+                                                        <tr key={offer.$id} className="hover:bg-slate-50">
+                                                            <td className="px-4 py-3 font-medium text-slate-900">
+                                                                <Link href={`/properties/${offer.listing_id}`} className="hover:underline text-emerald-600">
+                                                                    View Property
+                                                                </Link>
+                                                            </td>
+                                                            <td className="px-4 py-3 font-bold">LKR {offer.offer_amount.toLocaleString()}</td>
+                                                            <td className="px-4 py-3 text-slate-500 truncate max-w-xs">{offer.message || '-'}</td>
+                                                            <td className="px-4 py-3">
+                                                                <span className={`px-2 py-1 rounded text-xs font-bold capitalize ${offer.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                                                    offer.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
+                                                                        'bg-red-100 text-red-700'
+                                                                    }`}>
+                                                                    {offer.status}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-4 py-3 text-slate-400">{new Date(offer.created_at).toLocaleDateString()}</td>
+                                                            <td className="px-4 py-3">
+                                                                {offer.status === 'pending' && (
+                                                                    <div className="flex gap-2">
+                                                                        <button
+                                                                            onClick={() => handleAcceptOffer(offer.$id)}
+                                                                            className="px-3 py-1 bg-emerald-500 text-white rounded text-xs font-bold hover:bg-emerald-600"
+                                                                        >
+                                                                            Accept
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleRejectOffer(offer.$id)}
+                                                                            className="px-3 py-1 bg-red-50 text-red-600 border border-red-200 rounded text-xs font-bold hover:bg-red-100"
+                                                                        >
+                                                                            Reject
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p className="text-slate-500 text-center py-8">No offers received yet.</p>
+                                    )}
+                                </div>
+
+                                {/* Offers Sent */}
+                                <div className="glass-card rounded-2xl p-6">
+                                    <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                        <ArrowUpRight className="w-5 h-5 text-blue-500" />
+                                        Offers Sent
+                                    </h2>
+                                    {offersSent.length > 0 ? (
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left">
+                                                <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-bold">
+                                                    <tr>
+                                                        <th className="px-4 py-3">Property</th>
+                                                        <th className="px-4 py-3">My Offer</th>
+                                                        <th className="px-4 py-3">Status</th>
+                                                        <th className="px-4 py-3">Date</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-100 text-sm">
+                                                    {offersSent.map(offer => (
+                                                        <tr key={offer.$id} className="hover:bg-slate-50">
+                                                            <td className="px-4 py-3 font-medium text-slate-900">
+                                                                <Link href={`/properties/${offer.listing_id}`} className="hover:underline text-blue-600">
+                                                                    View Property
+                                                                </Link>
+                                                            </td>
+                                                            <td className="px-4 py-3 font-bold">LKR {offer.offer_amount.toLocaleString()}</td>
+                                                            <td className="px-4 py-3">
+                                                                <span className={`px-2 py-1 rounded text-xs font-bold capitalize ${offer.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                                                    offer.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
+                                                                        'bg-red-100 text-red-700'
+                                                                    }`}>
+                                                                    {offer.status}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-4 py-3 text-slate-400">{new Date(offer.created_at).toLocaleDateString()}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p className="text-slate-500 text-center py-8">You haven't made any offers yet.</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Favorites Section */}
                         {activeSection === 'favorites' && (
                             <div className="space-y-6 animate-fade-in">
@@ -389,11 +568,23 @@ export default function DashboardPage() {
 
                                 <div className="glass-card rounded-2xl p-6">
                                     <h3 className="font-bold text-slate-700 mb-4">Account Information</h3>
-                                    <form className="space-y-4 max-w-md">
+                                    <form className="space-y-4 max-w-md" onSubmit={async (e) => {
+                                        e.preventDefault();
+                                        const formData = new FormData(e.target);
+                                        const newName = formData.get('name');
+                                        try {
+                                            await account.updateName(newName);
+                                            setUser(prev => ({ ...prev, name: newName }));
+                                            toast.success("Profile updated!");
+                                        } catch (err) {
+                                            toast.error("Failed to update profile");
+                                        }
+                                    }}>
                                         <div>
                                             <label className="block text-sm font-medium text-slate-600 mb-1">Full Name</label>
                                             <input
                                                 type="text"
+                                                name="name"
                                                 defaultValue={user?.name}
                                                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#10b981]"
                                             />
@@ -411,12 +602,13 @@ export default function DashboardPage() {
                                             <label className="block text-sm font-medium text-slate-600 mb-1">Phone</label>
                                             <input
                                                 type="tel"
+                                                name="phone"
                                                 placeholder="+94 77 123 4567"
                                                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#10b981]"
                                             />
                                         </div>
                                         <button
-                                            type="button"
+                                            type="submit"
                                             className="px-6 py-3 bg-[#10b981] text-white rounded-xl font-bold hover:bg-[#059669] transition-colors"
                                         >
                                             Save Changes

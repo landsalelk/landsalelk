@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { Hero } from "@/components/home/Hero";
 import { PropertyCard } from "@/components/property/PropertyCard";
 import { getFeaturedProperties } from "@/lib/properties";
+import { databases } from "@/lib/appwrite";
+import { DB_ID, COLLECTION_LISTINGS } from "@/lib/constants";
+import { Query } from "appwrite";
 import { ArrowRight, Sparkles, ShieldCheck, Brain, Scale, PlusCircle, Home, Building, Trees, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -11,79 +14,46 @@ export default function HomePage() {
   const [featuredProperties, setFeaturedProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
-
-  // Fallback properties for demo
-  const fallbackProperties = [
-    {
-      $id: 'demo-1',
-      title: "10 Perch Residential Land",
-      location: "Malabe, Colombo",
-      price: 55000000,
-      listing_type: "Land",
-      badge: "Featured",
-      images: JSON.stringify(["https://images.unsplash.com/photo-1629079447841-d60235609ef9?q=80&w=2070"])
-    },
-    {
-      $id: 'demo-2',
-      title: "Luxury Modern House",
-      location: "Nawala, Rajagiriya",
-      price: 45000000,
-      listing_type: "Sale",
-      beds: 4,
-      baths: 3,
-      size_sqft: 2500,
-      badge: "New",
-      images: JSON.stringify(["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2070"])
-    },
-    {
-      $id: 'demo-3',
-      title: "Coconut Land Plot",
-      location: "Kurunegala",
-      price: 22500000,
-      listing_type: "Land",
-      size_sqft: 4000,
-      images: JSON.stringify(["https://images.unsplash.com/photo-1550149727-2c9b4e7a331d?q=80&w=2070"])
-    },
-    {
-      $id: 'demo-4',
-      title: "Skyline Apartment",
-      location: "Havelock City, Colombo",
-      price: 65000000,
-      listing_type: "Sale",
-      beds: 3,
-      baths: 2,
-      size_sqft: 1800,
-      badge: "Hot Deal",
-      images: JSON.stringify(["https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070"])
-    },
-  ];
+  const [categoryCounts, setCategoryCounts] = useState({ lands: 0, houses: 0, apartments: 0 });
 
   useEffect(() => {
     setMounted(true);
     loadFeaturedProperties();
+    loadCategoryCounts();
   }, []);
 
   const loadFeaturedProperties = async () => {
     try {
       const properties = await getFeaturedProperties(8);
-      if (properties.length > 0) {
-        setFeaturedProperties(properties);
-      } else {
-        // Use fallback if no real properties
-        setFeaturedProperties(fallbackProperties);
-      }
+      setFeaturedProperties(properties);
     } catch (error) {
-      console.error('Error loading properties:', error);
-      setFeaturedProperties(fallbackProperties);
+      setFeaturedProperties([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const loadCategoryCounts = async () => {
+    try {
+      const [landsRes, housesRes, apartmentsRes] = await Promise.all([
+        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'land'), Query.limit(1)]),
+        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'house'), Query.limit(1)]),
+        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'apartment'), Query.limit(1)])
+      ]);
+      setCategoryCounts({
+        lands: landsRes.total,
+        houses: housesRes.total,
+        apartments: apartmentsRes.total
+      });
+    } catch (e) {
+      // Silent fail - keep default 0
+    }
+  };
+
   const categories = [
-    { name: 'Lands', icon: Trees, href: '/properties?type=land', count: '5,000+', color: 'bg-green-50 text-green-600' },
-    { name: 'Houses', icon: Home, href: '/properties?type=sale', count: '8,000+', color: 'bg-blue-50 text-blue-600' },
-    { name: 'Apartments', icon: Building, href: '/properties?type=apartment', count: '2,000+', color: 'bg-purple-50 text-purple-600' },
+    { name: 'Lands', icon: Trees, href: '/properties?type=land', count: categoryCounts.lands, color: 'bg-green-50 text-green-600' },
+    { name: 'Houses', icon: Home, href: '/properties?type=sale', count: categoryCounts.houses, color: 'bg-blue-50 text-blue-600' },
+    { name: 'Apartments', icon: Building, href: '/properties?type=apartment', count: categoryCounts.apartments, color: 'bg-purple-50 text-purple-600' },
   ];
 
   const valueProps = [
@@ -256,9 +226,24 @@ export default function HomePage() {
           <p className="text-slate-500 mb-8">
             Subscribe to receive notifications about new listings and price drops
           </p>
-          <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+          <form
+            className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const email = e.target.email.value;
+              if (email) {
+                // TODO: Integrate with email marketing service or create subscribers collection
+                import('sonner').then(({ toast }) => {
+                  toast.success("Thanks! You'll receive property alerts soon.");
+                });
+                e.target.reset();
+              }
+            }}
+          >
             <input
               type="email"
+              name="email"
+              required
               placeholder="Enter your email"
               className="flex-1 px-6 py-4 bg-white rounded-2xl border border-slate-200 outline-none focus:border-[#10b981] font-medium"
             />

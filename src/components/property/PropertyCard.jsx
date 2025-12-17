@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MapPin, Heart, BedDouble, Bath, Square, Move } from 'lucide-react';
 
 export function PropertyCard({ property }) {
@@ -106,19 +108,23 @@ export function PropertyCard({ property }) {
 
     const propertyId = $id || property?.$id || 'demo';
     const isLand = type?.toLowerCase() === 'land';
+    const [imgError, setImgError] = useState(false);
+    const fallbackImage = "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
+    const displayImage = imgError ? fallbackImage : image;
 
     return (
         <Link href={`/properties/${propertyId}`} className="block group">
             <div className="glass-card rounded-[2rem] overflow-hidden cursor-pointer flex flex-col h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 animate-fade-in">
                 {/* Image */}
                 <div className="relative aspect-[4/3] overflow-hidden m-2 rounded-[1.5rem]">
-                    <img
-                        src={image}
-                        alt={displayTitle}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-                        onError={(e) => {
-                            e.target.src = "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
-                        }}
+                    <Image
+                        src={displayImage || fallbackImage}
+                        alt={displayTitle || 'Property'}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-110 transition-transform duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                        onError={() => setImgError(true)}
+                        unoptimized
                     />
 
                     {/* Gradient Overlay */}

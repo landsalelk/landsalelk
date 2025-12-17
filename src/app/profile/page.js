@@ -271,16 +271,27 @@ export default function ProfilePage() {
                         {activeTab === 'settings' && (
                             <div className="bg-white rounded-3xl p-8 border border-slate-200">
                                 <h3 className="font-bold text-slate-900 mb-6">Account Settings</h3>
-                                <form className="space-y-4 max-w-md">
+                                <form className="space-y-4 max-w-md" onSubmit={async (e) => {
+                                    e.preventDefault();
+                                    const formData = new FormData(e.target);
+                                    const newName = formData.get('name');
+                                    try {
+                                        await account.updateName(newName);
+                                        setUser(prev => ({ ...prev, name: newName }));
+                                        toast.success("Name updated successfully!");
+                                    } catch (err) {
+                                        toast.error("Failed to update name");
+                                    }
+                                }}>
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-                                        <input type="text" defaultValue={user.name} className="w-full px-4 py-2 border border-slate-200 rounded-xl" />
+                                        <input type="text" name="name" defaultValue={user.name} className="w-full px-4 py-2 border border-slate-200 rounded-xl" />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
                                         <input type="email" defaultValue={user.email} disabled className="w-full px-4 py-2 border border-slate-200 rounded-xl bg-slate-50 text-slate-500" />
                                     </div>
-                                    <button type="button" className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold">Save Changes</button>
+                                    <button type="submit" className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-colors">Save Changes</button>
                                 </form>
                             </div>
                         )}

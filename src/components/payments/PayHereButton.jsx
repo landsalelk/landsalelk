@@ -91,12 +91,12 @@ export function PayHereButton({ amount, orderId, items, customer, onSuccess, onD
                 };
 
                 window.payhere.onError = function onError(error) {
-                    console.log("PayHere Error:" + error);
+                    // Payment error occurred
                     toast.error("Payment failed: " + error);
                     setLoading(false);
                 };
 
-                console.log("Starting PayHere payment with:", payment);
+                // Starting PayHere payment
                 window.payhere.startPayment(payment);
             } else {
                 throw new Error("PayHere SDK not loaded");
@@ -114,7 +114,7 @@ export function PayHereButton({ amount, orderId, items, customer, onSuccess, onD
                 src="https://www.payhere.lk/lib/payhere.js"
                 strategy="lazyOnload"
                 onLoad={() => {
-                    console.log("PayHere SDK loaded");
+                    // PayHere SDK loaded successfully
                     setSdkLoaded(true);
                 }}
                 onError={() => {

@@ -1,0 +1,252 @@
+{
+  "connection": {
+    "status": "success"
+  },
+  "authentication": {
+    "users.read": "available",
+    "users.write": "available",
+    "account": "missing",
+    "databases.read": "available",
+    "databases.write": "available"
+  },
+  "database": {
+    "exists": true,
+    "name": "landsalelk databse",
+    "collections": [
+      {
+        "id": "listings",
+        "name": "Listings",
+        "attributes": 25,
+        "indexes": 4,
+        "permissions": [
+          "read(\"any\")",
+          "create(\"users\")",
+          "update(\"users\")",
+          "delete(\"users\")"
+        ]
+      },
+      {
+        "id": "categories",
+        "name": "Categories",
+        "attributes": 8,
+        "indexes": 2,
+        "permissions": []
+      },
+      {
+        "id": "users_extended",
+        "name": "Users Extended",
+        "attributes": 22,
+        "indexes": 1,
+        "permissions": []
+      },
+      {
+        "id": "countries",
+        "name": "Countries",
+        "attributes": 10,
+        "indexes": 1,
+        "permissions": []
+      },
+      {
+        "id": "regions",
+        "name": "Regions",
+        "attributes": 6,
+        "indexes": 1,
+        "permissions": []
+      },
+      {
+        "id": "cities",
+        "name": "Cities",
+        "attributes": 9,
+        "indexes": 2,
+        "permissions": []
+      },
+      {
+        "id": "areas",
+        "name": "Areas",
+        "attributes": 8,
+        "indexes": 1,
+        "permissions": []
+      },
+      {
+        "id": "favorites",
+        "name": "Favorites",
+        "attributes": 3,
+        "indexes": 2,
+        "permissions": []
+      },
+      {
+        "id": "reviews",
+        "name": "Reviews",
+        "attributes": 6,
+        "indexes": 2,
+        "permissions": []
+      },
+      {
+        "id": "saved_searches",
+        "name": "Saved Searches",
+        "attributes": 5,
+        "indexes": 1,
+        "permissions": []
+      },
+      {
+        "id": "cms_pages",
+        "name": "CMS Pages",
+        "attributes": 7,
+        "indexes": 1,
+        "permissions": []
+      },
+      {
+        "id": "settings",
+        "name": "Settings",
+        "attributes": 4,
+        "indexes": 1,
+        "permissions": []
+      },
+      {
+        "id": "transactions",
+        "name": "Transactions",
+        "attributes": 7,
+        "indexes": 1,
+        "permissions": []
+      },
+      {
+        "id": "user_wallets",
+        "name": "User Wallets",
+        "attributes": 5,
+        "indexes": 1,
+        "permissions": []
+      },
+      {
+        "id": "listing_offers",
+        "name": "Listing Offers",
+        "attributes": 7,
+        "indexes": 2,
+        "permissions": []
+      },
+      {
+        "id": "seo_meta",
+        "name": "SEO Meta",
+        "attributes": 9,
+        "indexes": 1,
+        "permissions": []
+      },
+      {
+        "id": "blog_posts",
+        "name": "Blog Posts",
+        "attributes": 9,
+        "indexes": 2,
+        "permissions": []
+      },
+      {
+        "id": "faqs",
+        "name": "FAQs",
+        "attributes": 5,
+        "indexes": 1,
+        "permissions": []
+      },
+      {
+        "id": "agents",
+        "name": "Agents",
+        "attributes": 9,
+        "indexes": 1,
+        "permissions": [
+          "read(\"any\")",
+          "create(\"users\")",
+          "update(\"users\")",
+          "delete(\"users\")"
+        ]
+      },
+      {
+        "id": "digital_purchases",
+        "name": "Digital Purchases",
+        "attributes": 8,
+        "indexes": 4,
+        "permissions": [
+          "read(\"users\")",
+          "create(\"users\")",
+          "update(\"users\")",
+          "delete(\"users\")"
+        ]
+      }
+    ]
+  },
+  "storage": {
+    "buckets": [
+      {
+        "id": "listing_images",
+        "name": "Listing Images",
+        "fileSecurity": true,
+        "maximumFileSize": 10485760,
+        "allowedFileExtensions": [
+          "jpg",
+          "jpeg",
+          "png",
+          "webp",
+          "gif"
+        ],
+        "permissions": [
+          "read(\"any\")",
+          "create(\"users\")",
+          "update(\"users\")",
+          "delete(\"users\")"
+        ]
+      }
+    ]
+  },
+  "functions": {
+    "count": 0
+  },
+  "issues": [
+    {
+      "category": "authentication",
+      "severity": "high",
+      "scope": "account",
+      "message": "API key missing account scope"
+    },
+    {
+      "category": "storage",
+      "severity": "medium",
+      "message": "Required bucket \"user_avatars\" not found"
+    },
+    {
+      "category": "storage",
+      "severity": "medium",
+      "message": "Required bucket \"listing_documents\" not found"
+    },
+    {
+      "category": "storage",
+      "severity": "medium",
+      "message": "Required bucket \"blog_images\" not found"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "critical",
+      "category": "authentication",
+      "title": "Fix API Key Scopes",
+      "description": "Your API key is missing the \"account\" scope which is required for user authentication. Create a new API key with all required scopes.",
+      "action": "Create new API key with scopes: users.read, users.write, account, databases.read, databases.write"
+    },
+    {
+      "priority": "medium",
+      "category": "storage",
+      "title": "Create Missing Storage Buckets",
+      "description": "3 required storage buckets are missing.",
+      "action": "Create storage buckets for listing images, user avatars, documents, and blog images"
+    },
+    {
+      "priority": "medium",
+      "category": "security",
+      "title": "Review Security Settings",
+      "description": "Ensure all collections and buckets have appropriate permissions.",
+      "action": "Review and update permissions for all collections and buckets"
+    },
+    {
+      "priority": "low",
+      "category": "monitoring",
+      "title": "Set Up Monitoring",
+      "description": "Implement monitoring and alerting for your Appwrite services.",
+      "action": "Set up monitoring dashboards and alerts for database, storage, and functions"
+    }
+  ]
+}

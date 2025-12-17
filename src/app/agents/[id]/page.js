@@ -5,13 +5,15 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { databases } from '@/lib/appwrite';
 import { DB_ID, COLLECTION_AGENTS, COLLECTION_LISTINGS } from '@/lib/constants';
-import { Query } from 'appwrite';
+import { ID } from 'appwrite';
+import { toast } from 'sonner';
+import { account } from '@/lib/appwrite';
 import { DigitalAgentID, AgentQRBadge } from '@/components/agent/DigitalAgentID';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import {
     Loader2, MapPin, Phone, Mail, Calendar, Star, Shield,
     CheckCircle, Award, Building2, MessageSquare, ExternalLink,
-    Clock, Trophy, BadgeCheck, TrendingUp, Users
+    Clock, Trophy, BadgeCheck, TrendingUp, Users, PenTool, X
 } from 'lucide-react';
 
 export default function AgentProfilePage() {
@@ -20,6 +22,45 @@ export default function AgentProfilePage() {
     const [agent, setAgent] = useState(null);
     const [listings, setListings] = useState([]);
     const [error, setError] = useState(null);
+
+    // Review State
+    const [isReviewOpen, setIsReviewOpen] = useState(false);
+    const [reviewRating, setReviewRating] = useState(5);
+    const [reviewComment, setReviewComment] = useState('');
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+    const handleSubmitReview = async (e) => {
+        e.preventDefault();
+        setIsSubmittingReview(true);
+        try {
+            const user = await account.get();
+            await databases.createDocument(
+                DB_ID,
+                'reviews',
+                ID.unique(),
+                {
+                    agent_id: id,
+                    user_id: user.$id,
+                    rating: reviewRating,
+                    comment: reviewComment,
+                    is_approved: false
+                }
+            );
+            toast.success('Review submitted for moderation!');
+            setIsReviewOpen(false);
+            setReviewComment('');
+        } catch (error) {
+            console.error(error);
+            if (error.code === 401) {
+                toast.error('Please login to write a review');
+                // optional: router.push('/auth/login');
+            } else {
+                toast.error('Failed to submit review');
+            }
+        } finally {
+            setIsSubmittingReview(false);
+        }
+    };
 
     useEffect(() => {
         async function loadAgent() {
@@ -44,7 +85,7 @@ export default function AgentProfilePage() {
                     );
                     setListings(listingsResult.documents);
                 } catch (e) {
-                    console.log('Could not fetch listings:', e);
+                    // Could not fetch listings - continue gracefully
                 }
             } catch (e) {
                 console.error(e);
@@ -181,6 +222,14 @@ export default function AgentProfilePage() {
                                         Email
                                     </a>
                                 )}
+
+                                <button
+                                    onClick={() => setIsReviewOpen(true)}
+                                    className="px-6 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-colors flex items-center gap-2"
+                                >
+                                    <PenTool className="w-5 h-5" />
+                                    Write Review
+                                </button>
                             </div>
                         </div>
 
@@ -322,6 +371,72 @@ export default function AgentProfilePage() {
                     </div>
                 </div>
             </div>
+
+            {/* Review Modal */}
+            {isReviewOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-2xl w-full max-w-md p-6 relative shadow-2xl animate-scale-up">
+                        <button
+                            onClick={() => setIsReviewOpen(false)}
+                            className="absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-full transition-colors"
+                        >
+                            <X className="w-5 h-5 text-slate-500" />
+                        </button>
+
+                        <h3 className="text-xl font-bold text-slate-900 mb-6">Rate this Agent</h3>
+
+                        <form onSubmit={handleSubmitReview} className="space-y-6">
+                            <div className="flex justify-center gap-2">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        onClick={() => setReviewRating(star)}
+                                        className="transition-transform hover:scale-110 focus:outline-none"
+                                    >
+                                        <Star
+                                            className={`w-10 h-10 ${star <= reviewRating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="text-center font-medium text-amber-500">
+                                {reviewRating === 1 && "Poor"}
+                                {reviewRating === 2 && "Fair"}
+                                {reviewRating === 3 && "Good"}
+                                {reviewRating === 4 && "Very Good"}
+                                {reviewRating === 5 && "Excellent!"}
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Your Experience</label>
+                                <textarea
+                                    required
+                                    value={reviewComment}
+                                    onChange={(e) => setReviewComment(e.target.value)}
+                                    placeholder="Share your experience working with this agent..."
+                                    className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-emerald-500 focus:bg-white transition-all outline-none resize-none h-32"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isSubmittingReview}
+                                className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {isSubmittingReview ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Submitting...
+                                    </>
+                                ) : (
+                                    'Submit Review'
+                                )}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

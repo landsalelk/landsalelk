@@ -4,6 +4,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Toaster } from 'sonner';
 import AIChatWindow from '@/components/chat/AIChatWindow';
+import CookieConsent from '@/components/ui/CookieConsent';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -20,6 +21,7 @@ const inter = Inter({
 export const metadata = {
   title: "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
   description: "Find your dream home, land, or commercial property in Sri Lanka. Connect with verified agents and access AI-driven market insights.",
+  metadataBase: new URL('https://landsale.lk'),
   openGraph: {
     title: "LandSale.lk | Real Estate Sri Lanka",
     description: "Buy, Sell, Rent Lands & Houses in Sri Lanka.",
@@ -27,7 +29,7 @@ export const metadata = {
     siteName: 'LandSale.lk',
     images: [
       {
-        url: 'https://landsale.lk/og-image.jpg', // Placeholder
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
       },
@@ -39,7 +41,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${outfit.variable} ${inter.variable}`}>
+    <html lang="en" className={`${outfit.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
         {/* Google Fonts for Sinhala */}
         <link
@@ -59,8 +61,10 @@ export default function RootLayout({ children }) {
         </main>
         <Footer />
         <AIChatWindow />
+        <CookieConsent />
         <Toaster position="top-center" richColors />
       </body>
     </html>
   );
 }
+

@@ -1,0 +1,47 @@
+
+=== COUNTRIES ===
+name: type=string, required=true, default=none
+native_name: type=string, required=false, default=none
+iso_code: type=string, required=true, default=none
+iso3_code: type=string, required=false, default=none
+phone_code: type=integer, required=false, default=none
+capital: type=string, required=false, default=none
+currency: type=string, required=false, default=none
+currency_symbol: type=string, required=false, default=none
+is_active: type=boolean, required=true, default=none
+sort_order: type=integer, required=false, default=none
+code: type=string, required=true, default=none
+slug: type=string, required=true, default=none
+
+=== REGIONS ===
+name: type=string, required=true, default=none
+country_id: type=string, required=true, default=none
+native_name: type=string, required=false, default=none
+code: type=string, required=false, default=none
+is_active: type=boolean, required=true, default=none
+sort_order: type=integer, required=false, default=none
+country_code: type=string, required=true, default=none
+slug: type=string, required=true, default=none
+
+=== CITIES ===
+name: type=string, required=true, default=none
+country_id: type=string, required=true, default=none
+region_id: type=string, required=false, default=none
+native_name: type=string, required=false, default=none
+code: type=string, required=false, default=none
+latitude: type=double, required=false, default=none
+longitude: type=double, required=false, default=none
+is_active: type=boolean, required=true, default=none
+sort_order: type=integer, required=false, default=none
+slug: type=string, required=true, default=none
+
+=== AREAS ===
+name: type=string, required=true, default=none
+city_id: type=string, required=true, default=none
+native_name: type=string, required=false, default=none
+postal_code: type=string, required=false, default=none
+latitude: type=double, required=false, default=none
+longitude: type=double, required=false, default=none
+is_active: type=boolean, required=true, default=none
+sort_order: type=integer, required=false, default=none
+slug: type=string, required=true, default=none

@@ -6,17 +6,23 @@
 
 import { Client, Databases, Storage } from 'node-appwrite';
 import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
 
-const client = new Client()
-    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
-    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+// Load environment variables
+dotenv.config({ path: '.env.local' });
+dotenv.config({ path: '.env' }); // Fallback
+
+const ENDPOINT = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+const PROJECT_ID = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+const API_KEY = process.env.APPWRITE_API_KEY;
+const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
+
+const client = new Client();
+client.setEndpoint(ENDPOINT);
+client.setProject(PROJECT_ID);
+client.setKey(API_KEY);
 
 const databases = new Databases(client);
 const storage = new Storage(client);
-
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
 
 // All required collections
 const REQUIRED_COLLECTIONS = [
@@ -27,6 +33,10 @@ const REQUIRED_COLLECTIONS = [
     { id: 'kyc_requests', name: 'KYC Requests' },
     { id: 'training_progress', name: 'Agent Training Progress' },
     { id: 'certificates', name: 'Agent Certificates' },
+    // Legal Vault
+    { id: 'legal_documents', name: 'Legal Documents' },
+    { id: 'document_purchases', name: 'Document Purchases' },
+    { id: 'agent_subscriptions', name: 'Agent Subscriptions' },
 ];
 
 // Required buckets
@@ -35,6 +45,9 @@ const REQUIRED_BUCKETS = [
     { id: 'kyc_documents', name: 'KYC Documents' },
     { id: 'certificates', name: 'Generated Certificates' },
     { id: 'agent-ids', name: 'Digital Agent IDs' },
+    // Legal Vault
+    { id: 'legal_vault', name: 'Legal Vault (Originals)' },
+    { id: 'watermarked_docs', name: 'Watermarked Documents' },
 ];
 
 async function main() {
