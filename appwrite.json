@@ -251,6 +251,24 @@
                     "default": true
                 },
                 {
+                    "key": "status",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 20,
+                    "default": "pending",
+                    "encrypt": false
+                },
+                {
+                    "key": "verification_token",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 100,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
                     "key": "subscribed_at",
                     "type": "datetime",
                     "required": true,
@@ -260,6 +278,15 @@
                 }
             ],
             "indexes": [
+                {
+                    "key": "token_idx",
+                    "type": "unique",
+                    "status": "available",
+                    "columns": [
+                        "verification_token"
+                    ],
+                    "orders": []
+                },
                 {
                     "key": "email_idx",
                     "type": "unique",
@@ -522,7 +549,7 @@
                     "array": false,
                     "size": 255,
                     "default": null,
-                    "encrypt": true
+                    "encrypt": false
                 },
                 {
                     "key": "agreed_commission",
