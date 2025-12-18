@@ -184,17 +184,7 @@ export function Navbar() {
                 isOpen && (
                     <div className="fixed top-20 left-4 right-4 z-40 glass-panel rounded-2xl shadow-xl overflow-hidden md:hidden animate-slide-up">
                         <div className="p-4 space-y-2">
-                            {navLinks.map((link) => (
-                                <Link
-                                    key={link.name}
-                                    href={link.href}
-                                    className="block px-4 py-3 rounded-xl text-base font-bold text-slate-700 hover:text-[#10b981] hover:bg-[#ecfdf5] transition-colors"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    {link.name}
-                                </Link>
-                            ))}
-                            <div className="pt-4 mt-4 border-t border-slate-100 flex flex-col gap-3">
+                            <div className="flex flex-col gap-3">
                                 {user ? (
                                     <Link
                                         href="/profile"

@@ -48,3 +48,5 @@
  GET /_next/static/chunks/app/not-found.js 404 in 223ms
  GET /_next/static/chunks/app/properties/page.js 404 in 224ms
  GET /_next/static/chunks/app/global-error.js 404 in 216ms
+ ✓ Compiled in 11.8s (1133 modules)
+ ✓ Compiled in 1925ms (1133 modules)

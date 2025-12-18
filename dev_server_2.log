@@ -16,3 +16,38 @@
  ✓ Compiled /properties in 1137ms (816 modules)
  ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
  GET /properties?type=land 200 in 1656ms
+ ✓ Compiled in 10.8s (816 modules)
+ ✓ Compiled in 1949ms (816 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/app/.next/cache/webpack/client-development/5.pack.gz_' -> '/app/.next/cache/webpack/client-development/5.pack.gz'
+ GET / 200 in 299ms
+ GET /properties?type=land 200 in 102ms
+ ○ Compiling /privacy ...
+ ✓ Compiled /privacy in 2.8s (877 modules)
+ GET /legal 200 in 3219ms
+ GET /kyc 200 in 3206ms
+ GET /properties/create 200 in 3221ms
+ GET /agents 200 in 3222ms
+ GET /privacy 200 in 3028ms
+ ○ Compiling /cookies ...
+ ✓ Compiled /cookies in 2.2s (952 modules)
+ GET /saved 404 in 2434ms
+ GET /terms 200 in 2559ms
+ GET /cookies 200 in 2552ms
+ GET /admin 200 in 2560ms
+ GET /profile 200 in 2554ms
+ GET / 200 in 426ms
+ GET /_next/static/css/app/layout.css?v=1766061399021 404 in 356ms
+ GET /_next/static/chunks/main-app.js?v=1766061399021 404 in 574ms
+ GET /_next/static/chunks/app/error.js 404 in 575ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 577ms
+ GET /_next/static/chunks/app/not-found.js 404 in 579ms
+ GET /_next/static/chunks/app/page.js 404 in 333ms
+ GET /_next/static/chunks/app/global-error.js 404 in 201ms
+ GET / 200 in 138ms
+ GET /_next/static/css/app/layout.css?v=1766061452584 404 in 153ms
+ GET /_next/static/chunks/main-app.js?v=1766061452584 404 in 532ms
+ GET /_next/static/chunks/app/error.js 404 in 434ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 479ms
+ GET /_next/static/chunks/app/page.js 404 in 418ms
+ GET /_next/static/chunks/app/not-found.js 404 in 421ms
+ GET /_next/static/chunks/app/global-error.js 404 in 86ms
