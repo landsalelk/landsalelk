@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { searchProperties } from '@/lib/properties';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { PropertyFilters } from '@/components/property/PropertyFilters';
+import { PropertyCardSkeleton } from '@/components/property/PropertyCardSkeleton';
 import { Loader2, Search, Home, Building, Trees, Filter, MapPin } from 'lucide-react';
 
 function SearchContent() {
@@ -64,11 +65,10 @@ function SearchContent() {
                 </div>
 
                 {loading ? (
-                    <div className="flex items-center justify-center h-64 glass-card rounded-3xl">
-                        <div className="text-[#10b981] flex flex-col items-center gap-3">
-                            <div className="spinner" />
-                            <span className="font-bold">Searching properties...</span>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[1, 2, 3, 4, 5, 6].map((i) => (
+                            <PropertyCardSkeleton key={i} />
+                        ))}
                     </div>
                 ) : properties.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
