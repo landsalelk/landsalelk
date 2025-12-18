@@ -93,6 +93,22 @@ Please submit clearer documents to complete verification.
 Best regards,
 LandSale.lk Team
         `.trim()
+    },
+    newsletter_verification: {
+        subject: 'Confirm your subscription to LandSale.lk',
+        body: (data) => `
+Hello!
+
+Thanks for signing up for the LandSale.lk newsletter.
+
+Please confirm your subscription by clicking the link below:
+${data.link}
+
+If you didn't request this, you can safely ignore this email.
+
+Best regards,
+LandSale.lk Team
+        `.trim()
     }
 };
 
