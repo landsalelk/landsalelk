@@ -150,24 +150,24 @@ export default function CreateListingPage() {
     if (!mounted) return null;
 
     return (
-        <div className="min-h-screen py-12 px-4 animate-fade-in">
+        <div className="min-h-screen py-6 md:py-12 px-0 md:px-4 animate-fade-in">
             <div className="max-w-4xl mx-auto">
 
                 {/* Header */}
-                <div className="text-center mb-12">
+                <div className="text-center mb-8 md:mb-12 px-4">
                     <div className="inline-flex items-center gap-2 bg-[#ecfdf5] text-[#10b981] px-4 py-2 rounded-full text-sm font-bold mb-4">
                         <Sparkles className="w-4 h-4" /> Free Listing
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-3">
+                    <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2 md:mb-3">
                         List Your Property
                     </h1>
-                    <p className="text-slate-500 font-medium max-w-xl mx-auto">
+                    <p className="text-slate-500 text-sm md:text-base font-medium max-w-xl mx-auto">
                         ඔබේ දේපල දැන්වීම තත්පර කිහිපයකින් ප්‍රකාශ කරන්න
                     </p>
                 </div>
 
                 {/* Progress Steps */}
-                <div className="flex items-center justify-center gap-2 mb-12">
+                <div className="flex items-center justify-center gap-2 mb-8 md:mb-12">
                     {[1, 2, 3, 4].map((s) => (
                         <div key={s} className="flex items-center">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step === s
@@ -186,7 +186,7 @@ export default function CreateListingPage() {
                 </div>
 
                 {/* Form Container */}
-                <div className="glass-card rounded-3xl p-8 md:p-12">
+                <div className="bg-white md:glass-card rounded-t-3xl md:rounded-3xl p-6 md:p-12 shadow-top md:shadow-none min-h-[calc(100vh-200px)]">
                     <form onSubmit={handleSubmit}>
 
                         {/* Step 1: Property Type */}
@@ -195,19 +195,19 @@ export default function CreateListingPage() {
                                 <h2 className="text-xl font-bold text-slate-800 mb-6">What are you listing?</h2>
 
                                 {/* Property Type */}
-                                <div className="grid grid-cols-3 gap-4 mb-8">
+                                <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8">
                                     {propertyTypes.map((type) => (
                                         <button
                                             key={type.id}
                                             type="button"
                                             onClick={() => setFormData({ ...formData, category_id: type.id })}
-                                            className={`p-6 rounded-2xl border-2 transition-all text-center ${formData.category_id === type.id
+                                            className={`p-4 md:p-6 rounded-2xl border-2 transition-all text-center flex flex-col items-center justify-center ${formData.category_id === type.id
                                                 ? `${type.color} border-current shadow-lg`
                                                 : 'bg-white border-slate-200 hover:border-slate-300'
                                                 }`}
                                         >
-                                            <type.icon className={`w-8 h-8 mx-auto mb-3 ${formData.category_id === type.id ? '' : 'text-slate-400'}`} />
-                                            <span className="font-bold">{type.label}</span>
+                                            <type.icon className={`w-6 h-6 md:w-8 md:h-8 mb-2 md:mb-3 ${formData.category_id === type.id ? '' : 'text-slate-400'}`} />
+                                            <span className="text-sm md:text-base font-bold">{type.label}</span>
                                         </button>
                                     ))}
                                 </div>
@@ -354,7 +354,9 @@ export default function CreateListingPage() {
                                             Price (LKR)
                                         </label>
                                         <input
-                                            type="number"
+                                        type="text"
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
                                             value={formData.price}
                                             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                             placeholder="50,000,000"
@@ -387,8 +389,8 @@ export default function CreateListingPage() {
                                             <div>
                                                 <label className="block text-xs font-bold text-slate-500 mb-2 uppercase">Dist. to Highway/LRT (km)</label>
                                                 <input
-                                                    type="number"
-                                                    step="0.1"
+                                                    type="text"
+                                                    inputMode="decimal"
                                                     value={formData.infrastructure_distance || ''}
                                                     onChange={(e) => setFormData({ ...formData, infrastructure_distance: e.target.value })}
                                                     className="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-[#10b981]"
@@ -460,7 +462,9 @@ export default function CreateListingPage() {
                                                         <BedDouble className="w-3 h-3 inline mr-1" /> Beds
                                                     </label>
                                                     <input
-                                                        type="number"
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        pattern="[0-9]*"
                                                         value={formData.beds}
                                                         onChange={(e) => setFormData({ ...formData, beds: e.target.value })}
                                                         className="w-full p-3 bg-slate-50 border-2 border-transparent rounded-xl focus:border-[#6ee7b7] text-center font-bold"
@@ -471,7 +475,9 @@ export default function CreateListingPage() {
                                                         <Bath className="w-3 h-3 inline mr-1" /> Baths
                                                     </label>
                                                     <input
-                                                        type="number"
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        pattern="[0-9]*"
                                                         value={formData.baths}
                                                         onChange={(e) => setFormData({ ...formData, baths: e.target.value })}
                                                         className="w-full p-3 bg-slate-50 border-2 border-transparent rounded-xl focus:border-[#6ee7b7] text-center font-bold"
@@ -482,7 +488,9 @@ export default function CreateListingPage() {
                                                         <Ruler className="w-3 h-3 inline mr-1" /> Sq.Ft
                                                     </label>
                                                     <input
-                                                        type="number"
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        pattern="[0-9]*"
                                                         value={formData.size_sqft}
                                                         onChange={(e) => setFormData({ ...formData, size_sqft: e.target.value })}
                                                         className="w-full p-3 bg-slate-50 border-2 border-transparent rounded-xl focus:border-[#6ee7b7] text-center font-bold"
@@ -491,7 +499,8 @@ export default function CreateListingPage() {
                                                 <div>
                                                     <label className="block text-xs font-bold text-slate-500 mb-2 uppercase">Perches</label>
                                                     <input
-                                                        type="number"
+                                                        type="text"
+                                                        inputMode="decimal"
                                                         value={formData.perch_size}
                                                         onChange={(e) => setFormData({ ...formData, perch_size: e.target.value })}
                                                         className="w-full p-3 bg-slate-50 border-2 border-transparent rounded-xl focus:border-[#6ee7b7] text-center font-bold"
@@ -507,7 +516,8 @@ export default function CreateListingPage() {
                                                         <Ruler className="w-3 h-3 inline mr-1" /> Size (Perches)
                                                     </label>
                                                     <input
-                                                        type="number"
+                                                        type="text"
+                                                        inputMode="decimal"
                                                         value={formData.perch_size}
                                                         onChange={(e) => setFormData({ ...formData, perch_size: e.target.value })}
                                                         className="w-full p-3 bg-slate-50 border-2 border-transparent rounded-xl focus:border-[#6ee7b7] text-center font-bold"
@@ -516,7 +526,9 @@ export default function CreateListingPage() {
                                                 <div>
                                                     <label className="block text-xs font-bold text-slate-500 mb-2 uppercase">Size (Sq.Ft)</label>
                                                     <input
-                                                        type="number"
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        pattern="[0-9]*"
                                                         value={formData.size_sqft}
                                                         onChange={(e) => setFormData({ ...formData, size_sqft: e.target.value })}
                                                         className="w-full p-3 bg-slate-50 border-2 border-transparent rounded-xl focus:border-[#6ee7b7] text-center font-bold"
@@ -588,6 +600,7 @@ export default function CreateListingPage() {
                                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                             <input
                                                 type="tel"
+                                                inputMode="tel"
                                                 value={formData.contact_phone}
                                                 onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
                                                 placeholder="Phone Number"
@@ -598,6 +611,7 @@ export default function CreateListingPage() {
                                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                             <input
                                                 type="email"
+                                                inputMode="email"
                                                 value={formData.contact_email}
                                                 onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                                                 placeholder="Email (optional)"
@@ -621,6 +635,7 @@ export default function CreateListingPage() {
                                             <label className="block text-xs font-bold text-slate-500 mb-2 uppercase">Owner Phone</label>
                                             <input
                                                 type="tel"
+                                                inputMode="tel"
                                                 value={formData.owner_phone}
                                                 onChange={(e) => setFormData({ ...formData, owner_phone: e.target.value })}
                                                 placeholder="+94 7X XXX XXXX"
@@ -630,8 +645,8 @@ export default function CreateListingPage() {
                                         <div>
                                             <label className="block text-xs font-bold text-slate-500 mb-2 uppercase">Commission (%)</label>
                                             <input
-                                                type="number"
-                                                step="0.1"
+                                                type="text"
+                                                inputMode="decimal"
                                                 value={formData.agreed_commission}
                                                 onChange={(e) => setFormData({ ...formData, agreed_commission: e.target.value })}
                                                 placeholder="3.0"

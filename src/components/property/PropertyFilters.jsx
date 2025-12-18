@@ -22,19 +22,44 @@ export function PropertyFilters({ filters, onChange }) {
                 <Filter className="w-4 h-4" /> Filters
             </button>
 
-            {/* Filter Sidebar / Panel */}
+            {/* Filter Sidebar / Bottom Sheet */}
             <div className={`
-        fixed inset-0 z-40 bg-black/50 md:static md:bg-transparent md:z-0
-        ${isOpen ? 'block' : 'hidden md:block'}
-      `}>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-full md:h-auto overflow-y-auto w-80 md:w-full fixed md:static right-0 top-0 transition-transform duration-300">
+                fixed inset-0 z-50 md:static md:bg-transparent md:z-0 transition-all duration-300
+                ${isOpen ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent pointer-events-none md:pointer-events-auto'}
+            `} onClick={() => setIsOpen(false)}>
+
+                {/* Panel */}
+                <div
+                    onClick={(e) => e.stopPropagation()}
+                    className={`
+                        bg-white p-6 md:p-6
+                        fixed md:static
+                        bottom-0 md:top-0 left-0 right-0 md:left-auto md:right-auto
+                        w-full md:w-full md:h-auto
+                        h-[85vh] md:h-auto
+                        rounded-t-[2rem] md:rounded-2xl
+                        shadow-[0_-10px_40px_rgba(0,0,0,0.2)] md:shadow-sm
+                        border-t md:border border-slate-100
+                        overflow-y-auto
+                        transition-transform duration-300 ease-out
+                        ${isOpen ? 'translate-y-0' : 'translate-y-full md:translate-y-0'}
+                    `}
+                >
+
+                    {/* Drag Handle (Mobile Only) */}
+                    <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 md:hidden" />
 
                     <div className="flex justify-between items-center mb-6 md:hidden">
-                        <h3 className="font-bold text-lg">Filters</h3>
-                        <button onClick={() => setIsOpen(false)}><X className="w-6 h-6" /></button>
+                        <h3 className="font-bold text-xl text-slate-800">Filters</h3>
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
+                        >
+                            <X className="w-5 h-5 text-slate-500" />
+                        </button>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-6 pb-20 md:pb-0">
 
                         {/* Search */}
                         <div>
