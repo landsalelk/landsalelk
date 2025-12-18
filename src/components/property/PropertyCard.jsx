@@ -156,6 +156,19 @@ export function PropertyCard({ property }) {
                         <Heart className="w-5 h-5" />
                     </button>
 
+                    {/* WhatsApp Button */}
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            const text = encodeURIComponent(`Hi, I'm interested in ${displayTitle} (${window.location.origin}/properties/${propertyId})`);
+                            window.open(`https://wa.me/?text=${text}`, '_blank');
+                        }}
+                        className="absolute top-2 right-2 md:right-auto md:left-2 p-2 rounded-full scale-75 md:scale-100 transition-colors z-20 bg-[#25D366] text-white hover:bg-[#128C7E] shadow-lg"
+                        title="Chat on WhatsApp"
+                    >
+                        <MessageCircle className="w-5 h-5" />
+                    </button>
+
                     {/* Compare Button */}
                     <button
                         onClick={(e) => {
