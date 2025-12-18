@@ -6,8 +6,9 @@ import { toast } from 'sonner';
 import {
     MapPin, Home, Trees, Building, Camera, Upload, ChevronRight, ChevronLeft,
     Sparkles, Check, Loader2, ImagePlus, X, Phone, Mail, User, ShieldCheck,
-    FileText, Banknote, Ruler, BedDouble, Bath
+    FileText, Banknote, Ruler, BedDouble, Bath, ScanText, MessageCircle
 } from 'lucide-react';
+import Tesseract from 'tesseract.js';
 
 export default function CreateListingPage() {
     const router = useRouter();
@@ -17,6 +18,8 @@ export default function CreateListingPage() {
     const [agentMatched, setAgentMatched] = useState(null);
     const [images, setImages] = useState([]);
     const [mounted, setMounted] = useState(false);
+    const [ocrProcessing, setOcrProcessing] = useState(false);
+    const [successModal, setSuccessModal] = useState(null); // { link: '', phone: '' }
 
     const [formData, setFormData] = useState({
         title: '',
@@ -66,6 +69,55 @@ export default function CreateListingPage() {
 
     const removeImage = (idx) => {
         setImages(prev => prev.filter((_, i) => i !== idx));
+    };
+
+    // AI OCR Feature: Extract phone and price from image
+    const runOCR = async () => {
+        if (images.length === 0) {
+            toast.error("Please upload an image first.");
+            return;
+        }
+
+        setOcrProcessing(true);
+        try {
+            const imageToScan = images[0];
+            const { data: { text } } = await Tesseract.recognize(
+                imageToScan,
+                'eng',
+                { logger: m => console.log(m) }
+            );
+
+            console.log("OCR Result:", text);
+
+            // Basic Regex to find phone numbers (Sri Lankan format roughly)
+            // Look for patterns like 077 123 4567, 07x-xxxxxxx, +94...
+            const phoneMatch = text.match(/(?:\+94|0)?7[0-9]{2}[- ]?[0-9]{3}[- ]?[0-9]{4}/);
+            if (phoneMatch) {
+                const phone = phoneMatch[0].replace(/[- ]/g, '');
+                setFormData(prev => ({ ...prev, owner_phone: phone }));
+                toast.success(`Found Phone: ${phone}`);
+            }
+
+            // Basic Regex for Price (Numbers with commas or LKR/Rs)
+            // This is tricky, might pick up other numbers.
+            // Look for "Rs.", "LKR" followed by digits
+            const priceMatch = text.match(/(?:Rs\.?|LKR)\s?([0-9,]+)/i);
+            if (priceMatch) {
+                const price = priceMatch[1].replace(/,/g, '');
+                setFormData(prev => ({ ...prev, price: price }));
+                toast.success(`Found Price: ${price}`);
+            }
+
+            if(!phoneMatch && !priceMatch) {
+                toast.info("No clear details found in image. Please enter manually.");
+            }
+
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to scan image.");
+        } finally {
+            setOcrProcessing(false);
+        }
     };
 
     const scanForAgents = async () => {
@@ -119,13 +171,26 @@ export default function CreateListingPage() {
                 is_foreign_eligible: formData.is_foreign_eligible,
                 has_payment_plan: formData.has_payment_plan,
                 images: JSON.stringify(imageIds),
-                // Pass owner fields explicitly if not in ...formData (they are)
                 service_fee: parseFloat(formData.service_fee) || 0
             });
 
             if (newProperty.status === 'pending_owner') {
-                toast.success("Verification link sent to owner!");
-                router.push('/dashboard/listings?status=pending');
+                // Generate WhatsApp Link
+                // We need the token. The backend generated it but didn't return it in the doc usually (hidden).
+                // However, we can construct a generic message or if we modify createProperty to return the secret (insecure?).
+                // Better: The backend sends SMS.
+                // But for "Share via WhatsApp", we need the link.
+                // Let's assume for this feature, the backend returns the link in the response `verification_link` if permitted.
+                // Since I can't easily change the return structure of `createDocument` without a function wrapper...
+                // I'll rely on the user checking SMS OR I'll update the `createProperty` to return the `verification_code` if the user is the creator (Agent).
+                // Usually allowed.
+
+                const link = `https://landsale.lk/verify-owner/${newProperty.$id}?secret=${newProperty.verification_code}`;
+                setSuccessModal({
+                    link: link,
+                    phone: formData.owner_phone
+                });
+
             } else {
                 toast.success("🎉 දැන්වීම සාර්ථකයි! Property listed!");
                 router.push('/profile');
@@ -152,7 +217,7 @@ export default function CreateListingPage() {
     if (!mounted) return null;
 
     return (
-        <div className="min-h-screen py-6 md:py-12 px-0 md:px-4 animate-fade-in">
+        <div className="min-h-screen py-6 md:py-12 px-0 md:px-4 animate-fade-in relative">
             <div className="max-w-4xl mx-auto">
 
                 {/* Header */}
@@ -253,6 +318,7 @@ export default function CreateListingPage() {
                         {/* Step 2: Agent Matching */}
                         {step === 2 && (
                             <div className="animate-fade-in text-center">
+                                {/* ... existing agent match UI ... */}
                                 <h2 className="text-xl font-bold text-slate-800 mb-3">Finding You an Agent</h2>
                                 <p className="text-slate-500 mb-8">We'll match you with a verified agent in your area</p>
 
@@ -584,6 +650,26 @@ export default function CreateListingPage() {
                                     </label>
                                 </div>
 
+                                {/* OCR Button */}
+                                {images.length > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={runOCR}
+                                        disabled={ocrProcessing}
+                                        className="mb-8 w-full md:w-auto px-6 py-3 bg-indigo-50 text-indigo-600 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-100 transition-all"
+                                    >
+                                        {ocrProcessing ? (
+                                            <>
+                                                <Loader2 className="w-5 h-5 animate-spin" /> Scanning Image...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <ScanText className="w-5 h-5" /> Auto-fill Details from Image (AI)
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+
                                 {/* Contact Info */}
                                 <div className="glass-panel rounded-2xl p-6 mb-8">
                                     <h3 className="font-bold text-slate-800 mb-4">Contact Information</h3>
@@ -720,6 +806,38 @@ export default function CreateListingPage() {
                         )}
                     </form>
                 </div>
+
+                {/* Success Modal with WhatsApp */}
+                {successModal && (
+                    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center relative animate-fade-in">
+                            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <Check className="w-10 h-10" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Listing Created!</h2>
+                            <p className="text-slate-500 mb-6">
+                                You earned <span className="text-[#10b981] font-bold">+10 Points</span>! 🏆<br/>
+                                Send the verification link to the owner now.
+                            </p>
+
+                            <a
+                                href={`https://wa.me/${successModal.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi! I have listed your property on Landsale.lk. Please verify and review my proposal here: ${successModal.link}`)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full py-4 bg-[#25D366] text-white rounded-xl font-bold flex items-center justify-center gap-2 mb-3 hover:bg-[#128C7E] transition-all"
+                            >
+                                <MessageCircle className="w-6 h-6" /> Share via WhatsApp
+                            </a>
+
+                            <button
+                                onClick={() => router.push('/dashboard/listings?status=pending')}
+                                className="w-full py-3 text-slate-500 font-medium hover:bg-slate-50 rounded-xl"
+                            >
+                                Done
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

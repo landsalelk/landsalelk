@@ -52,3 +52,7 @@ Run `npm audit` for details.
  ✓ Compiled in 689ms (753 modules)
  ✓ Compiled in 506ms (314 modules)
  ✓ Compiled in 219ms (753 modules)
+ ✓ Compiled in 6.6s (314 modules)
+ ✓ Compiled in 4.1s (818 modules)
+ ✓ Compiled in 1686ms (832 modules)
+ GET /properties/create 200 in 1277ms
