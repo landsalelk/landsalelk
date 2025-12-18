@@ -11,3 +11,40 @@
  ○ Compiling /properties ...
  ✓ Compiled /properties in 10.2s (813 modules)
  GET /properties 200 in 11935ms
+ ✓ Compiled in 5.1s (795 modules)
+ ✓ Compiled in 604ms (328 modules)
+ ✓ Compiled in 1008ms (797 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 1211ms (802 modules)
+ GET / 200 in 1878ms
+ ✓ Compiled /_not-found in 311ms (803 modules)
+ GET /_next/static/css/app/layout.css?v=1766060735709 404 in 1089ms
+ GET /_next/static/chunks/main-app.js?v=1766060735709 404 in 1085ms
+ GET /_next/static/chunks/app/layout.js 404 in 1084ms
+ GET /_next/static/chunks/app/not-found.js 404 in 1065ms
+ GET /_next/static/chunks/app/error.js 404 in 1079ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 1084ms
+ GET /_next/static/chunks/app/global-error.js 404 in 110ms
+ GET /properties?type=land 200 in 177ms
+ GET /_next/static/css/app/layout.css?v=1766060740536 404 in 101ms
+ GET /_next/static/chunks/main-app.js?v=1766060740536 404 in 516ms
+ GET /_next/static/chunks/app/layout.js 404 in 517ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 517ms
+ GET /_next/static/chunks/app/error.js 404 in 516ms
+ GET /_next/static/chunks/app/not-found.js 404 in 437ms
+ GET /_next/static/chunks/app/properties/page.js 404 in 170ms
+ GET /_next/static/chunks/app/global-error.js 404 in 75ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 2.9s (1131 modules)
+ GET / 404 in 3590ms
+ GET /properties?type=land 200 in 638ms
+ GET /_next/static/css/app/layout.css?v=1766060776434 404 in 239ms
+ GET /_next/static/media/7b0b24f36b1a6d0b-s.p.woff2 404 in 526ms
+ GET /_next/static/media/e4af272ccee01ff0-s.p.woff2 404 in 525ms
+ GET /_next/static/chunks/main-app.js?v=1766060776434 404 in 526ms
+ GET /_next/static/chunks/app/layout.js 404 in 296ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 344ms
+ GET /_next/static/chunks/app/error.js 404 in 344ms
+ GET /_next/static/chunks/app/not-found.js 404 in 223ms
+ GET /_next/static/chunks/app/properties/page.js 404 in 224ms
+ GET /_next/static/chunks/app/global-error.js 404 in 216ms

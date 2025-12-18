@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Menu, X, User, Search, MapPin, PlusCircle, Heart, Home } from 'lucide-react';
 import NotificationBell from '@/components/ui/NotificationBell';
+import { MobileCategoryNav } from './MobileCategoryNav';
 
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -171,6 +172,10 @@ export function Navbar() {
                             </div>
                         </div>
                     </div>
+
+                    <Suspense fallback={<div className="h-10"></div>}>
+                        <MobileCategoryNav navLinks={navLinks} />
+                    </Suspense>
                 </div >
             </nav >
 
