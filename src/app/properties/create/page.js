@@ -40,7 +40,8 @@ export default function CreateListingPage() {
         is_foreign_eligible: false,
         has_payment_plan: false,
         owner_phone: '',
-        agreed_commission: ''
+        agreed_commission: '',
+        service_fee: ''
     });
 
     useEffect(() => {
@@ -119,11 +120,12 @@ export default function CreateListingPage() {
                 has_payment_plan: formData.has_payment_plan,
                 images: JSON.stringify(imageIds),
                 // Pass owner fields explicitly if not in ...formData (they are)
+                service_fee: parseFloat(formData.service_fee) || 0
             });
 
             if (newProperty.status === 'pending_owner') {
-                toast.success("Please verify owner consent.");
-                router.push(`/verify/otp?listingId=${newProperty.$id}`);
+                toast.success("Verification link sent to owner!");
+                router.push('/dashboard/listings?status=pending');
             } else {
                 toast.success("🎉 දැන්වීම සාර්ථකයි! Property listed!");
                 router.push('/profile');
@@ -650,6 +652,20 @@ export default function CreateListingPage() {
                                                 value={formData.agreed_commission}
                                                 onChange={(e) => setFormData({ ...formData, agreed_commission: e.target.value })}
                                                 placeholder="3.0"
+                                                className="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-500"
+                                            />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block text-xs font-bold text-slate-500 mb-2 uppercase">Service Fee (LKR)</label>
+                                            <p className="text-xs text-slate-400 mb-2">
+                                                If the owner hires you, this is the fee they will pay online.
+                                            </p>
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                value={formData.service_fee}
+                                                onChange={(e) => setFormData({ ...formData, service_fee: e.target.value })}
+                                                placeholder="e.g. 2000"
                                                 className="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-500"
                                             />
                                         </div>
