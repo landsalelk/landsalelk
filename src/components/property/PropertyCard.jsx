@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Heart, BedDouble, Bath, Square, Move, Scale } from 'lucide-react';
+import { MapPin, Heart, BedDouble, Bath, Square, Move, Scale, MessageCircle } from 'lucide-react';
 import { useComparison } from '@/context/ComparisonContext';
 
 export function PropertyCard({ property }) {
