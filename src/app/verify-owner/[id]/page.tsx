@@ -11,7 +11,7 @@ export default function OwnerVerificationPage() {
     const params = useParams();
     const searchParams = useSearchParams();
     const router = useRouter();
-    const id = params.id;
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
     const secret = searchParams.get('secret');
 
     const [listing, setListing] = useState(null);
@@ -86,7 +86,7 @@ export default function OwnerVerificationPage() {
 
             // Simulate delay then success (Mock)
             setTimeout(() => {
-                 router.push(`/verify-owner/${id}/success`); // Assume payment success page exists or we mock it
+                router.push(`/verify-owner/${id}/success`); // Assume payment success page exists or we mock it
             }, 2000);
 
         } catch (err) {
@@ -96,20 +96,20 @@ export default function OwnerVerificationPage() {
     };
 
     const handleDecline = async () => {
-        if(!confirm("Are you sure you want to decline? This listing will be removed.")) return;
+        if (!confirm("Are you sure you want to decline? This listing will be removed.")) return;
 
         setVerifying(true);
         try {
-             const result = await declineListing(id, secret);
+            const result = await declineListing(id, secret);
 
-             if(result.success) {
-                 toast.success("Listing declined.");
-                 setListing(prev => ({ ...prev, status: 'rejected_by_owner' }));
-                 setError("You have declined this listing.");
-             } else {
-                 throw new Error(result.error);
-             }
-        } catch(err) {
+            if (result.success) {
+                toast.success("Listing declined.");
+                setListing(prev => ({ ...prev, status: 'rejected_by_owner' }));
+                setError("You have declined this listing.");
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (err) {
             toast.error("Error declining listing.");
         } finally {
             setVerifying(false);

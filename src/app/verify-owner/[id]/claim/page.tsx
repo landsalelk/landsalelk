@@ -11,7 +11,7 @@ export default function ClaimListingPage() {
     const params = useParams();
     const searchParams = useSearchParams();
     const router = useRouter();
-    const id = params.id;
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
     const secret = searchParams.get('secret');
 
     const [status, setStatus] = useState('checking'); // checking, claiming, success, error

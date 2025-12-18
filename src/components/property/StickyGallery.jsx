@@ -5,6 +5,24 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Globe, Banknote, Heart, Loader2 } from 'lucide-react';
 
+// Helper to safely parse JSON strings (for i18n fields)
+const parseSafe = (val, fallback = '') => {
+    if (!val) return fallback;
+    if (typeof val === 'object') {
+        if (val.en) return val.en;
+        return Object.values(val)[0] || fallback;
+    }
+    try {
+        if (typeof val === 'string' && val.startsWith('{')) {
+            const parsed = JSON.parse(val);
+            if (parsed && typeof parsed === 'object') {
+                return parsed.en || parsed.si || Object.values(parsed)[0] || val;
+            }
+        }
+    } catch (e) { }
+    return val;
+};
+
 export function StickyGallery({ images, property, isSaved, onSave, savingFav, activeImage, setActiveImage }) {
 
     const handleNext = () => {
@@ -28,7 +46,7 @@ export function StickyGallery({ images, property, isSaved, onSave, savingFav, ac
                 >
                     <Image
                         src={images[activeImage] || '/placeholder.jpg'}
-                        alt={property?.title || "Property Image"}
+                        alt={parseSafe(property?.title, "Property Image")}
                         fill
                         className="object-cover"
                         priority
