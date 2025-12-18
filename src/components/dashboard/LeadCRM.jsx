@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_AGENT_LEADS } from '@/lib/constants';
+import { DB_ID, COLLECTION_AGENT_LEADS, COLLECTION_AGENTS } from '@/lib/constants';
+import { getUserListings } from '@/lib/properties';
 import { Query, ID } from 'appwrite';
 import { toast } from 'sonner';
 import {
     Users, Phone, Mail, Calendar, MessageSquare,
-    MoreHorizontal, Plus, Loader2, ArrowRight
+    MoreHorizontal, Plus, Loader2, ArrowRight, Home
 } from 'lucide-react';
 
 const COLUMNS = [
@@ -20,6 +21,8 @@ const COLUMNS = [
 
 export function LeadCRM({ userId }) {
     const [leads, setLeads] = useState([]);
+    const [listings, setListings] = useState([]);
+    const [agentProfile, setAgentProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -29,33 +32,50 @@ export function LeadCRM({ userId }) {
         phone: '',
         email: '',
         notes: '',
-        status: 'new'
+        status: 'new',
+        property_id: ''
     });
 
     useEffect(() => {
-        if (userId) fetchLeads();
+        if (userId) {
+            initData();
+        }
     }, [userId]);
 
-    const fetchLeads = async () => {
+    const initData = async () => {
         try {
-            // Mock data fallback if collection doesn't exist yet, 
-            // but normally we query DB.
-            // Using a try-catch to fallback to empty list or handled error.
-            try {
-                const response = await databases.listDocuments(
+            setLoading(true);
+            const [leadsRes, listingsRes, agentRes] = await Promise.allSettled([
+                databases.listDocuments(
                     DB_ID,
                     COLLECTION_AGENT_LEADS,
-                    [Query.equal('agent_id', userId), Query.orderDesc('$createdAt')]
-                );
-                setLeads(response.documents);
-            } catch (e) {
-                // If collection missing, we might want to show empty or mock
-                console.warn("Leads collection might be missing", e);
-                setLeads([]);
+                    [Query.equal('agent_user_id', userId), Query.orderDesc('$createdAt')]
+                ),
+                getUserListings(userId),
+                databases.listDocuments(
+                    DB_ID,
+                    COLLECTION_AGENTS,
+                    [Query.equal('user_id', userId), Query.limit(1)]
+                )
+            ]);
+
+            // Handle Leads
+            if (leadsRes.status === 'fulfilled') {
+                setLeads(leadsRes.value.documents);
+            }
+
+            // Handle Listings
+            if (listingsRes.status === 'fulfilled') {
+                setListings(listingsRes.value);
+            }
+
+            // Handle Agent Profile
+            if (agentRes.status === 'fulfilled' && agentRes.value.documents.length > 0) {
+                setAgentProfile(agentRes.value.documents[0]);
             }
         } catch (error) {
-            console.error('Failed to fetch leads:', error);
-            toast.error('Failed to load leads');
+            console.error("Error loading CRM data", error);
+            toast.error("Failed to load CRM data");
         } finally {
             setLoading(false);
         }
@@ -63,10 +83,37 @@ export function LeadCRM({ userId }) {
 
     const handleCreateLead = async (e) => {
         e.preventDefault();
+
+        if (!agentProfile) {
+            toast.error("You need an Agent Profile to create leads. Please complete your profile.");
+            return;
+        }
+
+        if (!newLead.property_id) {
+            toast.error("Please select a property for this lead.");
+            return;
+        }
+
+        const selectedProperty = listings.find(l => l.$id === newLead.property_id);
+
         try {
+            // NOTE: The `agent_leads` collection schema does not currently support `customer_name`, `phone`, or `email` columns.
+            // As a workaround, we serialize these details into the `notes` field.
+            // Future schema updates should add these columns for better querying.
+            const structuredNotes = [
+                `Name: ${newLead.name}`,
+                `Phone: ${newLead.phone}`,
+                `Email: ${newLead.email}`,
+                `Note: ${newLead.notes}`
+            ].join('\n');
+
             const payload = {
-                ...newLead,
-                agent_id: userId,
+                agent_id: agentProfile.$id,
+                agent_user_id: userId,
+                property_id: newLead.property_id,
+                property_title: selectedProperty ? selectedProperty.title : 'Unknown Property',
+                status: newLead.status,
+                notes: structuredNotes,
                 created_at: new Date().toISOString()
             };
 
@@ -76,9 +123,18 @@ export function LeadCRM({ userId }) {
                 ID.unique(),
                 payload
             );
-            setLeads([response, ...leads]);
+
+            // Re-map for UI immediately
+            const uiLead = {
+                ...response,
+                name: newLead.name,
+                phone: newLead.phone,
+                email: newLead.email
+            };
+
+            setLeads([uiLead, ...leads]);
             setIsAddModalOpen(false);
-            setNewLead({ name: '', phone: '', email: '', notes: '', status: 'new' });
+            setNewLead({ name: '', phone: '', email: '', notes: '', status: 'new', property_id: '' });
             toast.success('Lead added successfully');
         } catch (error) {
             console.error(error);
@@ -101,7 +157,46 @@ export function LeadCRM({ userId }) {
         }
     };
 
+    // Helper to extract customer info from the notes field workaround
+    const parseLead = (lead) => {
+        // Optimistic check: if name is already present (e.g. from local state add), use it.
+        if (lead.name) return lead;
+
+        let name = "Unknown Lead";
+        let phone = "";
+        let email = "";
+
+        // Parsing logic for 'Key: Value' format stored in notes
+        const noteSource = Array.isArray(lead.notes) ? lead.notes.join('\n') : (lead.notes || '');
+
+        if (noteSource) {
+             const nameMatch = noteSource.match(/Name: (.*)/);
+             if (nameMatch) name = nameMatch[1];
+
+             const phoneMatch = noteSource.match(/Phone: (.*)/);
+             if (phoneMatch) phone = phoneMatch[1];
+
+             const emailMatch = noteSource.match(/Email: (.*)/);
+             if (emailMatch) email = emailMatch[1];
+        }
+
+        return { ...lead, name, phone, email };
+    };
+
     if (loading) return <div className="p-12 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-600" /></div>;
+
+    if (!agentProfile && !loading) {
+         return (
+             <div className="p-12 text-center bg-white rounded-2xl border border-slate-200">
+                 <Users className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                 <h2 className="text-xl font-bold text-slate-900 mb-2">Agent Profile Required</h2>
+                 <p className="text-slate-500 mb-6">You need to set up your agent profile to manage leads.</p>
+                 <button className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold">
+                     Create Agent Profile
+                 </button>
+             </div>
+         );
+    }
 
     return (
         <div className="h-[calc(100vh-140px)] flex flex-col animate-fade-in text-slate-800">
@@ -124,7 +219,7 @@ export function LeadCRM({ userId }) {
             <div className="flex-1 overflow-x-auto overflow-y-hidden pb-4">
                 <div className="flex gap-4 min-w-[1200px] h-full">
                     {COLUMNS.map(col => {
-                        const colLeads = leads.filter(l => l.status === col.id);
+                        const colLeads = leads.filter(l => l.status === col.id).map(parseLead);
                         return (
                             <div key={col.id} className="flex-1 flex flex-col bg-slate-100 rounded-2xl min-w-[280px] max-w-xs">
                                 {/* Column Header */}
@@ -140,6 +235,10 @@ export function LeadCRM({ userId }) {
                                     {colLeads.map(lead => (
                                         <div key={lead.$id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-all cursor-pointer group relative">
                                             <h4 className="font-bold text-slate-900 mb-1">{lead.name}</h4>
+                                            <div className="text-xs text-emerald-600 font-medium mb-2 flex items-center gap-1">
+                                                <Home className="w-3 h-3" />
+                                                <span className="truncate max-w-[150px]">{lead.property_title}</span>
+                                            </div>
 
                                             <div className="space-y-1 mb-3">
                                                 {lead.phone && (
@@ -154,12 +253,6 @@ export function LeadCRM({ userId }) {
                                                     </div>
                                                 )}
                                             </div>
-
-                                            {lead.notes && (
-                                                <div className="text-xs text-slate-600 bg-slate-50 p-2 rounded mb-3 line-clamp-2">
-                                                    {lead.notes}
-                                                </div>
-                                            )}
 
                                             <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                                                 <div className="text-[10px] text-slate-400 font-mono">
@@ -214,6 +307,23 @@ export function LeadCRM({ userId }) {
                                     placeholder="Jane Doe"
                                 />
                             </div>
+
+                            {/* Property Selector */}
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1">Interested Property</label>
+                                <select
+                                    required
+                                    value={newLead.property_id}
+                                    onChange={e => setNewLead({ ...newLead, property_id: e.target.value })}
+                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500"
+                                >
+                                    <option value="">Select a property...</option>
+                                    {listings.map(l => (
+                                        <option key={l.$id} value={l.$id}>{l.title}</option>
+                                    ))}
+                                </select>
+                            </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Phone</label>
