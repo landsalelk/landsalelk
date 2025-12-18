@@ -1,12 +1,25 @@
 import { Client, Databases, Storage, ID } from 'node-appwrite';
-import { createCanvas, loadImage } from 'canvas';
+import * as PImage from 'pureimage';
 import QRCode from 'qrcode';
+import { Readable, PassThrough } from 'stream';
+import path from 'path';
 
 // Environment variables
 const PROJECT_ID = process.env.APPWRITE_FUNCTION_PROJECT_ID;
 const DATABASE_ID = process.env.DATABASE_ID || '6756bee0000c6c787b9f';
 const BUCKET_AGENT_IDS = process.env.BUCKET_AGENT_IDS || 'agent-ids';
 const COLLECTION_AGENTS = process.env.COLLECTION_AGENTS || 'agents';
+
+// Load fonts
+try {
+    const fontRegular = PImage.registerFont(path.join(process.cwd(), 'assets', 'OpenSans-Regular.ttf'), 'Open Sans');
+    const fontBold = PImage.registerFont(path.join(process.cwd(), 'assets', 'OpenSans-Bold.ttf'), 'Open Sans', 700, 'bold');
+
+    fontRegular.loadSync();
+    fontBold.loadSync();
+} catch (e) {
+    console.warn('Failed to load fonts:', e);
+}
 
 export default async ({ req, res, log, error }) => {
     const client = new Client()
@@ -27,52 +40,43 @@ export default async ({ req, res, log, error }) => {
 
         log(`Generating Digital ID for: ${agentName} (${agentId})`);
 
-        // Generate QR code
+        // Generate QR code as Buffer
         const verificationUrl = `https://landsale.lk/verify/agent/${agentId}`;
-        const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
-            width: 120,
+        const qrBuffer = await QRCode.toBuffer(verificationUrl, {
+            width: 80,
             margin: 1,
             color: { dark: '#0f172a', light: '#ffffff' }
         });
 
+        // Decode QR buffer to image
+        const qrStream = Readable.from(qrBuffer);
+        const qrImage = await PImage.decodePNGFromStream(qrStream);
+
         // Create canvas for ID card
         const cardWidth = 500;
         const cardHeight = 300;
-        const canvas = createCanvas(cardWidth, cardHeight);
+        const canvas = PImage.make(cardWidth, cardHeight);
         const ctx = canvas.getContext('2d');
 
-        // Background gradient
-        const gradient = ctx.createLinearGradient(0, 0, cardWidth, cardHeight);
-        gradient.addColorStop(0, '#0f172a');
-        gradient.addColorStop(0.5, '#1e293b');
-        gradient.addColorStop(1, '#0f172a');
-        ctx.fillStyle = gradient;
+        // Background (Solid color fallback for gradient)
+        ctx.fillStyle = '#0f172a'; // Base color of the gradient
         ctx.fillRect(0, 0, cardWidth, cardHeight);
 
         // Decorative circles (background effect)
-        ctx.globalAlpha = 0.1;
-        ctx.fillStyle = '#10b981';
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
         ctx.beginPath();
         ctx.arc(cardWidth + 50, -50, 200, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
         ctx.arc(-50, cardHeight + 50, 150, 0, Math.PI * 2);
         ctx.fill();
-        ctx.globalAlpha = 1;
 
-        // Bottom gradient bar
-        const barGradient = ctx.createLinearGradient(0, cardHeight - 4, cardWidth, cardHeight - 4);
-        barGradient.addColorStop(0, '#10b981');
-        barGradient.addColorStop(0.5, '#14b8a6');
-        barGradient.addColorStop(1, '#10b981');
-        ctx.fillStyle = barGradient;
+        // Bottom bar (Solid color fallback)
+        ctx.fillStyle = '#10b981';
         ctx.fillRect(0, cardHeight - 4, cardWidth, 4);
 
-        // Logo area
-        const logoGradient = ctx.createLinearGradient(30, 30, 70, 70);
-        logoGradient.addColorStop(0, '#34d399');
-        logoGradient.addColorStop(1, '#14b8a6');
-        ctx.fillStyle = logoGradient;
+        // Logo area (Solid color fallback)
+        ctx.fillStyle = '#14b8a6';
         roundRect(ctx, 30, 30, 50, 50, 12);
         ctx.fill();
 
@@ -89,10 +93,10 @@ export default async ({ req, res, log, error }) => {
 
         // Company name
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 16px Arial';
+        ctx.font = 'bold 16pt "Open Sans"'; // pureimage uses pt sizes often
         ctx.fillText('LANDSALE.LK', 95, 52);
         ctx.fillStyle = '#94a3b8';
-        ctx.font = '12px Arial';
+        ctx.font = '12pt "Open Sans"';
         ctx.fillText('Certified Agent', 95, 70);
 
         // Verified badge
@@ -100,8 +104,10 @@ export default async ({ req, res, log, error }) => {
             ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
             roundRect(ctx, cardWidth - 120, 35, 90, 26, 13);
             ctx.fill();
+
             ctx.strokeStyle = 'rgba(16, 185, 129, 0.3)';
             ctx.lineWidth = 1;
+            // roundRect path needs to be redrawn for stroke
             roundRect(ctx, cardWidth - 120, 35, 90, 26, 13);
             ctx.stroke();
 
@@ -110,6 +116,7 @@ export default async ({ req, res, log, error }) => {
             ctx.beginPath();
             ctx.arc(cardWidth - 105, 48, 6, 0, Math.PI * 2);
             ctx.fill();
+
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -119,77 +126,82 @@ export default async ({ req, res, log, error }) => {
             ctx.stroke();
 
             ctx.fillStyle = '#34d399';
-            ctx.font = 'bold 10px Arial';
+            ctx.font = 'bold 10pt "Open Sans"';
             ctx.fillText('VERIFIED', cardWidth - 92, 52);
         }
 
-        // Agent avatar placeholder
-        const avatarGradient = ctx.createLinearGradient(30, 110, 100, 180);
-        avatarGradient.addColorStop(0, '#475569');
-        avatarGradient.addColorStop(1, '#334155');
-        ctx.fillStyle = avatarGradient;
+        // Agent avatar placeholder (Solid color fallback)
+        ctx.fillStyle = '#334155';
         roundRect(ctx, 30, 110, 70, 70, 16);
         ctx.fill();
 
         // Initial
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 32px Arial';
+        ctx.font = 'bold 32pt "Open Sans"';
         const initial = agentName.charAt(0).toUpperCase();
         const textMetrics = ctx.measureText(initial);
-        ctx.fillText(initial, 65 - textMetrics.width / 2, 155);
+        const textWidth = textMetrics.width || 20;
+        ctx.fillText(initial, 65 - textWidth / 2, 155);
 
         // Agent name
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 22px Arial';
+        ctx.font = 'bold 22pt "Open Sans"';
         ctx.fillText(agentName, 115, 140);
 
         // Specialization
         if (specialization) {
             ctx.fillStyle = '#94a3b8';
-            ctx.font = '13px Arial';
+            ctx.font = '13pt "Open Sans"';
             ctx.fillText(specialization, 115, 160);
         }
 
         // Location
         if (location) {
             ctx.fillStyle = '#94a3b8';
-            ctx.font = '12px Arial';
+            ctx.font = '12pt "Open Sans"';
             ctx.fillText(`📍 ${location}`, 115, 180);
         }
 
         // Agent ID
         ctx.fillStyle = '#64748b';
-        ctx.font = '9px Arial';
+        ctx.font = '9pt "Open Sans"';
         ctx.fillText('AGENT ID', 30, 210);
         ctx.fillStyle = '#ffffff';
-        ctx.font = '13px monospace';
+        ctx.font = '13pt "Open Sans"'; // Monospace might fall back to Open Sans
         ctx.fillText(agentId.slice(0, 12).toUpperCase(), 30, 228);
 
         // Certified date
         if (certifiedAt) {
             ctx.fillStyle = '#64748b';
-            ctx.font = '9px Arial';
+            ctx.font = '9pt "Open Sans"';
             ctx.fillText('CERTIFIED', 30, 255);
             ctx.fillStyle = '#ffffff';
-            ctx.font = '12px Arial';
+            ctx.font = '12pt "Open Sans"';
             ctx.fillText(new Date(certifiedAt).getFullYear().toString(), 30, 273);
         }
 
         // QR Code
-        const qrImage = await loadImage(qrDataUrl);
         ctx.fillStyle = '#ffffff';
         roundRect(ctx, cardWidth - 130, 110, 100, 100, 16);
         ctx.fill();
         ctx.drawImage(qrImage, cardWidth - 120, 120, 80, 80);
 
         ctx.fillStyle = '#64748b';
-        ctx.font = '8px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('SCAN TO VERIFY', cardWidth - 80, 215);
-        ctx.textAlign = 'left';
+        ctx.font = '8pt "Open Sans"';
+        ctx.fillText('SCAN TO VERIFY', cardWidth - 110, 215);
 
         // Convert to buffer
-        const buffer = canvas.toBuffer('image/png');
+        const passThrough = new PassThrough();
+        const chunks = [];
+
+        const bufferPromise = new Promise((resolve, reject) => {
+            passThrough.on('data', (chunk) => chunks.push(chunk));
+            passThrough.on('end', () => resolve(Buffer.concat(chunks)));
+            passThrough.on('error', reject);
+        });
+
+        await PImage.encodePNGToStream(canvas, passThrough);
+        const buffer = await bufferPromise;
 
         // Upload to Appwrite Storage
         const fileId = ID.unique();
@@ -224,6 +236,7 @@ export default async ({ req, res, log, error }) => {
 
     } catch (e) {
         error(`Digital ID generation failed: ${e.message}`);
+        error(e.stack);
         return res.json({ success: false, error: e.message }, 500);
     }
 };
