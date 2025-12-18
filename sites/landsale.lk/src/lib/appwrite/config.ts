@@ -62,6 +62,9 @@ export const COLLECTIONS = {
     TEAM_LEADS: process.env.NEXT_PUBLIC_APPWRITE_TEAM_LEADS_COLLECTION_ID || 'team_leads',
     TEAM_MESSAGES: process.env.NEXT_PUBLIC_APPWRITE_TEAM_MESSAGES_COLLECTION_ID || 'team_messages',
     TEAM_ANALYTICS: process.env.NEXT_PUBLIC_APPWRITE_TEAM_ANALYTICS_COLLECTION_ID || 'team_analytics',
+
+    // System Errors
+    SYSTEM_ERRORS: process.env.NEXT_PUBLIC_APPWRITE_SYSTEM_ERRORS_COLLECTION_ID || 'system_errors',
 }
 
 // Storage bucket IDs - Updated for new schema
