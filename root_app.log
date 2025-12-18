@@ -1,0 +1,72 @@
+
+> landsalelk@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.4.8
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.2:3000
+
+ ✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 1915ms
+ ○ Compiling / ...
+ ⨯ ./src/app/page.js:4:1
+Module not found: Can't resolve '@/components/home/Hero'
+  2 |
+  3 | import { useState, useEffect } from 'react';
+> 4 | import { Hero } from "@/components/home/Hero";
+    | ^
+  5 | import { PropertyCard } from "@/components/property/PropertyCard";
+  6 | import { getFeaturedProperties } from "@/lib/properties";
+  7 | import { databases } from "@/lib/appwrite";
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/app/page.js:4:1
+Module not found: Can't resolve '@/components/home/Hero'
+  2 |
+  3 | import { useState, useEffect } from 'react';
+> 4 | import { Hero } from "@/components/home/Hero";
+    | ^
+  5 | import { PropertyCard } from "@/components/property/PropertyCard";
+  6 | import { getFeaturedProperties } from "@/lib/properties";
+  7 | import { databases } from "@/lib/appwrite";
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/app/page.js:4:1
+Module not found: Can't resolve '@/components/home/Hero'
+  2 |
+  3 | import { useState, useEffect } from 'react';
+> 4 | import { Hero } from "@/components/home/Hero";
+    | ^
+  5 | import { PropertyCard } from "@/components/property/PropertyCard";
+  6 | import { getFeaturedProperties } from "@/lib/properties";
+  7 | import { databases } from "@/lib/appwrite";
+
+https://nextjs.org/docs/messages/module-not-found
+ GET / 500 in 16831ms
+ ⨯ ./src/app/page.js:4:1
+Module not found: Can't resolve '@/components/home/Hero'
+  2 |
+  3 | import { useState, useEffect } from 'react';
+> 4 | import { Hero } from "@/components/home/Hero";
+    | ^
+  5 | import { PropertyCard } from "@/components/property/PropertyCard";
+  6 | import { getFeaturedProperties } from "@/lib/properties";
+  7 | import { databases } from "@/lib/appwrite";
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/app/page.js:4:1
+Module not found: Can't resolve '@/components/home/Hero'
+  2 |
+  3 | import { useState, useEffect } from 'react';
+> 4 | import { Hero } from "@/components/home/Hero";
+    | ^
+  5 | import { PropertyCard } from "@/components/property/PropertyCard";
+  6 | import { getFeaturedProperties } from "@/lib/properties";
+  7 | import { databases } from "@/lib/appwrite";
+
+https://nextjs.org/docs/messages/module-not-found
