@@ -161,6 +161,22 @@
             "commands": "npm install",
             "specification": "s-0.5vcpu-512mb",
             "path": "functions/generate-certificate"
+        },
+        {
+            "$id": "expire-listings",
+            "execute": [],
+            "name": "Expire Listings",
+            "enabled": true,
+            "logging": true,
+            "runtime": "node-18.0",
+            "scopes": [],
+            "events": [],
+            "schedule": "0 1 * * *",
+            "timeout": 60,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "specification": "s-0.5vcpu-512mb",
+            "path": "functions/expire-listings"
         }
     ],
     "sites": [
@@ -2478,7 +2494,7 @@
                     "key": "service_areas",
                     "type": "string",
                     "required": false,
-                    "array": false,
+                    "array": true,
                     "size": 2000,
                     "default": null,
                     "encrypt": false
@@ -2487,7 +2503,7 @@
                     "key": "specializations",
                     "type": "string",
                     "required": false,
-                    "array": false,
+                    "array": true,
                     "size": 2000,
                     "default": null,
                     "encrypt": false
@@ -4191,59 +4207,6 @@
                     "status": "available",
                     "columns": [
                         "slug"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "settings",
-            "$permissions": [
-                "read(\"any\")",
-                "create(\"team:admins\")",
-                "update(\"team:admins\")",
-                "delete(\"team:admins\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Settings",
-            "enabled": true,
-            "rowSecurity": false,
-            "columns": [
-                {
-                    "key": "key",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "value",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 10000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "description",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 500,
-                    "default": null,
-                    "encrypt": false
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "key_idx",
-                    "type": "unique",
-                    "status": "available",
-                    "columns": [
-                        "key"
                     ],
                     "orders": []
                 }
