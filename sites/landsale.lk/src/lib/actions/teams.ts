@@ -501,6 +501,57 @@ export async function getTeamAnalytics(teamId: string, dateRange?: { start: stri
       const memberClosedLeads = memberLeads.filter(lead => lead.status === 'closed').length
       const memberConversionRate = memberLeads.length > 0 ? (memberClosedLeads / memberLeads.length) * 100 : 0
 
+      // Calculate average response time
+      let totalResponseTimeMinutes = 0
+      let respondedLeadsCount = 0
+
+      memberLeads.forEach(lead => {
+        let logs = lead.activity_log
+
+        // Handle potential string format (Appwrite sometimes returns JSON arrays as strings)
+        if (typeof logs === 'string') {
+          try {
+            logs = JSON.parse(logs)
+          } catch (e) {
+            logs = []
+          }
+        }
+
+        if (!Array.isArray(logs) || logs.length === 0) return
+
+        // Sort logs by creation time to be safe
+        logs.sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+
+        // 1. Find assignment time
+        // We look for the "Lead created and assigned" action or use lead creation time
+        // The first log is usually the creation/assignment log
+        const assignmentLog = logs.find((log: any) => log.action === 'Lead created and assigned')
+        const assignmentTime = assignmentLog
+          ? new Date(assignmentLog.created_at).getTime()
+          : new Date(lead.$createdAt).getTime()
+
+        // 2. Find first response by this agent
+        // A response is any action by this agent that happens AFTER the assignment
+        // and is not the assignment action itself
+        const responseLog = logs.find((log: any) =>
+          log.agent_id === member.userId &&
+          log.action !== 'Lead created and assigned' &&
+          new Date(log.created_at).getTime() > assignmentTime
+        )
+
+        if (responseLog) {
+          const responseTime = new Date(responseLog.created_at).getTime()
+          const diffMinutes = (responseTime - assignmentTime) / (1000 * 60)
+
+          if (diffMinutes >= 0) {
+            totalResponseTimeMinutes += diffMinutes
+            respondedLeadsCount++
+          }
+        }
+      })
+
+      const avgResponseTime = respondedLeadsCount > 0 ? Math.round(totalResponseTimeMinutes / respondedLeadsCount) : 0
+
       return {
         member_id: member.userId,
         name: member.name,
@@ -508,7 +559,7 @@ export async function getTeamAnalytics(teamId: string, dateRange?: { start: stri
         total_leads: memberLeads.length,
         closed_leads: memberClosedLeads,
         conversion_rate: memberConversionRate,
-        avg_response_time: 0, // TODO: Implement response time tracking
+        avg_response_time: avgResponseTime,
         last_activity: memberLeads.length > 0 ? memberLeads[0].$updatedAt : null
       }
     })
