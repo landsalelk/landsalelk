@@ -158,7 +158,7 @@ export async function getUserListings(userId) {
 export async function createProperty(data) {
     try {
         const user = await account.get();
-        return await databases.createDocument(
+        const doc = await databases.createDocument(
             DB_ID,
             COLLECTION_LISTINGS,
             ID.unique(),
@@ -169,6 +169,32 @@ export async function createProperty(data) {
                 status: 'active'
             }
         );
+
+        // Phase 1 Gamification: Award 10 points for new listing
+        try {
+            // Check if user has an agent profile. We try to update 'agents' collection.
+            // If the user is just a regular user, this might fail or we update 'users_extended'.
+            // For now, assuming 'agents' collection maps to user.$id or we search.
+            // Usually agents have a document with ID == User ID or similar.
+            // Let's try to fetch agent doc by user_id
+
+            const agentList = await databases.listDocuments(DB_ID, COLLECTION_AGENTS, [
+                Query.equal('user_id', user.$id)
+            ]);
+
+            if (agentList.documents.length > 0) {
+                const agent = agentList.documents[0];
+                const newPoints = (agent.points || 0) + 10;
+                await databases.updateDocument(DB_ID, COLLECTION_AGENTS, agent.$id, {
+                    points: newPoints
+                });
+            }
+        } catch (pointError) {
+            console.warn("Failed to award points:", pointError);
+            // Don't block listing creation
+        }
+
+        return doc;
     } catch (error) {
         console.error("Create Listing Error:", error);
         throw error;
