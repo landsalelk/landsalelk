@@ -32,10 +32,20 @@ export default function RegisterPage() {
 
         try {
             const { account, ID } = await import('@/lib/appwrite');
+
+            // Check if there's an existing session and delete it first
+            try {
+                await account.get();
+                // If we get here, user is already logged in - delete current session
+                await account.deleteSession('current');
+            } catch (err) {
+                // No active session, proceed with registration
+            }
+
             await account.create(ID.unique(), email, password, name);
             await account.createEmailPasswordSession(email, password);
             toast.success("ගිණුම සාර්ථකයි! Account created!");
-            router.push('/profile');
+            router.push('/dashboard');
         } catch (error) {
             console.error(error);
             toast.error(error.message || "Registration failed");

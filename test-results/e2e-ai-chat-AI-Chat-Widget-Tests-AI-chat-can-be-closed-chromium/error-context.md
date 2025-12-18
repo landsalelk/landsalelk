@@ -1,0 +1,105 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e4]:
+      - img [ref=e6]
+      - heading "Page Not Found" [level=1] [ref=e8]
+      - paragraph [ref=e9]: The page you are looking for doesn't exist or has been moved.
+      - link "Back to Home" [ref=e10] [cursor=pointer]:
+        - /url: /
+        - img [ref=e11]
+        - text: Back to Home
+  - contentinfo [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - link "LandSale.lk" [ref=e18] [cursor=pointer]:
+            - /url: /
+            - img [ref=e20]
+            - generic [ref=e23]: LandSale.lk
+          - paragraph [ref=e24]: Sri Lanka's most trusted real estate marketplace. Powered by AI, verified by agents.
+          - generic [ref=e25]:
+            - link [ref=e26] [cursor=pointer]:
+              - /url: https://facebook.com/landsalelk
+              - img [ref=e27]
+            - link [ref=e29] [cursor=pointer]:
+              - /url: https://twitter.com/landsalelk
+              - img [ref=e30]
+            - link [ref=e32] [cursor=pointer]:
+              - /url: https://instagram.com/landsalelk
+              - img [ref=e33]
+            - link [ref=e36] [cursor=pointer]:
+              - /url: https://youtube.com/@landsalelk
+              - img [ref=e37]
+        - generic [ref=e40]:
+          - heading "Explore" [level=4] [ref=e41]
+          - list [ref=e42]:
+            - listitem [ref=e43]:
+              - link "Lands for Sale" [ref=e44] [cursor=pointer]:
+                - /url: /properties?type=land
+            - listitem [ref=e45]:
+              - link "Houses for Sale" [ref=e46] [cursor=pointer]:
+                - /url: /properties?type=sale
+            - listitem [ref=e47]:
+              - link "Properties for Rent" [ref=e48] [cursor=pointer]:
+                - /url: /properties?type=rent
+            - listitem [ref=e49]:
+              - link "Find Agents" [ref=e50] [cursor=pointer]:
+                - /url: /agents
+            - listitem [ref=e51]:
+              - link "Post Property" [ref=e52] [cursor=pointer]:
+                - /url: /properties/create
+        - generic [ref=e53]:
+          - heading "Trust & Legal" [level=4] [ref=e54]
+          - list [ref=e55]:
+            - listitem [ref=e56]:
+              - link "Legal Services" [ref=e57] [cursor=pointer]:
+                - /url: /legal
+                - img [ref=e58]
+                - text: Legal Services
+            - listitem [ref=e61]:
+              - link "Verify Identity" [ref=e62] [cursor=pointer]:
+                - /url: /kyc
+                - img [ref=e63]
+                - text: Verify Identity
+            - listitem [ref=e66]:
+              - link "Privacy Policy" [ref=e67] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e68]:
+              - link "Terms of Service" [ref=e69] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e70]:
+              - link "Admin Portal" [ref=e71] [cursor=pointer]:
+                - /url: /admin
+        - generic [ref=e72]:
+          - heading "Stay Updated" [level=4] [ref=e73]
+          - paragraph [ref=e74]: Get the latest listings and market insights.
+          - generic [ref=e75]:
+            - textbox "Enter your email..." [active] [ref=e76]
+            - button [ref=e77]:
+              - img [ref=e78]
+          - generic [ref=e81]:
+            - link "+94 11 234 5678" [ref=e82] [cursor=pointer]:
+              - /url: tel:+94112345678
+              - img [ref=e83]
+              - text: +94 11 234 5678
+            - link "hello@landsale.lk" [ref=e85] [cursor=pointer]:
+              - /url: mailto:hello@landsale.lk
+              - img [ref=e86]
+              - text: hello@landsale.lk
+      - generic [ref=e89]:
+        - paragraph [ref=e90]: © 2025 LandSale.lk. Made with ❤️ in Sri Lanka
+        - generic [ref=e91]:
+          - generic [ref=e92]:
+            - img [ref=e93]
+            - text: 100% Verified Listings
+          - generic [ref=e96]:
+            - img [ref=e97]
+            - text: 10,000+ Happy Users
+  - button "Ask AI Assistant" [ref=e100]:
+    - img [ref=e102]
+    - text: Ask AI Assistant
+  - region "Notifications alt+T"
+```

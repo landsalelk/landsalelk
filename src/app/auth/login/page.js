@@ -19,6 +19,16 @@ export default function LoginPage() {
 
         try {
             const { account } = await import('@/lib/appwrite');
+
+            // Check if there's an existing session and delete it first
+            try {
+                await account.get();
+                // If we get here, user is already logged in - delete current session
+                await account.deleteSession('current');
+            } catch (err) {
+                // No active session, proceed with login
+            }
+
             const session = await account.createEmailPasswordSession(email, password);
             const user = await account.get();
 

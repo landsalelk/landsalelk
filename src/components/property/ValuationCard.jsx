@@ -32,7 +32,10 @@ export function ValuationCard({ property }) {
                         Based on {(() => {
                             try { return JSON.parse(property.location)?.city || JSON.parse(property.location)?.address || property.location }
                             catch { return property.location || 'similar' }
-                        })()} properties with {property.beds} beds and {property.perch_size} perches.
+                        })()} properties{property.type?.toLowerCase() === 'land'
+                            ? (property.perch_size ? ` with ${property.perch_size} perches` : '')
+                            : (property.beds ? ` with ${property.beds} beds` : '')
+                        }.
                         <span className="block mt-1 text-purple-300 font-bold">Confidence: {confidence}</span>
                     </p>
                 </div>

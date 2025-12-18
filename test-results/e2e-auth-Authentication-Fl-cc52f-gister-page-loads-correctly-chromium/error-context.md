@@ -1,0 +1,144 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "LandSale.lk" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img [ref=e8]
+          - generic [ref=e11]: LandSale.lk
+        - heading "Join Our Community" [level=1] [ref=e12]
+        - paragraph [ref=e13]: Create your free account
+      - generic [ref=e14]:
+        - img [ref=e16]
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - text: Full Name
+            - generic [ref=e23]:
+              - img [ref=e24]
+              - textbox "John Doe" [ref=e27]
+          - generic [ref=e28]:
+            - text: Email Address
+            - generic [ref=e29]:
+              - img [ref=e30]
+              - textbox "you@example.com" [ref=e33]
+          - generic [ref=e34]:
+            - text: Password
+            - generic [ref=e35]:
+              - img [ref=e36]
+              - textbox "Min 8 characters" [ref=e39]
+              - button [ref=e40]:
+                - img [ref=e41]
+          - generic [ref=e44]:
+            - text: Confirm Password
+            - generic [ref=e45]:
+              - img [ref=e46]
+              - textbox "Repeat password" [ref=e49]
+          - button "Create Account" [ref=e50]:
+            - text: Create Account
+            - img [ref=e51]
+        - generic [ref=e53]:
+          - text: Already have an account?
+          - link "Sign In" [ref=e54] [cursor=pointer]:
+            - /url: /auth/login
+      - generic [ref=e55]:
+        - text: By signing up, you agree to our
+        - link "Terms" [ref=e56] [cursor=pointer]:
+          - /url: /terms
+        - text: and
+        - link "Privacy Policy" [ref=e57] [cursor=pointer]:
+          - /url: /privacy
+  - contentinfo [ref=e58]:
+    - generic [ref=e59]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - link "LandSale.lk" [ref=e62] [cursor=pointer]:
+            - /url: /
+            - img [ref=e64]
+            - generic [ref=e67]: LandSale.lk
+          - paragraph [ref=e68]: Sri Lanka's most trusted real estate marketplace. Powered by AI, verified by agents.
+          - generic [ref=e69]:
+            - link [ref=e70] [cursor=pointer]:
+              - /url: https://facebook.com/landsalelk
+              - img [ref=e71]
+            - link [ref=e73] [cursor=pointer]:
+              - /url: https://twitter.com/landsalelk
+              - img [ref=e74]
+            - link [ref=e76] [cursor=pointer]:
+              - /url: https://instagram.com/landsalelk
+              - img [ref=e77]
+            - link [ref=e80] [cursor=pointer]:
+              - /url: https://youtube.com/@landsalelk
+              - img [ref=e81]
+        - generic [ref=e84]:
+          - heading "Explore" [level=4] [ref=e85]
+          - list [ref=e86]:
+            - listitem [ref=e87]:
+              - link "Lands for Sale" [ref=e88] [cursor=pointer]:
+                - /url: /properties?type=land
+            - listitem [ref=e89]:
+              - link "Houses for Sale" [ref=e90] [cursor=pointer]:
+                - /url: /properties?type=sale
+            - listitem [ref=e91]:
+              - link "Properties for Rent" [ref=e92] [cursor=pointer]:
+                - /url: /properties?type=rent
+            - listitem [ref=e93]:
+              - link "Find Agents" [ref=e94] [cursor=pointer]:
+                - /url: /agents
+            - listitem [ref=e95]:
+              - link "Post Property" [ref=e96] [cursor=pointer]:
+                - /url: /properties/create
+        - generic [ref=e97]:
+          - heading "Trust & Legal" [level=4] [ref=e98]
+          - list [ref=e99]:
+            - listitem [ref=e100]:
+              - link "Legal Services" [ref=e101] [cursor=pointer]:
+                - /url: /legal
+                - img [ref=e102]
+                - text: Legal Services
+            - listitem [ref=e105]:
+              - link "Verify Identity" [ref=e106] [cursor=pointer]:
+                - /url: /kyc
+                - img [ref=e107]
+                - text: Verify Identity
+            - listitem [ref=e110]:
+              - link "Privacy Policy" [ref=e111] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e112]:
+              - link "Terms of Service" [ref=e113] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e114]:
+              - link "Admin Portal" [ref=e115] [cursor=pointer]:
+                - /url: /admin
+        - generic [ref=e116]:
+          - heading "Stay Updated" [level=4] [ref=e117]
+          - paragraph [ref=e118]: Get the latest listings and market insights.
+          - generic [ref=e119]:
+            - textbox "Enter your email..." [ref=e120]
+            - button [ref=e121]:
+              - img [ref=e122]
+          - generic [ref=e125]:
+            - link "+94 11 234 5678" [ref=e126] [cursor=pointer]:
+              - /url: tel:+94112345678
+              - img [ref=e127]
+              - text: +94 11 234 5678
+            - link "hello@landsale.lk" [ref=e129] [cursor=pointer]:
+              - /url: mailto:hello@landsale.lk
+              - img [ref=e130]
+              - text: hello@landsale.lk
+      - generic [ref=e133]:
+        - paragraph [ref=e134]: © 2025 LandSale.lk. Made with ❤️ in Sri Lanka
+        - generic [ref=e135]:
+          - generic [ref=e136]:
+            - img [ref=e137]
+            - text: 100% Verified Listings
+          - generic [ref=e140]:
+            - img [ref=e141]
+            - text: 10,000+ Happy Users
+  - button "Ask AI Assistant" [ref=e144]:
+    - img [ref=e146]
+    - text: Ask AI Assistant
+  - region "Notifications alt+T"
+```

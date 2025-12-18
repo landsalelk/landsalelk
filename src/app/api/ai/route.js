@@ -38,7 +38,7 @@ Guidelines:
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                "model": "meta-llama/llama-3.1-8b-instruct:free", // Using a free/cheap model for demo
+                "model": "google/gemma-3-27b-it:free", // Free model on OpenRouter
                 "messages": [
                     { "role": "system", "content": systemPrompt },
                     ...messages
@@ -58,6 +58,9 @@ Guidelines:
 
     } catch (error) {
         console.error("AI Chat Error:", error);
-        return NextResponse.json({ error: "Failed to generate response." }, { status: 500 });
+        return NextResponse.json({
+            error: "Failed to generate response.",
+            details: error.message
+        }, { status: 500 });
     }
 }

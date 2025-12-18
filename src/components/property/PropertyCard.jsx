@@ -12,11 +12,12 @@ export function PropertyCard({ property }) {
         price = 250000000,
         currency = "LKR",
         location = "Colombo 7, Cinnamon Gardens",
-        specs = { beds: 4, baths: 3, size: 3500 },
+        specs = {},
         type = "Sale",
         beds,
         baths,
         area,
+        perch_size,
         badge
     } = property || {};
 
@@ -92,9 +93,10 @@ export function PropertyCard({ property }) {
     })();
 
     const actualSpecs = {
-        beds: beds || specs.beds || 0,
-        baths: baths || specs.baths || 0,
-        size: area || specs.size || 0
+        beds: beds || specs.beds || null,
+        baths: baths || specs.baths || null,
+        size: area || specs.size || null,
+        perches: perch_size || specs.perch_size || null
     };
 
 
@@ -178,24 +180,34 @@ export function PropertyCard({ property }) {
                     <div className="mt-auto">
                         <div className="flex flex-wrap gap-1.5 md:gap-2 pt-2 md:pt-3 border-t border-slate-100">
                             {isLand ? (
-                                <div className="spec-chip spec-chip-size">
-                                    <Move className="w-3.5 h-3.5" />
-                                    <span>{actualSpecs.size} sqft</span>
-                                </div>
+                                // Land listings show perches only
+                                actualSpecs.perches ? (
+                                    <div className="spec-chip spec-chip-size">
+                                        <Move className="w-3.5 h-3.5" />
+                                        <span>{actualSpecs.perches} perches</span>
+                                    </div>
+                                ) : null
                             ) : (
+                                // Non-land properties show beds, baths, size
                                 <>
-                                    <div className="spec-chip spec-chip-beds">
-                                        <BedDouble className="w-3.5 h-3.5" />
-                                        <span>{actualSpecs.beds}</span>
-                                    </div>
-                                    <div className="spec-chip spec-chip-baths">
-                                        <Bath className="w-3.5 h-3.5" />
-                                        <span>{actualSpecs.baths}</span>
-                                    </div>
-                                    <div className="spec-chip spec-chip-gray">
-                                        <Square className="w-3.5 h-3.5" />
-                                        <span>{actualSpecs.size} sqft</span>
-                                    </div>
+                                    {actualSpecs.beds ? (
+                                        <div className="spec-chip spec-chip-beds">
+                                            <BedDouble className="w-3.5 h-3.5" />
+                                            <span>{actualSpecs.beds} beds</span>
+                                        </div>
+                                    ) : null}
+                                    {actualSpecs.baths ? (
+                                        <div className="spec-chip spec-chip-baths">
+                                            <Bath className="w-3.5 h-3.5" />
+                                            <span>{actualSpecs.baths} baths</span>
+                                        </div>
+                                    ) : null}
+                                    {actualSpecs.size ? (
+                                        <div className="spec-chip spec-chip-gray">
+                                            <Square className="w-3.5 h-3.5" />
+                                            <span>{actualSpecs.size} sqft</span>
+                                        </div>
+                                    ) : null}
                                 </>
                             )}
                         </div>
