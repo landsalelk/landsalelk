@@ -18,7 +18,7 @@ import {
 import { ListingAnalytics } from '@/components/dashboard/ListingAnalytics';
 import { databases } from '@/lib/appwrite';
 import { renewProperty } from '@/lib/properties';
-import { DB_ID, COLLECTION_LISTING_OFFERS } from '@/lib/constants';
+import { DB_ID, COLLECTION_LISTING_OFFERS, COLLECTION_MESSAGES } from '@/lib/constants';
 import { Query } from 'appwrite';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 
@@ -34,13 +34,15 @@ export default function DashboardPage() {
     const [activeSection, setActiveSection] = useState('overview');
     const [mounted, setMounted] = useState(false);
     const [analyticsListing, setAnalyticsListing] = useState(null);
+    const [inquiriesStats, setInquiriesStats] = useState({ total: 0, change: 0 });
+    const [totalViews, setTotalViews] = useState(0);
 
     // Stats based on actual data
     const stats = {
-        totalViews: 0, // TODO: Implement analytics collection to track real views
-        viewsChange: 0,
-        totalInquiries: 0, // TODO: Implement inquiries collection
-        inquiriesChange: 0,
+        totalViews: totalViews,
+        viewsChange: 0, // Cannot calculate without historical view data
+        totalInquiries: inquiriesStats.total,
+        inquiriesChange: inquiriesStats.change,
         totalListings: listings.length,
         savedHomes: favorites.length
     };
@@ -63,11 +65,74 @@ export default function DashboardPage() {
             setListings(userListings);
             setKycStatus(kycDoc?.status || 'unverified');
 
+            // Calculate total views
+            const views = userListings.reduce((acc, listing) => acc + (listing.views_count || 0), 0);
+            setTotalViews(views);
+
             try {
                 const favDocs = await getUserFavorites();
                 setFavorites(favDocs);
             } catch (e) {
                 // Silent fail
+            }
+
+            // Fetch Inquiries (Messages) Stats
+            try {
+                const now = new Date();
+                const firstDayCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+                // Current period messages (All time or just this month? Usually "Total Inquiries" means all time, but "Change" implies periodic)
+                // Let's go with Total Inquiries = All time. Change = Last 30 days vs Previous 30 days.
+
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+                const sixtyDaysAgo = new Date();
+                sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+                const [totalInquiriesRes, last30DaysRes, prev30DaysRes] = await Promise.all([
+                    databases.listDocuments(
+                        DB_ID,
+                        COLLECTION_MESSAGES,
+                        [Query.equal('receiver_id', userData.$id), Query.limit(1)] // Just need total
+                    ),
+                    databases.listDocuments(
+                        DB_ID,
+                        COLLECTION_MESSAGES,
+                        [
+                            Query.equal('receiver_id', userData.$id),
+                            Query.greaterThanEqual('timestamp', thirtyDaysAgo.toISOString()),
+                            Query.limit(1)
+                        ]
+                    ),
+                    databases.listDocuments(
+                        DB_ID,
+                        COLLECTION_MESSAGES,
+                        [
+                            Query.equal('receiver_id', userData.$id),
+                            Query.greaterThanEqual('timestamp', sixtyDaysAgo.toISOString()),
+                            Query.lessThan('timestamp', thirtyDaysAgo.toISOString()),
+                            Query.limit(1)
+                        ]
+                    )
+                ]);
+
+                const total = totalInquiriesRes.total;
+                const currentPeriodCount = last30DaysRes.total;
+                const prevPeriodCount = prev30DaysRes.total;
+
+                let change = 0;
+                if (prevPeriodCount > 0) {
+                    change = Math.round(((currentPeriodCount - prevPeriodCount) / prevPeriodCount) * 100);
+                } else if (currentPeriodCount > 0) {
+                    change = 100;
+                }
+
+                setInquiriesStats({ total, change });
+
+            } catch (e) {
+                console.error("Error fetching inquiries:", e);
             }
 
             // Fetch Offers
