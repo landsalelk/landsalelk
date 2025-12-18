@@ -13,11 +13,14 @@ import {
     LayoutDashboard, Home, Heart, MessageCircle, Settings, Plus,
     TrendingUp, Eye, Users, DollarSign, ShieldCheck, Clock,
     AlertCircle, ChevronRight, Bell, Search, LogOut, Loader2,
-    BarChart3, ArrowUpRight, ArrowDownRight, Sparkles, Wallet, HandCoins
+    BarChart3, ArrowUpRight, ArrowDownRight, Sparkles, Wallet, HandCoins, Calendar, RefreshCw
 } from 'lucide-react';
+import { ListingAnalytics } from '@/components/dashboard/ListingAnalytics';
 import { databases } from '@/lib/appwrite';
+import { renewProperty } from '@/lib/properties';
 import { DB_ID, COLLECTION_LISTING_OFFERS } from '@/lib/constants';
 import { Query } from 'appwrite';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -30,6 +33,7 @@ export default function DashboardPage() {
     const [kycStatus, setKycStatus] = useState(null);
     const [activeSection, setActiveSection] = useState('overview');
     const [mounted, setMounted] = useState(false);
+    const [analyticsListing, setAnalyticsListing] = useState(null);
 
     // Stats based on actual data
     const stats = {
@@ -137,6 +141,19 @@ export default function DashboardPage() {
         }
     };
 
+    const handleRenew = async (listingId) => {
+        try {
+            await renewProperty(listingId);
+            toast.success("Listing renewed successfully!");
+            // Update local state to reflect new created_at
+            setListings(prev => prev.map(l =>
+                l.$id === listingId ? { ...l, created_at: new Date().toISOString() } : l
+            ));
+        } catch (error) {
+            toast.error("Failed to renew listing");
+        }
+    };
+
     if (!mounted) return null;
 
     if (loading) {
@@ -150,6 +167,9 @@ export default function DashboardPage() {
     const navItems = [
         { id: 'overview', label: 'Overview', icon: LayoutDashboard },
         { id: 'listings', label: 'My Listings', icon: Home },
+        { id: 'leads', label: 'Leads CRM', icon: Users, link: '/dashboard/leads' },
+        { id: 'marketing', label: 'Marketing', icon: Sparkles, link: '/dashboard/marketing' },
+        { id: 'open-house', label: 'Open Houses', icon: Calendar, link: '/dashboard/open-houses' },
         { id: 'offers', label: 'Offers', icon: HandCoins },
         { id: 'wallet', label: 'My Wallet', icon: Wallet, link: '/dashboard/wallet' },
         { id: 'favorites', label: 'Saved Homes', icon: Heart },
@@ -254,9 +274,7 @@ export default function DashboardPage() {
                                 <div className="flex items-center justify-between">
                                     <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
                                     <div className="flex items-center gap-3">
-                                        <button className="p-2 bg-white rounded-xl border border-slate-200 hover:bg-slate-50">
-                                            <Bell className="w-5 h-5 text-slate-500" />
-                                        </button>
+                                        <NotificationCenter />
                                         <button className="p-2 bg-white rounded-xl border border-slate-200 hover:bg-slate-50">
                                             <Search className="w-5 h-5 text-slate-500" />
                                         </button>
@@ -385,19 +403,50 @@ export default function DashboardPage() {
 
                                 {listings.length > 0 ? (
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {listings.map(prop => (
-                                            <div key={prop.$id} className="relative group">
-                                                <PropertyCard property={prop} />
-                                                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                                    <Link
-                                                        href={`/properties/${prop.$id}/edit`}
-                                                        className="px-3 py-1.5 bg-white rounded-lg text-sm font-medium text-slate-600 shadow-lg hover:bg-slate-50"
-                                                    >
-                                                        Edit
-                                                    </Link>
+                                        {listings.map(prop => {
+                                            const createdAt = new Date(prop.created_at);
+                                            const daysOld = Math.floor((new Date() - createdAt) / (1000 * 60 * 60 * 24));
+                                            const daysRemaining = 30 - daysOld;
+                                            const isExpiring = daysRemaining <= 5;
+                                            const isExpired = daysRemaining < 0;
+
+                                            return (
+                                                <div key={prop.$id} className="relative group">
+                                                    <PropertyCard property={prop} />
+
+                                                    {/* Expiration Badge */}
+                                                    {(isExpiring || isExpired) && (
+                                                        <div className={`absolute top-3 left-3 px-2 py-1 rounded text-xs font-bold shadow-sm z-10 ${isExpired ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'
+                                                            }`}>
+                                                            {isExpired ? 'Expired' : `Expires in ${daysRemaining} days`}
+                                                        </div>
+                                                    )}
+
+                                                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 flex-wrap justify-end">
+                                                        {(isExpiring || isExpired) && (
+                                                            <button
+                                                                onClick={() => handleRenew(prop.$id)}
+                                                                className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm font-medium shadow-lg hover:bg-emerald-700 flex items-center gap-1"
+                                                            >
+                                                                <RefreshCw className="w-3 h-3" /> Renew
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => setAnalyticsListing(prop)}
+                                                            className="px-3 py-1.5 bg-white rounded-lg text-sm font-medium text-slate-600 shadow-lg hover:bg-slate-50 flex items-center gap-1"
+                                                        >
+                                                            <BarChart3 className="w-3 h-3" /> Stats
+                                                        </button>
+                                                        <Link
+                                                            href={`/properties/${prop.$id}/edit`}
+                                                            className="px-3 py-1.5 bg-white rounded-lg text-sm font-medium text-slate-600 shadow-lg hover:bg-slate-50"
+                                                        >
+                                                            Edit
+                                                        </Link>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 ) : (
                                     <div className="glass-card rounded-2xl p-12 text-center">
@@ -638,6 +687,13 @@ export default function DashboardPage() {
                     </main>
                 </div>
             </div>
+
+            {analyticsListing && (
+                <ListingAnalytics
+                    listing={analyticsListing}
+                    onClose={() => setAnalyticsListing(null)}
+                />
+            )}
         </div>
     );
 }

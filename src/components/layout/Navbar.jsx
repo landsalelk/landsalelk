@@ -2,14 +2,16 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Menu, X, User, Search, MapPin, PlusCircle, Heart, Home } from 'lucide-react';
+import { Menu, X, User, Search, MapPin, PlusCircle, Heart, Home, Scale } from 'lucide-react';
 import NotificationBell from '@/components/ui/NotificationBell';
+import { useComparison } from '@/context/ComparisonContext';
 
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [user, setUser] = useState(null);
     const [scrolled, setScrolled] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const { compareList } = useComparison() || {};
 
     useEffect(() => {
         setMounted(true);
@@ -141,6 +143,19 @@ export function Navbar() {
                                         className="text-slate-600 hover:text-[#10b981] font-bold text-sm transition-colors"
                                     >
                                         Sign In
+                                    </Link>
+                                )}
+
+                                {compareList?.length > 0 && (
+                                    <Link
+                                        href="/compare"
+                                        className="p-2 rounded-xl bg-slate-100 hover:bg-[#d1fae5] text-slate-600 hover:text-[#10b981] transition-colors relative"
+                                        title="Compare Properties"
+                                    >
+                                        <Scale className="w-5 h-5" />
+                                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-600 text-white text-[10px] flex items-center justify-center rounded-full font-bold">
+                                            {compareList.length}
+                                        </span>
                                     </Link>
                                 )}
 

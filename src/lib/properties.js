@@ -228,6 +228,27 @@ export async function deleteProperty(id) {
 }
 
 /**
+ * Renew a property listing (bumps created_at).
+ * @param {string} id - Property document ID
+ */
+export async function renewProperty(id) {
+    try {
+        return await databases.updateDocument(
+            DB_ID,
+            COLLECTION_LISTINGS,
+            id,
+            {
+                created_at: new Date().toISOString(),
+                status: 'active'
+            }
+        );
+    } catch (error) {
+        console.error("Renew Listing Error:", error);
+        throw error;
+    }
+}
+
+/**
  * Fetch related properties based on type and category.
  * @param {string} currentId - ID of current property to exclude
  * @param {string} type - listing_type (sale/rent)

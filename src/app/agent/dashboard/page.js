@@ -13,6 +13,7 @@ import {
     GraduationCap, Trophy, BarChart3, Building2, Shield
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { calculateProfileCompleteness, getMissingFields } from '@/lib/profileUtils';
 
 export default function AgentDashboardPage() {
     const router = useRouter();
@@ -292,8 +293,8 @@ export default function AgentDashboardPage() {
                                     return (
                                         <div key={module.id} className="flex items-center gap-3">
                                             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isComplete
-                                                    ? 'bg-emerald-100 text-emerald-600'
-                                                    : 'bg-slate-100 text-slate-400'
+                                                ? 'bg-emerald-100 text-emerald-600'
+                                                : 'bg-slate-100 text-slate-400'
                                                 }`}>
                                                 {isComplete ? <CheckCircle className="w-4 h-4" /> : idx + 1}
                                             </div>
@@ -318,7 +319,53 @@ export default function AgentDashboardPage() {
                             </Link>
                         </div>
 
-                        {/* Badges */}
+                        {/* Profile Completeness */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
+                                <Award className="w-5 h-5 text-blue-500" />
+                                Profile Strength
+                            </h2>
+                            {agentProfile ? (
+                                <div>
+                                    <div className="flex justify-between text-sm mb-2">
+                                        <span className="text-slate-500">Completeness</span>
+                                        <span className="font-bold text-blue-600">
+                                            {calculateProfileCompleteness(agentProfile)}%
+                                        </span>
+                                    </div>
+                                    <div className="h-3 bg-slate-100 rounded-full overflow-hidden mb-4">
+                                        <div
+                                            className={`h-full rounded-full transition-all ${calculateProfileCompleteness(agentProfile) === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`}
+                                            style={{ width: `${calculateProfileCompleteness(agentProfile)}%` }}
+                                        />
+                                    </div>
+
+                                    {calculateProfileCompleteness(agentProfile) < 100 && (
+                                        <div className="space-y-2 mb-4">
+                                            <p className="text-xs font-bold text-slate-500 uppercase">Missing Details:</p>
+                                            {getMissingFields(agentProfile).map(field => (
+                                                <div key={field.key} className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">
+                                                    <AlertCircle className="w-3 h-3 text-amber-500" />
+                                                    {field.label}
+                                                </div>
+                                            ))}
+                                            <Link href="/profile" className="block text-center text-xs font-bold text-blue-600 hover:underline mt-2">
+                                                Complete Profile
+                                            </Link>
+                                        </div>
+                                    )}
+                                    {calculateProfileCompleteness(agentProfile) === 100 && (
+                                        <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+                                            <CheckCircle className="w-4 h-4" /> All Set!
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="text-sm text-slate-400">Loading profile...</div>
+                            )}
+                        </div>
+
+                        {/* Badges (Existing) */}
                         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
                             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
                                 <Trophy className="w-5 h-5 text-amber-500" />
@@ -331,8 +378,8 @@ export default function AgentDashboardPage() {
                                         <div
                                             key={badge.id}
                                             className={`aspect-square rounded-xl flex items-center justify-center text-2xl ${isEarned
-                                                    ? 'bg-gradient-to-br from-amber-100 to-amber-50 border-2 border-amber-200'
-                                                    : 'bg-slate-100 grayscale opacity-30'
+                                                ? 'bg-gradient-to-br from-amber-100 to-amber-50 border-2 border-amber-200'
+                                                : 'bg-slate-100 grayscale opacity-30'
                                                 }`}
                                             title={badge.name}
                                         >

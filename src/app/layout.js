@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer';
 import { Toaster } from 'sonner';
 import AIChatWindow from '@/components/chat/AIChatWindow';
 import CookieConsent from '@/components/ui/CookieConsent';
+import { ComparisonProvider } from '@/context/ComparisonContext';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -50,19 +51,21 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={`${outfit.className} bg-[#f0f9ff] min-h-screen`}>
-        {/* Floating Background Blobs */}
-        <div className="bg-blob bg-blob-1" />
-        <div className="bg-blob bg-blob-2" />
-        <div className="bg-blob bg-blob-3" />
+        <ComparisonProvider>
+          {/* Floating Background Blobs */}
+          <div className="bg-blob bg-blob-1" />
+          <div className="bg-blob bg-blob-2" />
+          <div className="bg-blob bg-blob-3" />
 
-        <Navbar />
-        <main className="pt-24 relative z-10">
-          {children}
-        </main>
-        <Footer />
-        <AIChatWindow />
-        <CookieConsent />
-        <Toaster position="top-center" richColors />
+          <Navbar />
+          <main className="pt-24 relative z-10">
+            {children}
+          </main>
+          <Footer />
+          <AIChatWindow />
+          <CookieConsent />
+          <Toaster position="top-center" richColors />
+        </ComparisonProvider>
       </body>
     </html>
   );

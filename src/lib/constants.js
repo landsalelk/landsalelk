@@ -24,6 +24,7 @@ export const COLLECTION_AGENT_LEADS = 'agent_leads';
 export const COLLECTION_TRAINING_PROGRESS = 'training_progress';
 export const COLLECTION_CERTIFICATES = 'certificates';
 export const COLLECTION_AGENT_SUBSCRIPTIONS = 'agent_subscriptions';
+export const COLLECTION_OPEN_HOUSES = 'open_houses';
 
 // ================================
 // FINANCIAL
@@ -60,6 +61,10 @@ export const COLLECTION_CMS_PAGES = 'cms_pages';
 export const COLLECTION_BLOG_POSTS = 'blog_posts';
 export const COLLECTION_FAQS = 'faqs';
 export const COLLECTION_SETTINGS = 'settings';
+export const COLLECTION_COUPONS = 'coupons';
+export const COLLECTION_AUDIT_LOGS = 'audit_logs';
+export const COLLECTION_EMAIL_TEMPLATES = 'email_templates';
+export const COLLECTION_SUBSCRIPTION_PLANS = 'subscription_plans';
 
 // ================================
 // SEO & MARKETING

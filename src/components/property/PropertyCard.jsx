@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Heart, BedDouble, Bath, Square, Move } from 'lucide-react';
+import { MapPin, Heart, BedDouble, Bath, Square, Move, Scale } from 'lucide-react';
+import { useComparison } from '@/context/ComparisonContext';
 
 export function PropertyCard({ property }) {
+    const { addToCompare, compareList } = useComparison() || {};
     const {
         $id,
         title = "Luxury Villa in Colombo 7",
@@ -20,6 +22,8 @@ export function PropertyCard({ property }) {
         perch_size,
         badge
     } = property || {};
+
+    const isInCompare = compareList?.some(p => p.$id === $id);
 
     // Smart image extraction: Try primary_image, then images array, then fallback
     const getImageUrl = () => {
@@ -147,9 +151,22 @@ export function PropertyCard({ property }) {
                     {/* Favorite Button */}
                     <button
                         onClick={(e) => e.preventDefault()}
-                        className="property-favorite-btn bg-white/30 text-white hover:bg-white hover:text-red-500 scale-75 md:scale-100 origin-top-right"
+                        className="property-favorite-btn bg-white/30 text-white hover:bg-white hover:text-red-500 scale-75 md:scale-100 origin-top-right transition-colors"
                     >
                         <Heart className="w-5 h-5" />
+                    </button>
+
+                    {/* Compare Button */}
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            addToCompare(property);
+                        }}
+                        className={`absolute top-14 right-2 md:right-4 p-2 rounded-full scale-75 md:scale-100 transition-colors z-20 ${isInCompare ? 'bg-emerald-500 text-white' : 'bg-black/30 text-white hover:bg-white hover:text-emerald-600 backdrop-blur-sm'
+                            }`}
+                        title={isInCompare ? "Added to Compare" : "Compare"}
+                    >
+                        <Scale className="w-5 h-5" />
                     </button>
 
                     {/* Price Overlay - Desktop Only */}

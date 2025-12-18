@@ -4,10 +4,17 @@ import { useState, useEffect } from 'react';
 import { account, storage } from '@/lib/appwrite';
 import { getPendingKYCRequests, updateKYCStatus, getKYCFileView } from '@/lib/kyc';
 import { getPlatformStats } from '@/lib/analytics';
-import { ShieldCheck, XCircle, CheckCircle, Loader2, FileText, AlertTriangle, TrendingUp, Users, Wallet, Building, MessageSquare, Star, Trash2 } from 'lucide-react';
+import { ShieldCheck, XCircle, CheckCircle, Loader2, FileText, AlertTriangle, TrendingUp, Users, Wallet, Building, MessageSquare, Star, Trash2, Ticket } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { BUCKET_KYC, DB_ID, COLLECTION_REVIEWS } from '@/lib/constants';
+import { AdminCoupons } from '@/components/admin/AdminCoupons';
+import { AuditLogs } from '@/components/admin/AuditLogs';
+import { EmailTemplates } from '@/components/admin/EmailTemplates';
+import { SubscriptionPlans } from '@/components/admin/SubscriptionPlans';
+import { AdminUsers } from '@/components/admin/AdminUsers';
+import { AdminAgents } from '@/components/admin/AdminAgents';
+import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { databases } from '@/lib/appwrite';
 import { Query } from 'appwrite';
 
@@ -162,9 +169,52 @@ export default function AdminDashboard() {
                     >
                         Pending Reviews ({reviews.length})
                     </button>
+                    <button
+                        onClick={() => setActiveTab('coupons')}
+                        className={`pb-4 px-2 font-bold transition-all ${activeTab === 'coupons' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                        Coupons
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('logs')}
+                        className={`pb-4 px-2 font-bold transition-all ${activeTab === 'logs' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                        Audit Logs
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('templates')}
+                        className={`pb-4 px-2 font-bold transition-all ${activeTab === 'templates' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                        Email Templates
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('plans')}
+                        className={`pb-4 px-2 font-bold transition-all ${activeTab === 'plans' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                        Plans
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('users')}
+                        className={`pb-4 px-2 font-bold transition-all ${activeTab === 'users' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                        Users
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('agents')}
+                        className={`pb-4 px-2 font-bold transition-all ${activeTab === 'agents' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                        Agents
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('analytics')}
+                        className={`pb-4 px-2 font-bold transition-all ${activeTab === 'analytics' ? 'text-emerald-600 border-b-2 border-emerald-600' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                        Analytics
+                    </button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
+                    {activeTab === 'agents' && <AdminAgents />}
                     {activeTab === 'kyc' && (
                         requests.length === 0 ? (
                             <div className="bg-white p-12 rounded-3xl text-center shadow-sm">
@@ -301,6 +351,13 @@ export default function AdminDashboard() {
                         )
                     )}
                 </div>
+
+                {activeTab === 'coupons' && <AdminCoupons />}
+                {activeTab === 'logs' && <AuditLogs />}
+                {activeTab === 'templates' && <EmailTemplates />}
+                {activeTab === 'plans' && <SubscriptionPlans />}
+                {activeTab === 'users' && <AdminUsers />}
+                {activeTab === 'analytics' && <AnalyticsDashboard />}
             </div>
         </div>
     );

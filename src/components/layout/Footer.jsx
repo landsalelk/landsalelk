@@ -48,10 +48,12 @@ export default function Footer() {
                     <div>
                         <h4 className="text-slate-900 font-bold mb-5 text-lg">Explore</h4>
                         <ul className="space-y-3 text-sm font-medium">
+                            <li><Link href="/guides" className="text-slate-500 hover:text-primary-500 transition-colors">Neighborhood Guides</Link></li>
                             <li><Link href="/properties?type=land" className="text-slate-500 hover:text-primary-500 transition-colors">Lands for Sale</Link></li>
                             <li><Link href="/properties?type=sale" className="text-slate-500 hover:text-primary-500 transition-colors">Houses for Sale</Link></li>
                             <li><Link href="/properties?type=rent" className="text-slate-500 hover:text-primary-500 transition-colors">Properties for Rent</Link></li>
                             <li><Link href="/agents" className="text-slate-500 hover:text-primary-500 transition-colors">Find Agents</Link></li>
+                            <li><Link href="/tools/mortgage-calculator" className="text-slate-500 hover:text-primary-500 transition-colors">Mortgage Calculator</Link></li>
                             <li><Link href="/properties/create" className="text-slate-500 hover:text-primary-500 transition-colors">Post Property</Link></li>
                         </ul>
                     </div>

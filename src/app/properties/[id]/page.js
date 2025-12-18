@@ -7,6 +7,10 @@ import { addFavorite, removeFavorite, isFavorite } from '@/lib/favorites';
 import { ChatWidget } from '@/components/chat/ChatWidget';
 import { ValuationCard } from '@/components/property/ValuationCard';
 import { PropertyCard } from '@/components/property/PropertyCard';
+import { RecentlyViewed, addToHistory } from '@/components/property/RecentlyViewed';
+import { NeighborhoodScore } from '@/components/property/NeighborhoodScore';
+import { ReportListingButton } from '@/components/property/ReportListingButton';
+import { VideoCallButton } from '@/components/video/VideoCallButton';
 import EasyPaymentCalculator from '@/components/tools/EasyPaymentCalculator';
 import ROICalculator from '@/components/property/ROICalculator';
 import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2, Train, Globe, Banknote } from 'lucide-react';
@@ -88,6 +92,9 @@ export default function PropertyDetailsPage() {
                 // Fetch related properties
                 const related = await getRelatedProperties(id, data.listing_type, data.land_type);
                 setRelatedProperties(related);
+
+                // Track history
+                addToHistory(data);
 
             } catch (err) {
                 console.error(err);
@@ -401,6 +408,11 @@ export default function PropertyDetailsPage() {
                             <EasyPaymentCalculator price={property.price} />
                             <ROICalculator price={property.price} />
                         </div>
+
+                        {/* Neighborhood / Walk Score */}
+                        <div className="mt-8">
+                            <NeighborhoodScore location={property.location} />
+                        </div>
                     </div>
 
                     {/* Right Column: Agent & Actions */}
@@ -441,12 +453,21 @@ export default function PropertyDetailsPage() {
                                 >
                                     <HandCoins className="w-5 h-5" /> Make an Offer
                                 </button>
+
+                                <VideoCallButton
+                                    agentName={property.contact_name || "Agent"}
+                                    agentId={property.user_id}
+                                    propertyTitle={property.title}
+                                />
                             </div>
 
                             <div className="pt-6 border-t border-slate-100">
-                                <p className="text-xs text-slate-400 text-center">
+                                <p className="text-xs text-slate-400 text-center mb-4">
                                     Protect your payments. Never transfer money before viewing the property.
                                 </p>
+                                <div className="flex justify-center">
+                                    <ReportListingButton listingId={property.$id} listingTitle={property.title} />
+                                </div>
                             </div>
                         </div>
 
@@ -465,6 +486,11 @@ export default function PropertyDetailsPage() {
                     </div>
                 </div>
             )}
+
+            {/* Recently Viewed */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <RecentlyViewed currentId={id} />
+            </div>
 
             {/* Chat Widget */}
             <ChatWidget agentId={property.user_id} agentName={property.contact_name || "Agent"} />

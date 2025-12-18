@@ -15,6 +15,7 @@ import {
     CheckCircle, Award, Building2, MessageSquare, ExternalLink,
     Clock, Trophy, BadgeCheck, TrendingUp, Users, PenTool, X
 } from 'lucide-react';
+import { AgentBadges } from '@/components/agent/AgentBadges';
 
 export default function AgentProfilePage() {
     const { id } = useParams();
@@ -253,6 +254,9 @@ export default function AgentProfilePage() {
                                 <p className="text-slate-600 leading-relaxed">{agent.bio}</p>
                             </div>
                         )}
+
+                        {/* Agent Badges */}
+                        <AgentBadges userId={agent.user_id} />
 
                         {/* Credentials */}
                         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
