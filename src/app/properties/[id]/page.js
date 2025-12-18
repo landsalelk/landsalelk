@@ -21,6 +21,7 @@ import { account, databases } from '@/lib/appwrite';
 import { DB_ID, COLLECTION_LISTING_OFFERS } from '@/lib/constants';
 import { ID } from 'appwrite';
 import { X, HandCoins } from 'lucide-react';
+import { incrementViewCount } from '@/app/actions/analytics';
 
 export default function PropertyDetailsPage() {
     const { id } = useParams();
@@ -95,6 +96,14 @@ export default function PropertyDetailsPage() {
 
                 // Track history
                 addToHistory(data);
+
+                // Track Real View (Server Action)
+                const storageKey = `viewed_${id}`;
+                if (!sessionStorage.getItem(storageKey)) {
+                    incrementViewCount(id).then(() => {
+                        sessionStorage.setItem(storageKey, 'true');
+                    }).catch(err => console.error("View tracking failed", err));
+                }
 
             } catch (err) {
                 console.error(err);

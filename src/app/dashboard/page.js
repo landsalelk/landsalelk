@@ -40,7 +40,7 @@ export default function DashboardPage() {
     // Stats based on actual data
     const stats = {
         totalViews: totalViews,
-        viewsChange: 0, // Cannot calculate without historical view data
+        viewsChange: 0, // Real-time views are now tracked via 'views_count' in listings
         totalInquiries: inquiriesStats.total,
         inquiriesChange: inquiriesStats.change,
         totalListings: listings.length,
