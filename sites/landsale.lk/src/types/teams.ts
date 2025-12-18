@@ -46,6 +46,38 @@ export interface AgentTeam extends Models.Team {
     average_rating: number
     response_time_hours: number
   }
+  // Data & Accuracy Enhancements
+  working_hours?: WorkingHours
+  holidays?: Holiday[]
+  sla_config?: SLAConfig
+}
+
+export interface WorkingHours {
+  timezone: string
+  schedule: {
+    [key in 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday']: {
+      is_working: boolean
+      start: string // "09:00"
+      end: string // "17:00"
+    }
+  }
+}
+
+export interface Holiday {
+  date: string // YYYY-MM-DD
+  name: string
+  is_recurring: boolean
+}
+
+export interface SLAConfig {
+  response_time_minutes: number
+  resolution_time_hours: number
+  priority_multipliers: {
+    low: number
+    medium: number
+    high: number
+    urgent: number
+  }
 }
 
 export interface AgentTeamMembership extends Models.Membership {
@@ -182,6 +214,25 @@ export interface TeamAnalytics extends Models.Document {
     converted_leads: number
     lead_conversion_rate: number
     average_response_time: number
+    median_response_time: number // New: Median calculation
+    response_time_breakdown: {
+      call: number
+      email: number
+      sms: number
+      whatsapp: number
+      other: number
+    }
+    resolution_time_avg: number // New: Resolution time
+
+    // Gamification & Leaderboard
+    leaderboard: {
+      agent_id: string
+      name: string
+      points: number
+      rank: number
+      badges: string[]
+      streak_days: number
+    }[]
     
     // Team performance
     total_commission: number
@@ -194,6 +245,19 @@ export interface TeamAnalytics extends Models.Document {
         leads_handled: number
         conversion_rate: number
         commission_earned: number
+        avg_response_time: number
+        median_response_time: number
+        resolution_time_avg: number
+        response_time_breakdown: {
+            call: number
+            email: number
+            sms: number
+            whatsapp: number
+            other: number
+        }
+        points: number
+        streak_days: number
+        badges: string[]
       }
     }
     

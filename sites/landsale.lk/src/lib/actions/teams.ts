@@ -493,46 +493,60 @@ export async function getTeamAnalytics(teamId: string, dateRange?: { start: stri
     const closedLeads = teamLeads.documents.filter(lead => lead.status === 'closed').length
     const conversionRate = totalLeads > 0 ? (closedLeads / totalLeads) * 100 : 0
 
+    // Helper to check working hours
+    const isWorkingHour = (date: Date) => {
+      const hour = date.getHours()
+      const day = date.getDay()
+      // Default 9-5, Mon-Fri (TODO: Use team config if available)
+      return day !== 0 && day !== 6 && hour >= 9 && hour < 17
+    }
+
     // Calculate member performance
     const memberPerformance = teamMembers.members.map(member => {
       const memberLeads = teamLeads.documents.filter(lead =>
         lead.assigned_agents.includes(member.userId)
-      )
+      ).sort((a, b) => new Date(a.$createdAt).getTime() - new Date(b.$createdAt).getTime()) // Sort for streak calculation
+
       const memberClosedLeads = memberLeads.filter(lead => lead.status === 'closed').length
       const memberConversionRate = memberLeads.length > 0 ? (memberClosedLeads / memberLeads.length) * 100 : 0
 
-      // Calculate average response time
+      // Extended Analytics Calculation
+      const responseTimes: number[] = []
+      const resolutionTimes: number[] = []
       let totalResponseTimeMinutes = 0
       let respondedLeadsCount = 0
+
+      const breakdown = {
+        call: 0,
+        email: 0,
+        sms: 0,
+        whatsapp: 0,
+        other: 0
+      }
+
+      // Gamification counters
+      let currentStreak = 0
+      let maxStreak = 0
+      let totalPoints = 0
+      const badges: string[] = []
 
       memberLeads.forEach(lead => {
         let logs = lead.activity_log
 
-        // Handle potential string format (Appwrite sometimes returns JSON arrays as strings)
         if (typeof logs === 'string') {
-          try {
-            logs = JSON.parse(logs)
-          } catch (e) {
-            logs = []
-          }
+          try { logs = JSON.parse(logs) } catch (e) { logs = [] }
         }
 
         if (!Array.isArray(logs) || logs.length === 0) return
 
-        // Sort logs by creation time to be safe
         logs.sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
 
-        // 1. Find assignment time
-        // We look for the "Lead created and assigned" action or use lead creation time
-        // The first log is usually the creation/assignment log
         const assignmentLog = logs.find((log: any) => log.action === 'Lead created and assigned')
         const assignmentTime = assignmentLog
           ? new Date(assignmentLog.created_at).getTime()
           : new Date(lead.$createdAt).getTime()
 
-        // 2. Find first response by this agent
-        // A response is any action by this agent that happens AFTER the assignment
-        // and is not the assignment action itself
+        // Find first valid response
         const responseLog = logs.find((log: any) =>
           log.agent_id === member.userId &&
           log.action !== 'Lead created and assigned' &&
@@ -540,17 +554,74 @@ export async function getTeamAnalytics(teamId: string, dateRange?: { start: stri
         )
 
         if (responseLog) {
-          const responseTime = new Date(responseLog.created_at).getTime()
+          const responseDate = new Date(responseLog.created_at)
+
+          // Calculate response time
+          const responseTime = responseDate.getTime()
           const diffMinutes = (responseTime - assignmentTime) / (1000 * 60)
 
           if (diffMinutes >= 0) {
+            // Apply working hours logic: Bonus points for responding outside working hours?
+            // Or prioritize responses during working hours?
+            // For now, we just track it.
+            const duringWorkHours = isWorkingHour(responseDate)
+
             totalResponseTimeMinutes += diffMinutes
             respondedLeadsCount++
+            responseTimes.push(diffMinutes)
+
+            // Breakdown
+            const actionLower = responseLog.action.toLowerCase()
+            if (actionLower.includes('call')) breakdown.call++
+            else if (actionLower.includes('email')) breakdown.email++
+            else if (actionLower.includes('sms')) breakdown.sms++
+            else if (actionLower.includes('whatsapp')) breakdown.whatsapp++
+            else breakdown.other++
+
+            // Gamification: Streak logic (responses under 15 mins)
+            // Bonus points if responding effectively during working hours
+            if (diffMinutes < 15) {
+              currentStreak++
+              totalPoints += 10 // Fast response bonus
+              if (duringWorkHours) totalPoints += 5 // Professionalism bonus
+            } else {
+              if (currentStreak > maxStreak) maxStreak = currentStreak
+              currentStreak = 0
+            }
           }
+        }
+
+        // Resolution Time (Time to 'closed')
+        if (lead.status === 'closed') {
+           const closeLog = logs.find((log: any) => log.action?.toLowerCase().includes('closed') || log.status === 'closed')
+           const closeTime = closeLog ? new Date(closeLog.created_at).getTime() : new Date(lead.$updatedAt).getTime()
+           const resolutionHours = (closeTime - assignmentTime) / (1000 * 60 * 60)
+           if (resolutionHours > 0) resolutionTimes.push(resolutionHours)
+           totalPoints += 50 // Closing bonus
         }
       })
 
+      if (currentStreak > maxStreak) maxStreak = currentStreak
+
+      // Calculate Averages & Medians
       const avgResponseTime = respondedLeadsCount > 0 ? Math.round(totalResponseTimeMinutes / respondedLeadsCount) : 0
+
+      const sortedResponseTimes = [...responseTimes].sort((a, b) => a - b)
+      const mid = Math.floor(sortedResponseTimes.length / 2)
+      const medianResponseTime = sortedResponseTimes.length > 0
+        ? sortedResponseTimes.length % 2 !== 0
+            ? sortedResponseTimes[mid]
+            : (sortedResponseTimes[mid - 1] + sortedResponseTimes[mid]) / 2
+        : 0
+
+      const avgResolutionTime = resolutionTimes.length > 0
+        ? resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length
+        : 0
+
+      // Badges
+      if (avgResponseTime > 0 && avgResponseTime < 10) badges.push('Speedy Responder')
+      if (maxStreak > 5) badges.push('On Fire')
+      if (memberClosedLeads >= 5) badges.push('Closer')
 
       return {
         member_id: member.userId,
@@ -560,6 +631,12 @@ export async function getTeamAnalytics(teamId: string, dateRange?: { start: stri
         closed_leads: memberClosedLeads,
         conversion_rate: memberConversionRate,
         avg_response_time: avgResponseTime,
+        median_response_time: Math.round(medianResponseTime),
+        response_time_breakdown: breakdown,
+        resolution_time_avg: Math.round(avgResolutionTime * 10) / 10, // Round to 1 decimal
+        points: totalPoints,
+        streak_days: maxStreak, // Treating streak count as "streak unit" for now
+        badges: badges,
         last_activity: memberLeads.length > 0 ? memberLeads[0].$updatedAt : null
       }
     })
