@@ -6,13 +6,16 @@ import { PropertyCard } from "@/components/property/PropertyCard";
 import { getFeaturedProperties } from "@/lib/properties";
 import { databases } from "@/lib/appwrite";
 import { DB_ID, COLLECTION_LISTINGS } from "@/lib/constants";
+import { subscribeToNewsletter } from "@/app/actions/newsletter";
 import { Query } from "appwrite";
 import { ArrowRight, Sparkles, ShieldCheck, Brain, Scale, PlusCircle, Home, Building, Trees, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function HomePage() {
   const [featuredProperties, setFeaturedProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [categoryCounts, setCategoryCounts] = useState({ lands: 0, houses: 0, apartments: 0 });
 
@@ -228,15 +231,24 @@ export default function HomePage() {
           </p>
           <form
             className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
               const email = e.target.email.value;
-              if (email) {
-                // TODO: Integrate with email marketing service or create subscribers collection
-                import('sonner').then(({ toast }) => {
-                  toast.success("Thanks! You'll receive property alerts soon.");
-                });
-                e.target.reset();
+              if (email && !submitting) {
+                setSubmitting(true);
+                try {
+                  const result = await subscribeToNewsletter(email);
+                  if (result.success) {
+                    toast.success(result.message);
+                    e.target.reset();
+                  } else {
+                    toast.error(result.error);
+                  }
+                } catch (error) {
+                  toast.error("Something went wrong. Please try again.");
+                } finally {
+                  setSubmitting(false);
+                }
               }
             }}
           >
@@ -244,14 +256,16 @@ export default function HomePage() {
               type="email"
               name="email"
               required
+              disabled={submitting}
               placeholder="Enter your email"
-              className="flex-1 px-6 py-4 bg-white rounded-2xl border border-slate-200 outline-none focus:border-[#10b981] font-medium"
+              className="flex-1 px-6 py-4 bg-white rounded-2xl border border-slate-200 outline-none focus:border-[#10b981] font-medium disabled:opacity-50"
             />
             <button
               type="submit"
-              className="px-8 py-4 bg-[#10b981] text-white rounded-2xl font-bold hover:bg-[#059669] transition-colors shadow-lg shadow-[#10b981]/30"
+              disabled={submitting}
+              className="px-8 py-4 bg-[#10b981] text-white rounded-2xl font-bold hover:bg-[#059669] transition-colors shadow-lg shadow-[#10b981]/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]"
             >
-              Subscribe
+              {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Subscribe"}
             </button>
           </form>
         </div>

@@ -1,4 +1,4 @@
-export const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
+export const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || process.env.EXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelkdb';
 
 // ================================
 // CORE BUSINESS COLLECTIONS
@@ -70,6 +70,7 @@ export const COLLECTION_SUBSCRIPTION_PLANS = 'subscription_plans';
 // SEO & MARKETING
 // ================================
 export const COLLECTION_SEO_META = 'seo_meta';
+export const COLLECTION_SUBSCRIBERS = 'subscribers';
 
 // ================================
 // COMMUNICATION
