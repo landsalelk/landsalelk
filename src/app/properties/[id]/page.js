@@ -13,7 +13,10 @@ import { ReportListingButton } from '@/components/property/ReportListingButton';
 import { VideoCallButton } from '@/components/video/VideoCallButton';
 import EasyPaymentCalculator from '@/components/tools/EasyPaymentCalculator';
 import ROICalculator from '@/components/property/ROICalculator';
-import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2, Train, Globe, Banknote } from 'lucide-react';
+import { StickyGallery } from '@/components/property/StickyGallery';
+import { ScrollMap } from '@/components/property/ScrollMap';
+import { FadeIn, FadeInItem } from '@/components/animations/FadeIn';
+import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2, Train, Globe, Banknote, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -227,81 +230,54 @@ export default function PropertyDetailsPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
+            {/* 1. Mobile Top Gallery (Hidden on Desktop) */}
+            <div className="block lg:hidden h-[300px] relative group">
+                <Image
+                    src={images[activeImage] || '/placeholder.jpg'}
+                    alt={parseSafe(property.title, "Property Image")}
+                    fill
+                    className="object-cover"
+                    priority
+                    unoptimized
+                />
+                 {/* Mobile Navigation */}
+                 <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2 z-10">
+                    {images.slice(0, 5).map((_, idx) => (
+                        <div key={idx} className={`w-2 h-2 rounded-full ${activeImage === idx ? 'bg-white' : 'bg-white/50'}`} />
+                    ))}
+                </div>
+                 {/* Mobile Nav Arrows */}
+                 <button onClick={() => setActiveImage(i => (i - 1 + images.length) % images.length)} className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/20 text-white backdrop-blur-sm"><ChevronLeft className="w-6 h-6"/></button>
+                 <button onClick={() => setActiveImage(i => (i + 1) % images.length)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/20 text-white backdrop-blur-sm"><ChevronRight className="w-6 h-6"/></button>
 
-            {/* 1. Image Gallery Section */}
-            <div className="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[500px] lg:h-[600px]">
-                    {/* Main Image */}
-                    <div className="lg:col-span-8 h-full relative group">
-                        <Image
-                            src={images[activeImage] || '/placeholder.jpg'}
-                            alt={parseSafe(property.title, "Property Image")}
-                            fill
-                            className="object-cover rounded-2xl shadow-sm"
-                            priority
-                            unoptimized
-                        />
-
-                        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                            <span className="bg-emerald-600/90 backdrop-blur-md text-white px-3 py-1 text-sm font-bold rounded-lg shadow-sm">
-                                {property.listing_type === 'sale' ? 'For Sale' : 'For Rent'}
-                            </span>
-                            {property.is_foreign_eligible && (
-                                <span className="bg-blue-500/90 backdrop-blur-md text-white px-3 py-1 text-sm font-bold rounded-lg shadow-sm flex items-center gap-1">
-                                    <Globe className="w-3 h-3" /> Foreign Eligible
-                                </span>
-                            )}
-                            {property.has_payment_plan && (
-                                <span className="bg-amber-500/90 backdrop-blur-md text-white px-3 py-1 text-sm font-bold rounded-lg shadow-sm flex items-center gap-1">
-                                    <Banknote className="w-3 h-3" /> Payment Plan
-                                </span>
-                            )}
-                        </div>
-                        {/* Action Buttons */}
-                        <div className="absolute top-4 right-4 flex gap-2">
-                            <button
-                                onClick={handleSave}
-                                disabled={savingFav}
-                                className={`p-3 rounded-full backdrop-blur-md shadow-sm transition-all ${isSaved ? 'bg-red-500 text-white' : 'bg-white/90 text-slate-600 hover:bg-white'}`}
-                            >
-                                {savingFav ? <Loader2 className="w-5 h-5 animate-spin" /> : <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Thumbnails */}
-                    <div className="hidden lg:grid lg:col-span-4 grid-rows-3 gap-4 h-full">
-                        {images.slice(0, 3).map((img, idx) => (
-                            <div
-                                key={idx}
-                                onClick={() => setActiveImage(idx)}
-                                className={`relative h-full overflow-hidden rounded-2xl cursor-pointer border-2 transition-all ${activeImage === idx ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-transparent'}`}
-                            >
-                                <Image
-                                    src={img || '/placeholder.jpg'}
-                                    alt={`View ${idx}`}
-                                    fill
-                                    className="object-cover hover:scale-110 transition-transform duration-500"
-                                    unoptimized
-                                />
-                            </div>
-                        ))}
-                    </div>
+                <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                    <span className="bg-emerald-600/90 backdrop-blur-md text-white px-3 py-1 text-sm font-bold rounded-lg shadow-sm">
+                        {property.listing_type === 'sale' ? 'For Sale' : 'For Rent'}
+                    </span>
+                </div>
+                 <div className="absolute top-4 right-4 flex gap-2">
+                    <button
+                        onClick={handleSave}
+                        disabled={savingFav}
+                        className={`p-3 rounded-full backdrop-blur-md shadow-sm transition-all ${isSaved ? 'bg-red-500 text-white' : 'bg-white/90 text-slate-600 hover:bg-white'}`}
+                    >
+                        {savingFav ? <Loader2 className="w-5 h-5 animate-spin" /> : <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />}
+                    </button>
                 </div>
             </div>
 
-            {/* 2. Main Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            {/* Main Content Area */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 lg:mt-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
-                    {/* Left Column: Property Info */}
-                    <div className="lg:col-span-8 space-y-8">
+                    {/* Left Column: Property Info (Scrollable) */}
+                    <div className="lg:col-span-7 space-y-8">
 
-                        {/* Header */}
-                        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                        {/* Header Section */}
+                        <FadeIn className="bg-white p-6 lg:p-8 rounded-3xl shadow-sm border border-slate-100">
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-slate-900 mb-2">{parseSafe(property.title, "Property Title")}</h1>
+                                    <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-2">{parseSafe(property.title, "Property Title")}</h1>
                                     <div className="flex items-center text-slate-500">
                                         <MapPin className="w-5 h-5 mr-2 text-emerald-500" />
                                         {parseSafe(property.location, "Location not specified")}
@@ -313,38 +289,39 @@ export default function PropertyDetailsPage() {
                                 </div>
                             </div>
 
+                            {/* Fade-in Stats */}
                             <div className="flex flex-wrap gap-6 py-6 border-t border-b border-slate-100">
-                                <div className="flex items-center gap-2">
+                                <FadeInItem className="flex items-center gap-2">
                                     <BedDouble className="w-6 h-6 text-slate-400" />
                                     <div>
-                                        <span className="block font-bold text-slate-900 text-lg">{property.beds || 3}</span>
+                                        <span className="block font-bold text-slate-900 text-lg">{property.beds || '-'}</span>
                                         <span className="text-xs text-slate-500">Bedrooms</span>
                                     </div>
-                                </div>
+                                </FadeInItem>
                                 <div className="w-px h-10 bg-slate-100"></div>
-                                <div className="flex items-center gap-2">
+                                <FadeInItem className="flex items-center gap-2">
                                     <Bath className="w-6 h-6 text-slate-400" />
                                     <div>
-                                        <span className="block font-bold text-slate-900 text-lg">{property.baths || 2}</span>
+                                        <span className="block font-bold text-slate-900 text-lg">{property.baths || '-'}</span>
                                         <span className="text-xs text-slate-500">Bathrooms</span>
                                     </div>
-                                </div>
+                                </FadeInItem>
                                 <div className="w-px h-10 bg-slate-100"></div>
-                                <div className="flex items-center gap-2">
+                                <FadeInItem className="flex items-center gap-2">
                                     <Square className="w-6 h-6 text-slate-400" />
                                     <div>
-                                        <span className="block font-bold text-slate-900 text-lg">{property.size_sqft || 2500}</span>
+                                        <span className="block font-bold text-slate-900 text-lg">{property.size_sqft || '-'}</span>
                                         <span className="text-xs text-slate-500">Sq. Ft.</span>
                                     </div>
-                                </div>
+                                </FadeInItem>
                                 <div className="w-px h-10 bg-slate-100"></div>
-                                <div className="flex items-center gap-2">
+                                <FadeInItem className="flex items-center gap-2">
                                     <Trees className="w-6 h-6 text-slate-400" />
                                     <div>
-                                        <span className="block font-bold text-slate-900 text-lg">{property.perch_size || 15}</span>
+                                        <span className="block font-bold text-slate-900 text-lg">{property.perch_size || '-'}</span>
                                         <span className="text-xs text-slate-500">Perches</span>
                                     </div>
-                                </div>
+                                </FadeInItem>
                             </div>
 
                             <div className="pt-6">
@@ -353,9 +330,14 @@ export default function PropertyDetailsPage() {
                                     {parseSafe(property.description, "No description provided.")}
                                 </p>
                             </div>
-                        </div>
+                        </FadeIn>
 
-                        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                        {/* Scroll-driven Map */}
+                        <FadeIn>
+                             <ScrollMap location={parseSafe(property.location, "")} />
+                        </FadeIn>
+
+                        <FadeIn className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
                             <h3 className="font-bold text-slate-900 mb-6 flex items-center gap-2">
                                 <ShieldCheck className="w-6 h-6 text-emerald-500" />
                                 Legal & Compliance 🇱🇰
@@ -410,76 +392,91 @@ export default function PropertyDetailsPage() {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </FadeIn>
 
                         {/* Financial Tools */}
-                        <div className="mt-8 space-y-6">
+                        <FadeIn className="space-y-6">
                             <EasyPaymentCalculator price={property.price} />
                             <ROICalculator price={property.price} />
-                        </div>
+                        </FadeIn>
 
                         {/* Neighborhood / Walk Score */}
-                        <div className="mt-8">
+                        <FadeIn>
                             <NeighborhoodScore location={property.location} />
-                        </div>
+                        </FadeIn>
                     </div>
 
-                    {/* Right Column: Agent & Actions */}
-                    <div className="lg:col-span-4 space-y-6">
+                    {/* Right Column: Sticky Gallery & Agent */}
+                    <div className="lg:col-span-5 relative">
+                        <div className="sticky top-24 space-y-6">
 
-                        {/* AI Valuation */}
-                        <ValuationCard property={property} />
-
-                        {/* Agent Card */}
-                        <div className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 sticky top-24">
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className="w-16 h-16 bg-slate-100 rounded-full overflow-hidden flex items-center justify-center">
-                                    <User className="w-8 h-8 text-slate-400" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-slate-900 text-lg">{property.contact_name || "Land Sale Agent"}</h4>
-                                    <p className="text-emerald-600 text-sm font-medium flex items-center gap-1">
-                                        <ShieldCheck className="w-3 h-3" /> Verified Agent
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-3 mb-6">
-                                <button className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                                    <MessageCircle className="w-5 h-5" /> Chat via WhatsApp
-                                </button>
-                                <button
-                                    onClick={() => setShowNumber(true)}
-                                    className="w-full py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
-                                >
-                                    <Phone className="w-5 h-5" />
-                                    {showNumber ? (property.contact_phone || property.phone || '+94 77 XXX XXXX') : 'Show Number'}
-                                </button>
-
-                                <button
-                                    onClick={() => setIsOfferOpen(true)}
-                                    className="w-full py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
-                                >
-                                    <HandCoins className="w-5 h-5" /> Make an Offer
-                                </button>
-
-                                <VideoCallButton
-                                    agentName={property.contact_name || "Agent"}
-                                    agentId={property.user_id}
-                                    propertyTitle={property.title}
+                            {/* Sticky Gallery (Desktop Only) */}
+                            <div className="hidden lg:block">
+                                <StickyGallery
+                                    images={images}
+                                    property={property}
+                                    isSaved={isSaved}
+                                    onSave={handleSave}
+                                    savingFav={savingFav}
+                                    activeImage={activeImage}
+                                    setActiveImage={setActiveImage}
                                 />
                             </div>
 
-                            <div className="pt-6 border-t border-slate-100">
-                                <p className="text-xs text-slate-400 text-center mb-4">
-                                    Protect your payments. Never transfer money before viewing the property.
-                                </p>
-                                <div className="flex justify-center">
-                                    <ReportListingButton listingId={property.$id} listingTitle={property.title} />
+                            {/* Agent Card */}
+                            <div className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-16 h-16 bg-slate-100 rounded-full overflow-hidden flex items-center justify-center">
+                                        <User className="w-8 h-8 text-slate-400" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-900 text-lg">{property.contact_name || "Land Sale Agent"}</h4>
+                                        <p className="text-emerald-600 text-sm font-medium flex items-center gap-1">
+                                            <ShieldCheck className="w-3 h-3" /> Verified Agent
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3 mb-6">
+                                    <button className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                                        <MessageCircle className="w-5 h-5" /> Chat via WhatsApp
+                                    </button>
+                                    <button
+                                        onClick={() => setShowNumber(true)}
+                                        className="w-full py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Phone className="w-5 h-5" />
+                                        {showNumber ? (property.contact_phone || property.phone || '+94 77 XXX XXXX') : 'Show Number'}
+                                    </button>
+
+                                    <button
+                                        onClick={() => setIsOfferOpen(true)}
+                                        className="w-full py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
+                                    >
+                                        <HandCoins className="w-5 h-5" /> Make an Offer
+                                    </button>
+
+                                    <VideoCallButton
+                                        agentName={property.contact_name || "Agent"}
+                                        agentId={property.user_id}
+                                        propertyTitle={property.title}
+                                    />
+                                </div>
+
+                                <div className="pt-6 border-t border-slate-100">
+                                    <p className="text-xs text-slate-400 text-center mb-4">
+                                        Protect your payments. Never transfer money before viewing the property.
+                                    </p>
+                                    <div className="flex justify-center">
+                                        <ReportListingButton listingId={property.$id} listingTitle={property.title} />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
+                            {/* AI Valuation (Moved here to be sticky with agent) */}
+                             <ValuationCard property={property} />
+
+                        </div>
                     </div>
                 </div>
             </div>
@@ -569,4 +566,3 @@ export default function PropertyDetailsPage() {
         </div >
     );
 }
-
