@@ -181,22 +181,6 @@
     ],
     "sites": [
         {
-            "$id": "landsalelksite",
-            "name": "landsale.lk",
-            "enabled": true,
-            "logging": true,
-            "framework": "nextjs",
-            "timeout": 30,
-            "installCommand": "npm install",
-            "buildCommand": "npm run build",
-            "outputDirectory": "./.next",
-            "specification": "s-0.5vcpu-512mb",
-            "buildRuntime": "node-22",
-            "adapter": "ssr",
-            "fallbackFile": "",
-            "path": "sites/landsale.lk"
-        },
-        {
             "$id": "6941d9280032a28b0536",
             "name": "landsalelk",
             "enabled": true,
