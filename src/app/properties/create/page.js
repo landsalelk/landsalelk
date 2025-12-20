@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import Image from 'next/image';
 import {
     MapPin, Home, Trees, Building, Camera, Upload, ChevronRight, ChevronLeft,
     Sparkles, Check, Loader2, ImagePlus, X, Phone, Mail, User, ShieldCheck,
     FileText, Banknote, Ruler, BedDouble, Bath, ScanText, MessageCircle
 } from 'lucide-react';
 import Tesseract from 'tesseract.js';
-
+import { validateNumericInput, validatePhoneNumber } from '@/lib/validation';
 export default function CreateListingPage() {
     const router = useRouter();
     const [step, setStep] = useState(1);
@@ -108,7 +109,7 @@ export default function CreateListingPage() {
                 toast.success(`Found Price: ${price}`);
             }
 
-            if(!phoneMatch && !priceMatch) {
+            if (!phoneMatch && !priceMatch) {
                 toast.info("No clear details found in image. Please enter manually.");
             }
 
@@ -122,16 +123,31 @@ export default function CreateListingPage() {
 
     const scanForAgents = async () => {
         setAgentScanning(true);
-        // Simulate agent matching
-        await new Promise(resolve => setTimeout(resolve, 2500));
-        setAgentMatched({
-            name: 'Kumara Perera',
-            phone: '+94 77 123 4567',
-            rating: 4.9,
-            listings: 45,
-            verified: true
-        });
-        setAgentScanning(false);
+        try {
+            const { findAgentsByLocation } = await import('@/lib/agents');
+            const agents = await findAgentsByLocation(formData.location, 1);
+
+            if (agents.length > 0) {
+                const agent = agents[0];
+                setAgentMatched({
+                    id: agent.$id,
+                    name: agent.name || 'Verified Agent',
+                    phone: agent.phone || '',
+                    rating: agent.rating || 4.5,
+                    listings: agent.listings_uploaded || 0,
+                    verified: agent.is_verified || false
+                });
+            } else {
+                // No agent found for this location
+                setAgentMatched(null);
+                toast.info("No agents found in your area. You can list without agent assistance.");
+            }
+        } catch (error) {
+            console.error("Agent scan failed:", error);
+            setAgentMatched(null);
+        } finally {
+            setAgentScanning(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -142,6 +158,34 @@ export default function CreateListingPage() {
             const { storage } = await import('@/lib/appwrite');
             const { ID } = await import('appwrite');
             const { createProperty } = await import('@/lib/properties');
+
+            // Validate form data before submission
+            const price = validateNumericInput(formData.price, { min: 0 });
+            const beds = validateNumericInput(formData.beds, { min: 0 });
+            const baths = validateNumericInput(formData.baths, { min: 0 });
+            const size_sqft = validateNumericInput(formData.size_sqft, { min: 0 });
+            const perch_size = validateNumericInput(formData.perch_size, { min: 0 });
+            const infrastructure_distance = validateNumericInput(formData.infrastructure_distance, { min: 0 });
+            const service_fee = validateNumericInput(formData.service_fee, { min: 0 });
+            const agreed_commission = validateNumericInput(formData.agreed_commission, { min: 0, max: 100 });
+
+            // Validate phone numbers
+            const contact_phone = validatePhoneNumber(formData.contact_phone);
+            const owner_phone = validatePhoneNumber(formData.owner_phone);
+
+            // Check if required fields are filled
+            if (!formData.title || !formData.location) {
+                toast.error("Please fill in all required fields.");
+                setSubmitting(false);
+                return;
+            }
+
+            // Check if price is valid
+            if (price === null) {
+                toast.error("Please enter a valid price.");
+                setSubmitting(false);
+                return;
+            }
 
             const imageIds = [];
             const bucketId = 'listing_images';
@@ -156,14 +200,23 @@ export default function CreateListingPage() {
                 }
             }
 
+            // Generate slug from title
+            const slug = formData.title
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)+/g, '') +
+                '-' + Math.random().toString(36).substring(2, 7);
+
             const newProperty = await createProperty({
                 ...formData,
-                price: parseFloat(formData.price) || 0,
-                beds: parseInt(formData.beds) || 0,
-                baths: parseInt(formData.baths) || 0,
-                size_sqft: parseInt(formData.size_sqft) || 0,
-                perch_size: parseFloat(formData.perch_size) || 0,
-                infrastructure_distance: parseFloat(formData.infrastructure_distance) || 0,
+                slug: slug,
+                currency_code: 'LKR',
+                price: price,
+                beds: beds,
+                baths: baths,
+                size_sqft: size_sqft,
+                perch_size: perch_size,
+                infrastructure_distance: infrastructure_distance,
                 deed_type: formData.deed_type,
                 approval_nbro: formData.approval_nbro,
                 approval_coc: formData.approval_coc,
@@ -171,10 +224,12 @@ export default function CreateListingPage() {
                 is_foreign_eligible: formData.is_foreign_eligible,
                 has_payment_plan: formData.has_payment_plan,
                 images: JSON.stringify(imageIds),
-                service_fee: parseFloat(formData.service_fee) || 0
+                service_fee: service_fee,
+                agreed_commission: agreed_commission,
+                contact_phone: contact_phone,
+                owner_phone: owner_phone
             });
-
-            if (newProperty.status === 'pending_owner') {
+            if (formData.owner_phone && formData.owner_phone.trim().length > 0) {
                 // Generate WhatsApp Link
                 // We need the token. The backend generated it but didn't return it in the doc usually (hidden).
                 // However, we can construct a generic message or if we modify createProperty to return the secret (insecure?).
@@ -422,9 +477,9 @@ export default function CreateListingPage() {
                                             Price (LKR)
                                         </label>
                                         <input
-                                        type="text"
-                                        inputMode="numeric"
-                                        pattern="[0-9]*"
+                                            type="text"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
                                             value={formData.price}
                                             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                             placeholder="50,000,000"
@@ -633,7 +688,23 @@ export default function CreateListingPage() {
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                                     {images.map((img, i) => (
                                         <div key={i} className="relative aspect-square rounded-2xl overflow-hidden group">
-                                            <img src={URL.createObjectURL(img)} alt="" className="w-full h-full object-cover" />
+                                            {img ? (
+                                                <Image
+                                                    src={URL.createObjectURL(img)}
+                                                    alt=""
+                                                    fill
+                                                    className="object-cover"
+                                                    unoptimized
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.style.backgroundColor = '#f3f4f6'; // Light gray fallback
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                                    <span className="text-gray-500">Invalid Image</span>
+                                                </div>
+                                            )}
                                             <button
                                                 type="button"
                                                 onClick={() => removeImage(i)}
@@ -816,7 +887,7 @@ export default function CreateListingPage() {
                             </div>
                             <h2 className="text-2xl font-bold text-slate-900 mb-2">Listing Created!</h2>
                             <p className="text-slate-500 mb-6">
-                                You earned <span className="text-[#10b981] font-bold">+10 Points</span>! 🏆<br/>
+                                You earned <span className="text-[#10b981] font-bold">+10 Points</span>! 🏆<br />
                                 Send the verification link to the owner now.
                             </p>
 

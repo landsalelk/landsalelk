@@ -16,22 +16,22 @@ export default function BlogPage() {
     const POSTS_PER_PAGE = 9;
 
     useEffect(() => {
+        const loadPosts = async () => {
+            setLoading(true);
+            const result = await getBlogPosts(POSTS_PER_PAGE, page * POSTS_PER_PAGE);
+            setPosts(result.posts);
+            setTotal(result.total);
+            setLoading(false);
+        };
+
+        const loadFeatured = async () => {
+            const result = await getFeaturedPosts(3);
+            setFeatured(result);
+        };
+
         loadPosts();
         loadFeatured();
-    }, [page]);
-
-    const loadPosts = async () => {
-        setLoading(true);
-        const result = await getBlogPosts(POSTS_PER_PAGE, page * POSTS_PER_PAGE);
-        setPosts(result.posts);
-        setTotal(result.total);
-        setLoading(false);
-    };
-
-    const loadFeatured = async () => {
-        const result = await getFeaturedPosts(3);
-        setFeatured(result);
-    };
+    }, [page]); // Removed unnecessary dependencies
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -91,7 +91,6 @@ export default function BlogPage() {
                                                 alt={post.title}
                                                 fill
                                                 className="object-cover group-hover:scale-105 transition-transform"
-                                                unoptimized
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -155,7 +154,6 @@ export default function BlogPage() {
                                                     alt={post.title}
                                                     fill
                                                     className="object-cover group-hover:scale-105 transition-transform"
-                                                    unoptimized
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-gray-400">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { account, databases, storage } from '@/lib/appwrite';
 import { ID } from 'appwrite';
@@ -15,6 +15,7 @@ export default function AgentRegistrationPage() {
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [submitting, setSubmitting] = useState(false);
+    const [checking, setChecking] = useState(true); // New loading state
     const [nicFile, setNicFile] = useState(null);
     const [formData, setFormData] = useState({
         full_name: '',
@@ -24,6 +25,34 @@ export default function AgentRegistrationPage() {
         license_number: '',
         bio: ''
     });
+
+    useEffect(() => {
+        const checkExistingProfile = async () => {
+            try {
+                const user = await account.get();
+                const { Query } = await import('appwrite'); // Dynamic import to avoid top-level issues if any
+
+                const agentList = await databases.listDocuments(
+                    DB_ID,
+                    COLLECTION_AGENTS,
+                    [Query.equal('user_id', user.$id)]
+                );
+
+                if (agentList.documents.length > 0) {
+                    toast.info("You have already submitted an agent application.");
+                    router.push('/dashboard');
+                }
+            } catch (error) {
+                console.error("Profile check failed:", error);
+                // Don't block registration on check failure, unless it's a critical auth error
+                if (error.code === 401) router.push('/auth/login');
+            } finally {
+                setChecking(false);
+            }
+        };
+
+        checkExistingProfile();
+    }, [router]); // Removed unnecessary dependencies
 
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -38,6 +67,15 @@ export default function AgentRegistrationPage() {
         try {
             const user = await account.get();
 
+            // Double check before submit (in case they bypassed client check)
+            const { Query } = await import('appwrite');
+            const existing = await databases.listDocuments(DB_ID, COLLECTION_AGENTS, [Query.equal('user_id', user.$id)]);
+            if (existing.total > 0) {
+                toast.error("Application already exists.");
+                router.push('/dashboard');
+                return;
+            }
+
             // 1. Upload NIC
             let nicUrl = '';
             if (nicFile) {
@@ -51,6 +89,11 @@ export default function AgentRegistrationPage() {
             }
 
             // 2. Create Agent Profile
+            // Convert service_areas from comma-separated string to array
+            const serviceAreasArray = formData.service_areas
+                ? formData.service_areas.split(',').map(s => s.trim()).filter(s => s)
+                : [];
+
             await databases.createDocument(
                 DB_ID,
                 COLLECTION_AGENTS,
@@ -59,14 +102,21 @@ export default function AgentRegistrationPage() {
                     user_id: user.$id,
                     name: formData.full_name,
                     phone: formData.phone,
+                    email: user.email || '',
                     experience_years: parseInt(formData.experience_years) || 0,
-                    service_areas: formData.service_areas,
+                    service_areas: serviceAreasArray,
                     license_number: formData.license_number,
                     bio: formData.bio,
                     nic_doc_id: nicUrl,
                     is_verified: false, // Pending admin review
+                    status: 'pending',
                     rating: 0,
-                    review_count: 0
+                    review_count: 0,
+                    deals_count: 0,
+                    points: 0,
+                    listings_uploaded: 0,
+                    total_earnings: 0,
+                    created_at: new Date().toISOString()
                 }
             );
 
@@ -86,6 +136,14 @@ export default function AgentRegistrationPage() {
             setSubmitting(false);
         }
     };
+
+    if (checking) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 py-12 px-4 pt-24 animate-fade-in">

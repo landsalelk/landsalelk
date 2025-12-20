@@ -3,13 +3,14 @@
 import { useParams } from 'next/navigation';
 import { MapPin, School, Building, Coffee, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Mock Data (would typically come from API)
 const areaData = {
     'colombo-7': {
         name: 'Cinnamon Gardens (Colombo 7)',
         description: 'Colombo 7, also known as Cinnamon Gardens, is the most affluent neighborhood in Colombo, Sri Lanka. It is characterized by beautiful colonial architecture, leafy avenues, and high-end residential properties. The area is home to foreign embassies, elite schools, and lush parks.',
-        image: 'https://images.unsplash.com/photo-1590487372986-e91008d5162a?q=80&w=1000',
+        image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1000',
         stats: { price: 'LKR 18M / perch', trend: '+5.2%', schools: '12+', popularity: 'High' }
     },
     'colombo-3': {
@@ -25,7 +26,7 @@ export default function AreaDetailPage() {
     const area = areaData[id] || {
         name: 'Unknown Area',
         description: 'Information for this area is currently being updated.',
-        image: 'https://images.unsplash.com/photo-1590487372986-e91008d5162a?q=80&w=1000',
+        image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1000',
         stats: { price: 'N/A', trend: 'N/A', schools: 'N/A', popularity: 'N/A' }
     };
 
@@ -34,10 +35,11 @@ export default function AreaDetailPage() {
             {/* Hero */}
             <div className="relative h-[50vh] w-full">
                 <div className="absolute inset-0">
-                    <img
+                    <Image
                         src={area.image}
                         alt={area.name}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                     />
                     <div className="absolute inset-0 bg-black/50" />
                 </div>

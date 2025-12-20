@@ -27,7 +27,7 @@ export function PropertyCard({ property }) {
 
     // Smart image extraction: Try primary_image, then images array, then fallback
     const getImageUrl = () => {
-        const fallback = "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
+        const fallback = "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072";
         const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
         const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
         const bucketId = 'listing_images'; // Correct bucket ID
@@ -115,7 +115,7 @@ export function PropertyCard({ property }) {
     const propertyId = $id || property?.$id || 'demo';
     const isLand = type?.toLowerCase() === 'land';
     const [imgError, setImgError] = useState(false);
-    const fallbackImage = "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
+    const fallbackImage = "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072";
     const displayImage = imgError ? fallbackImage : image;
 
     return (
@@ -130,9 +130,7 @@ export function PropertyCard({ property }) {
                         sizes="(max-width: 768px) 30vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover group-hover:scale-110 transition-transform duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
                         onError={() => setImgError(true)}
-                        unoptimized
                     />
-
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 hidden md:block" />
 

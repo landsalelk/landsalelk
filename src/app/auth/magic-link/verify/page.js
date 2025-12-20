@@ -12,36 +12,36 @@ function VerifyMagicLink() {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        verifyMagicLink();
-    }, []);
+        const verifyMagicLink = async () => {
+            try {
+                const userId = searchParams.get('userId');
+                const secret = searchParams.get('secret');
 
-    const verifyMagicLink = async () => {
-        try {
-            const userId = searchParams.get('userId');
-            const secret = searchParams.get('secret');
+                if (!userId || !secret) {
+                    setStatus('error');
+                    setError('Invalid magic link. Please request a new one.');
+                    return;
+                }
 
-            if (!userId || !secret) {
+                // Create session from magic URL
+                await account.createSession(userId, secret);
+
+                setStatus('success');
+
+                // Redirect to dashboard after short delay
+                setTimeout(() => {
+                    router.push('/dashboard');
+                }, 2000);
+
+            } catch (err) {
+                console.error('Magic link verification error:', err);
                 setStatus('error');
-                setError('Invalid magic link. Please request a new one.');
-                return;
+                setError(err.message || 'Failed to verify magic link. It may have expired.');
             }
+        };
 
-            // Create session from magic URL
-            await account.createSession(userId, secret);
-
-            setStatus('success');
-
-            // Redirect to dashboard after short delay
-            setTimeout(() => {
-                router.push('/dashboard');
-            }, 2000);
-
-        } catch (err) {
-            console.error('Magic link verification error:', err);
-            setStatus('error');
-            setError(err.message || 'Failed to verify magic link. It may have expired.');
-        }
-    };
+        verifyMagicLink();
+    }, [searchParams, router]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center p-4">

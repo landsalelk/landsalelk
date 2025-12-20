@@ -2,19 +2,19 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
-    try {
-        const { messages, context } = await request.json();
+  try {
+    const { messages, context } = await request.json();
 
-        // Use PENROUTER_API_KEY as discovered in environment
-        const apiKey = process.env.PENROUTER_API_KEY;
-        const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-        const siteName = "LandSale.lk";
+    // Use OPENROUTER_API_KEY as discovered in environment
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const siteName = "LandSale.lk";
 
-        if (!apiKey) {
-            return NextResponse.json({ error: "OpenRouter API Key not configured" }, { status: 500 });
-        }
+    if (!apiKey) {
+      return NextResponse.json({ error: "OpenRouter API Key not configured" }, { status: 500 });
+    }
 
-        const systemPrompt = `
+    const systemPrompt = `
 You are the intelligent AI assistant for ${siteName}, Sri Lanka's premier real estate platform.
 Your capabilities include searching for properties, helping users post properties, and connecting buyers with agents.
 
@@ -82,80 +82,80 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
 - Prices in Sri Lanka are often in 'Lakhs' (1 Lakh = 100,000) or 'Crores' (1 Crore = 10,000,000). Convert to raw numbers.
 `;
 
-        // Confirmed Free Models (as of latest check)
-        const models = [
-            "google/gemini-2.0-flash-exp:free",
-            "google/gemma-3-27b-it:free",
-            "meta-llama/llama-3.3-70b-instruct:free",
-            "mistralai/mistral-7b-instruct:free"
-        ];
+    // Confirmed Free Models (as of latest check)
+    const models = [
+      "google/gemini-2.0-flash-exp:free",
+      "google/gemma-3-27b-it:free",
+      "meta-llama/llama-3.3-70b-instruct:free",
+      "mistralai/mistral-7b-instruct:free"
+    ];
 
-        let aiContent = null;
-        let usedModel = "";
-        let lastError = "";
+    let aiContent = null;
+    let usedModel = "";
+    let lastError = "";
 
-        // Retry logic with model fallback
-        for (const model of models) {
-            try {
-                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${apiKey}`,
-                        "HTTP-Referer": siteUrl,
-                        "X-Title": siteName,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        "model": model,
-                        "messages": [
-                            { "role": "system", "content": systemPrompt },
-                            ...messages
-                        ],
-                        "temperature": 0.3,
-                        // Not sending response_format: json_object to avoid 400s on some free models
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.choices && data.choices.length > 0) {
-                        aiContent = data.choices[0].message.content;
-                        usedModel = model;
-                        break; // Success
-                    }
-                } else {
-                    const errText = await response.text();
-                    lastError = `Model ${model} failed: ${response.status} - ${errText}`;
-                    console.warn(lastError);
-                }
-            } catch (err) {
-                lastError = `Model ${model} error: ${err.message}`;
-                console.warn(lastError);
-            }
-        }
-
-        if (!aiContent) {
-            throw new Error(`All AI models failed. Last error: ${lastError}`);
-        }
-
-        // Clean up markdown if present
-        aiContent = aiContent.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        let parsedResponse;
-        try {
-            parsedResponse = JSON.parse(aiContent);
-        } catch (e) {
-            console.warn("AI did not return valid JSON, using fallback.", aiContent);
-            parsedResponse = { type: "CHAT", reply: aiContent };
-        }
-
-        return NextResponse.json(parsedResponse);
-
-    } catch (error) {
-        console.error("AI Chat Error:", error);
-        return NextResponse.json({
-            type: "CHAT",
-            reply: "I apologize, but I'm having trouble processing your request right now. Please try again in a moment."
+    // Retry logic with model fallback
+    for (const model of models) {
+      try {
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "HTTP-Referer": siteUrl,
+            "X-Title": siteName,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "model": model,
+            "messages": [
+              { "role": "system", "content": systemPrompt },
+              ...messages
+            ],
+            "temperature": 0.3,
+            // Not sending response_format: json_object to avoid 400s on some free models
+          })
         });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.choices && data.choices.length > 0) {
+            aiContent = data.choices[0].message.content;
+            usedModel = model;
+            break; // Success
+          }
+        } else {
+          const errText = await response.text();
+          lastError = `Model ${model} failed: ${response.status} - ${errText}`;
+          console.warn(lastError);
+        }
+      } catch (err) {
+        lastError = `Model ${model} error: ${err.message}`;
+        console.warn(lastError);
+      }
     }
+
+    if (!aiContent) {
+      throw new Error(`All AI models failed. Last error: ${lastError}`);
+    }
+
+    // Clean up markdown if present
+    aiContent = aiContent.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(aiContent);
+    } catch (e) {
+      console.warn("AI did not return valid JSON, using fallback.", aiContent);
+      parsedResponse = { type: "CHAT", reply: aiContent };
+    }
+
+    return NextResponse.json(parsedResponse);
+
+  } catch (error) {
+    console.error("AI Chat Error:", error);
+    return NextResponse.json({
+      type: "CHAT",
+      reply: "I apologize, but I'm having trouble processing your request right now. Please try again in a moment."
+    });
+  }
 }

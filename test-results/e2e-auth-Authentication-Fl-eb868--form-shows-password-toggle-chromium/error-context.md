@@ -1,0 +1,154 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "LandSale.lk" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img [ref=e8]
+          - generic [ref=e11]: LandSale.lk
+        - heading "Welcome Back!" [level=1] [ref=e12]
+        - paragraph [ref=e13]: Sign in to continue
+      - generic [ref=e14]:
+        - img [ref=e16]
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - text: Email Address
+            - generic [ref=e22]:
+              - img [ref=e23]
+              - textbox "you@example.com" [ref=e26]
+          - generic [ref=e27]:
+            - text: Password
+            - generic [ref=e28]:
+              - img [ref=e29]
+              - textbox "••••••••" [ref=e32]
+              - button [active] [ref=e33]:
+                - img [ref=e34]
+          - generic [ref=e37]:
+            - generic [ref=e38]:
+              - checkbox "Remember me" [ref=e39]
+              - text: Remember me
+            - link "Forgot?" [ref=e40] [cursor=pointer]:
+              - /url: /auth/forgot-password
+          - button "Sign In" [ref=e41]:
+            - text: Sign In
+            - img [ref=e42]
+        - generic [ref=e45]: or continue with
+        - generic [ref=e46]:
+          - button "Google" [ref=e47]:
+            - img [ref=e48]
+            - text: Google
+          - button "Facebook" [ref=e53]:
+            - img [ref=e54]
+            - text: Facebook
+        - generic [ref=e56]:
+          - text: Don't have an account?
+          - link "Sign Up" [ref=e57] [cursor=pointer]:
+            - /url: /auth/register
+      - generic [ref=e58]:
+        - text: By signing in, you agree to our
+        - link "Terms" [ref=e59] [cursor=pointer]:
+          - /url: /terms
+        - text: and
+        - link "Privacy Policy" [ref=e60] [cursor=pointer]:
+          - /url: /privacy
+  - contentinfo [ref=e61]:
+    - generic [ref=e62]:
+      - generic [ref=e63]:
+        - generic [ref=e64]:
+          - link "LandSale.lk" [ref=e65] [cursor=pointer]:
+            - /url: /
+            - img [ref=e67]
+            - generic [ref=e70]: LandSale.lk
+          - paragraph [ref=e71]: Sri Lanka's most trusted real estate marketplace. Powered by AI, verified by agents.
+          - generic [ref=e72]:
+            - link [ref=e73] [cursor=pointer]:
+              - /url: https://facebook.com/landsalelk
+              - img [ref=e74]
+            - link [ref=e76] [cursor=pointer]:
+              - /url: https://twitter.com/landsalelk
+              - img [ref=e77]
+            - link [ref=e79] [cursor=pointer]:
+              - /url: https://instagram.com/landsalelk
+              - img [ref=e80]
+            - link [ref=e83] [cursor=pointer]:
+              - /url: https://youtube.com/@landsalelk
+              - img [ref=e84]
+        - generic [ref=e87]:
+          - heading "Explore" [level=4] [ref=e88]
+          - list [ref=e89]:
+            - listitem [ref=e90]:
+              - link "Neighborhood Guides" [ref=e91] [cursor=pointer]:
+                - /url: /guides
+            - listitem [ref=e92]:
+              - link "Lands for Sale" [ref=e93] [cursor=pointer]:
+                - /url: /properties?type=land
+            - listitem [ref=e94]:
+              - link "Houses for Sale" [ref=e95] [cursor=pointer]:
+                - /url: /properties?type=sale
+            - listitem [ref=e96]:
+              - link "Properties for Rent" [ref=e97] [cursor=pointer]:
+                - /url: /properties?type=rent
+            - listitem [ref=e98]:
+              - link "Find Agents" [ref=e99] [cursor=pointer]:
+                - /url: /agents
+            - listitem [ref=e100]:
+              - link "Mortgage Calculator" [ref=e101] [cursor=pointer]:
+                - /url: /tools/mortgage-calculator
+            - listitem [ref=e102]:
+              - link "Post Property" [ref=e103] [cursor=pointer]:
+                - /url: /properties/create
+        - generic [ref=e104]:
+          - heading "Trust & Legal" [level=4] [ref=e105]
+          - list [ref=e106]:
+            - listitem [ref=e107]:
+              - link "Legal Services" [ref=e108] [cursor=pointer]:
+                - /url: /legal
+                - img [ref=e109]
+                - text: Legal Services
+            - listitem [ref=e112]:
+              - link "Verify Identity" [ref=e113] [cursor=pointer]:
+                - /url: /kyc
+                - img [ref=e114]
+                - text: Verify Identity
+            - listitem [ref=e117]:
+              - link "Privacy Policy" [ref=e118] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e119]:
+              - link "Terms of Service" [ref=e120] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e121]:
+              - link "Admin Portal" [ref=e122] [cursor=pointer]:
+                - /url: /admin
+        - generic [ref=e123]:
+          - heading "Stay Updated" [level=4] [ref=e124]
+          - paragraph [ref=e125]: Get the latest listings and market insights.
+          - generic [ref=e126]:
+            - textbox "Enter your email..." [ref=e127]
+            - button [ref=e128]:
+              - img [ref=e129]
+          - generic [ref=e132]:
+            - link "+94 11 234 5678" [ref=e133] [cursor=pointer]:
+              - /url: tel:+94112345678
+              - img [ref=e134]
+              - text: +94 11 234 5678
+            - link "hello@landsale.lk" [ref=e136] [cursor=pointer]:
+              - /url: mailto:hello@landsale.lk
+              - img [ref=e137]
+              - text: hello@landsale.lk
+      - generic [ref=e140]:
+        - paragraph [ref=e141]: © 2025 LandSale.lk. Made with ❤️ in Sri Lanka
+        - generic [ref=e142]:
+          - generic [ref=e143]:
+            - img [ref=e144]
+            - text: 100% Verified Listings
+          - generic [ref=e147]:
+            - img [ref=e148]
+            - text: 10,000+ Happy Users
+  - button "Ask AI AssistantAI Chat" [ref=e151]:
+    - img [ref=e153]
+    - text: Ask AI AssistantAI Chat
+  - region "Notifications alt+T"
+```

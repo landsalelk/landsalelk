@@ -1,4 +1,4 @@
-export const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || process.env.EXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelkdb';
+export const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelkdb';
 
 // ================================
 // CORE BUSINESS COLLECTIONS
@@ -25,6 +25,7 @@ export const COLLECTION_TRAINING_PROGRESS = 'training_progress';
 export const COLLECTION_CERTIFICATES = 'certificates';
 export const COLLECTION_AGENT_SUBSCRIPTIONS = 'agent_subscriptions';
 export const COLLECTION_OPEN_HOUSES = 'open_houses';
+export const COLLECTION_AGENT_PAYMENTS = 'agent_payments';
 
 // ================================
 // FINANCIAL
@@ -86,4 +87,3 @@ export const BUCKET_CERTIFICATES = 'certificates';
 export const BUCKET_AGENT_IDS = 'agent-ids';
 export const BUCKET_LEGAL_VAULT = 'legal_vault';
 export const BUCKET_WATERMARKED = 'watermarked_docs';
-

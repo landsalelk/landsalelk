@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { account, databases } from '@/lib/appwrite';
 import { DB_ID, COLLECTION_USER_WALLETS, COLLECTION_TRANSACTIONS } from '@/lib/constants';
 import { Query, ID } from 'appwrite';
@@ -20,11 +20,7 @@ export default function WalletPage() {
     const [user, setUser] = useState(null);
     const [processing, setProcessing] = useState(false);
 
-    useEffect(() => {
-        loadWalletData();
-    }, []);
-
-    const loadWalletData = async () => {
+    const loadWalletData = useCallback(async () => {
         try {
             const userData = await account.get();
             setUser(userData);
@@ -59,12 +55,20 @@ export default function WalletPage() {
 
         } catch (error) {
             console.error('Wallet Error:', error);
-            toast.error("Failed to load wallet information");
-            router.push('/auth/login');
+            // Only redirect to login if it's an authentication error
+            if (error.code === 401 || error.type === 'general_unauthorized_scope' || error.message?.includes('Unauthorized')) {
+                router.push('/auth/login');
+            } else {
+                toast.error("Failed to load wallet information");
+            }
         } finally {
             setLoading(false);
         }
-    };
+    }, [router]);
+
+    useEffect(() => {
+        loadWalletData();
+    }, [loadWalletData]);
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-LK', {

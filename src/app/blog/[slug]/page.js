@@ -15,23 +15,23 @@ export default function BlogPostPage({ params }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const loadPost = async () => {
+            setLoading(true);
+            const result = await getBlogPostBySlug(slug);
+            if (!result) {
+                router.push('/blog');
+                return;
+            }
+            setPost(result);
+
+            // Load related posts
+            const related = await getBlogPosts(3);
+            setRelatedPosts(related.posts.filter(p => p.$id !== result.$id).slice(0, 2));
+            setLoading(false);
+        };
+        
         loadPost();
-    }, [slug]);
-
-    const loadPost = async () => {
-        setLoading(true);
-        const result = await getBlogPostBySlug(slug);
-        if (!result) {
-            router.push('/blog');
-            return;
-        }
-        setPost(result);
-
-        // Load related posts
-        const related = await getBlogPosts(3);
-        setRelatedPosts(related.posts.filter(p => p.$id !== result.$id).slice(0, 2));
-        setLoading(false);
-    };
+    }, [slug, router]); // Added router dependency
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -109,11 +109,10 @@ export default function BlogPostPage({ params }) {
                 {post.cover_image && (
                     <div className="aspect-video relative mb-8 rounded-xl overflow-hidden">
                         <Image
-                            src={post.cover_image}
+                            src={post.featured_image || post.image}
                             alt={post.title}
                             fill
                             className="object-cover"
-                            unoptimized
                             priority
                         />
                     </div>
@@ -166,7 +165,6 @@ export default function BlogPostPage({ params }) {
                                                 alt={related.title}
                                                 fill
                                                 className="object-cover"
-                                                unoptimized
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-gray-400">

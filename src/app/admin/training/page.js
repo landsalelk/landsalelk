@@ -64,7 +64,7 @@ export default function AdminTrainingPage() {
                     certified,
                     inProgress,
                     notStarted: agentsResult.documents.length - certified - inProgress,
-                    certificatesIssued: certificates.length,
+                    certificatesIssued: certsResult?.documents.length || 0,
                 });
 
             } catch (e) {

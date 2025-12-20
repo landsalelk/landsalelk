@@ -18,14 +18,20 @@ import {
 import { ListingAnalytics } from '@/components/dashboard/ListingAnalytics';
 import { databases } from '@/lib/appwrite';
 import { renewProperty } from '@/lib/properties';
-import { DB_ID, COLLECTION_LISTING_OFFERS, COLLECTION_MESSAGES } from '@/lib/constants';
+import { DB_ID, COLLECTION_LISTING_OFFERS, COLLECTION_MESSAGES, COLLECTION_AGENTS } from '@/lib/constants';
 import { Query } from 'appwrite';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 
 export default function DashboardPage() {
     const router = useRouter();
     const [user, setUser] = useState(null);
+    const [agent, setAgent] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [notifications, setNotifications] = useState({
+        email: true,
+        sms: false,
+        marketing: false
+    });
     const [listings, setListings] = useState([]);
     const [favorites, setFavorites] = useState([]);
     const [offersReceived, setOffersReceived] = useState([]);
@@ -48,123 +54,149 @@ export default function DashboardPage() {
     };
 
     useEffect(() => {
-        setMounted(true);
-        loadDashboardData();
-    }, []);
-
-    const loadDashboardData = async () => {
-        try {
-            const userData = await account.get();
-            setUser(userData);
-
-            const [userListings, kycDoc] = await Promise.all([
-                getUserListings(userData.$id),
-                getKYCStatus()
-            ]);
-
-            setListings(userListings);
-            setKycStatus(kycDoc?.status || 'unverified');
-
-            // Calculate total views
-            const views = userListings.reduce((acc, listing) => acc + (listing.views_count || 0), 0);
-            setTotalViews(views);
-
+        const loadDashboardData = async () => {
             try {
-                const favDocs = await getUserFavorites();
-                setFavorites(favDocs);
-            } catch (e) {
-                // Silent fail
-            }
+                const userData = await account.get();
+                setUser(userData);
+                if (userData.prefs && userData.prefs.notifications) {
+                    setNotifications(userData.prefs.notifications);
+                }
 
-            // Fetch Inquiries (Messages) Stats
-            try {
-                const now = new Date();
-                const firstDayCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-
-                // Current period messages (All time or just this month? Usually "Total Inquiries" means all time, but "Change" implies periodic)
-                // Let's go with Total Inquiries = All time. Change = Last 30 days vs Previous 30 days.
-
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-                const sixtyDaysAgo = new Date();
-                sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
-
-                const [totalInquiriesRes, last30DaysRes, prev30DaysRes] = await Promise.all([
-                    databases.listDocuments(
-                        DB_ID,
-                        COLLECTION_MESSAGES,
-                        [Query.equal('receiver_id', userData.$id), Query.limit(1)] // Just need total
-                    ),
-                    databases.listDocuments(
-                        DB_ID,
-                        COLLECTION_MESSAGES,
-                        [
-                            Query.equal('receiver_id', userData.$id),
-                            Query.greaterThanEqual('timestamp', thirtyDaysAgo.toISOString()),
-                            Query.limit(1)
-                        ]
-                    ),
-                    databases.listDocuments(
-                        DB_ID,
-                        COLLECTION_MESSAGES,
-                        [
-                            Query.equal('receiver_id', userData.$id),
-                            Query.greaterThanEqual('timestamp', sixtyDaysAgo.toISOString()),
-                            Query.lessThan('timestamp', thirtyDaysAgo.toISOString()),
-                            Query.limit(1)
-                        ]
-                    )
+                const [userListings, kycDoc, agentDocs] = await Promise.all([
+                    getUserListings(userData.$id),
+                    getKYCStatus(),
+                    databases.listDocuments(DB_ID, COLLECTION_AGENTS, [Query.equal('user_id', userData.$id)])
                 ]);
 
-                const total = totalInquiriesRes.total;
-                const currentPeriodCount = last30DaysRes.total;
-                const prevPeriodCount = prev30DaysRes.total;
-
-                let change = 0;
-                if (prevPeriodCount > 0) {
-                    change = Math.round(((currentPeriodCount - prevPeriodCount) / prevPeriodCount) * 100);
-                } else if (currentPeriodCount > 0) {
-                    change = 100;
+                if (agentDocs.documents.length > 0) {
+                    setAgent(agentDocs.documents[0]);
                 }
 
-                setInquiriesStats({ total, change });
+                setListings(userListings);
+                setKycStatus(kycDoc?.status || 'unverified');
 
-            } catch (e) {
-                console.error("Error fetching inquiries:", e);
-            }
+                // Calculate total views
+                const views = userListings.reduce((acc, listing) => acc + (listing.views_count || 0), 0);
+                setTotalViews(views);
 
-            // Fetch Offers
-            try {
-                // 1. Offers Sent by me
-                const sentOffersRes = await databases.listDocuments(
-                    DB_ID,
-                    COLLECTION_LISTING_OFFERS,
-                    [Query.equal('user_id', userData.$id), Query.orderDesc('created_at')]
-                );
-                setOffersSent(sentOffersRes.documents);
+                try {
+                    const favDocs = await getUserFavorites();
+                    setFavorites(favDocs);
+                } catch (e) {
+                    // Silent fail
+                }
 
-                // 2. Offers Received (for my listings)
-                if (userListings.length > 0) {
-                    const listingIds = userListings.map(l => l.$id);
-                    // Appwrite limitation: Query.equal('listing_id', array) works? 
-                    // If array is too big, might fail. For now assume it works for < 100 listings.
-                    const receivedOffersRes = await databases.listDocuments(
+                // Fetch Inquiries (Messages) Stats
+                try {
+                    const now = new Date();
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+                    const sixtyDaysAgo = new Date();
+                    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+                    const [totalInquiriesRes, last30DaysRes, prev30DaysRes] = await Promise.all([
+                        databases.listDocuments(
+                            DB_ID,
+                            COLLECTION_MESSAGES,
+                            [Query.equal('receiver_id', userData.$id), Query.limit(1)] // Just need total
+                        ),
+                        databases.listDocuments(
+                            DB_ID,
+                            COLLECTION_MESSAGES,
+                            [
+                                Query.equal('receiver_id', userData.$id),
+                                Query.greaterThanEqual('timestamp', thirtyDaysAgo.toISOString()),
+                                Query.limit(1)
+                            ]
+                        ),
+                        databases.listDocuments(
+                            DB_ID,
+                            COLLECTION_MESSAGES,
+                            [
+                                Query.equal('receiver_id', userData.$id),
+                                Query.greaterThanEqual('timestamp', sixtyDaysAgo.toISOString()),
+                                Query.lessThan('timestamp', thirtyDaysAgo.toISOString()),
+                                Query.limit(1)
+                            ]
+                        )
+                    ]);
+
+                    const total = totalInquiriesRes.total;
+                    const currentPeriodCount = last30DaysRes.total;
+                    const prevPeriodCount = prev30DaysRes.total;
+
+                    let change = 0;
+                    if (prevPeriodCount > 0) {
+                        change = Math.round(((currentPeriodCount - prevPeriodCount) / prevPeriodCount) * 100);
+                    } else if (currentPeriodCount > 0) {
+                        change = 100;
+                    }
+
+                    setInquiriesStats({ total, change });
+
+                } catch (e) {
+                    console.error("Error fetching inquiries:", e);
+                }
+
+                // Fetch Offers
+                try {
+                    // 1. Offers Sent by me
+                    const sentOffersRes = await databases.listDocuments(
                         DB_ID,
                         COLLECTION_LISTING_OFFERS,
-                        [Query.equal('listing_id', listingIds), Query.orderDesc('created_at')]
+                        [Query.equal('user_id', userData.$id), Query.orderDesc('created_at')]
                     );
-                    setOffersReceived(receivedOffersRes.documents);
+                    setOffersSent(sentOffersRes.documents);
+
+                    // 2. Offers Received (for my listings)
+                    if (userListings.length > 0) {
+                        const listingIds = userListings.map(l => l.$id);
+                        // Appwrite limitation: Query.equal('listing_id', array) works? 
+                        // If array is too big, might fail. For now assume it works for < 100 listings.
+                        const receivedOffersRes = await databases.listDocuments(
+                            DB_ID,
+                            COLLECTION_LISTING_OFFERS,
+                            [Query.equal('listing_id', listingIds), Query.orderDesc('created_at')]
+                        );
+                        setOffersReceived(receivedOffersRes.documents);
+                    }
+                } catch (e) {
+                    console.error("Error fetching offers:", e);
                 }
-            } catch (e) {
-                console.error("Error fetching offers:", e);
+            } catch (error) {
+                console.error(error);
+                // Only redirect to login if it's an authentication error
+                if (error.code === 401 || error.type === 'general_unauthorized_scope' || error.message?.includes('Unauthorized')) {
+                    router.push('/auth/login');
+                } else {
+                    // For other errors, show error but don't redirect
+                    toast.error('Failed to load dashboard data. Please refresh the page.');
+                }
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error(error);
-            router.push('/auth/login');
-        } finally {
-            setLoading(false);
+        };
+
+        setMounted(true);
+        loadDashboardData();
+    }, [router]); // Removed unnecessary dependencies
+
+    const handleNotificationToggle = async (key) => {
+        const newSettings = { ...notifications, [key]: !notifications[key] };
+        setNotifications(newSettings);
+
+        try {
+            await account.updatePrefs({
+                ...user.prefs,
+                notifications: newSettings
+            });
+            toast.success("Preferences saved");
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to save preferences");
+            // Revert on error
+            setNotifications(notifications);
         }
     };
 
@@ -232,9 +264,12 @@ export default function DashboardPage() {
     const navItems = [
         { id: 'overview', label: 'Overview', icon: LayoutDashboard },
         { id: 'listings', label: 'My Listings', icon: Home },
-        { id: 'leads', label: 'Leads CRM', icon: Users, link: '/dashboard/leads' },
-        { id: 'marketing', label: 'Marketing', icon: Sparkles, link: '/dashboard/marketing' },
-        { id: 'open-house', label: 'Open Houses', icon: Calendar, link: '/dashboard/open-houses' },
+        // Show Agent tools only if agent profile exists
+        ...(agent ? [
+            { id: 'leads', label: 'Leads CRM', icon: Users, link: '/dashboard/leads' },
+            { id: 'marketing', label: 'Marketing', icon: Sparkles, link: '/dashboard/marketing' },
+            { id: 'open-house', label: 'Open Houses', icon: Calendar, link: '/dashboard/open-houses' },
+        ] : []),
         { id: 'offers', label: 'Offers', icon: HandCoins },
         { id: 'wallet', label: 'My Wallet', icon: Wallet, link: '/dashboard/wallet' },
         { id: 'favorites', label: 'Saved Homes', icon: Heart },
@@ -329,6 +364,17 @@ export default function DashboardPage() {
                             <Plus className="w-5 h-5 inline mr-2" />
                             Post New Listing
                         </Link>
+
+                        {/* Become an Agent CTA (for non-agents) */}
+                        {!agent && (
+                            <Link
+                                href="/auth/register/agent"
+                                className="block p-4 bg-slate-800 rounded-2xl text-white text-center font-bold shadow-lg hover:bg-slate-700 transition-all"
+                            >
+                                <span className="block text-amber-400 text-xs uppercase mb-1">Earn Commission</span>
+                                Become an Agent
+                            </Link>
+                        )}
                     </aside>
 
                     {/* Main Content */}
@@ -686,11 +732,26 @@ export default function DashboardPage() {
                                         e.preventDefault();
                                         const formData = new FormData(e.target);
                                         const newName = formData.get('name');
+                                        const newPhone = formData.get('phone');
+
                                         try {
-                                            await account.updateName(newName);
-                                            setUser(prev => ({ ...prev, name: newName }));
+                                            // Update User Name
+                                            if (newName !== user.name) {
+                                                await account.updateName(newName);
+                                                setUser(prev => ({ ...prev, name: newName }));
+                                            }
+
+                                            // Update Agent Phone (if agent)
+                                            if (agent && newPhone !== agent.phone) {
+                                                await databases.updateDocument(DB_ID, COLLECTION_AGENTS, agent.$id, {
+                                                    phone: newPhone
+                                                });
+                                                setAgent(prev => ({ ...prev, phone: newPhone }));
+                                            }
+
                                             toast.success("Profile updated!");
                                         } catch (err) {
+                                            console.error(err);
                                             toast.error("Failed to update profile");
                                         }
                                     }}>
@@ -717,6 +778,7 @@ export default function DashboardPage() {
                                             <input
                                                 type="tel"
                                                 name="phone"
+                                                defaultValue={agent?.phone || user?.phone}
                                                 placeholder="+94 77 123 4567"
                                                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#10b981]"
                                             />
@@ -733,17 +795,32 @@ export default function DashboardPage() {
                                 <div className="glass-card rounded-2xl p-6">
                                     <h3 className="font-bold text-slate-700 mb-4">Notifications</h3>
                                     <div className="space-y-4">
-                                        <label className="flex items-center justify-between">
+                                        <label className="flex items-center justify-between cursor-pointer">
                                             <span className="text-slate-600">Email notifications</span>
-                                            <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#10b981]" />
+                                            <input
+                                                type="checkbox"
+                                                checked={notifications?.email ?? true}
+                                                onChange={() => handleNotificationToggle('email')}
+                                                className="w-5 h-5 accent-[#10b981]"
+                                            />
                                         </label>
-                                        <label className="flex items-center justify-between">
+                                        <label className="flex items-center justify-between cursor-pointer">
                                             <span className="text-slate-600">SMS alerts</span>
-                                            <input type="checkbox" className="w-5 h-5 accent-[#10b981]" />
+                                            <input
+                                                type="checkbox"
+                                                checked={notifications?.sms ?? false}
+                                                onChange={() => handleNotificationToggle('sms')}
+                                                className="w-5 h-5 accent-[#10b981]"
+                                            />
                                         </label>
-                                        <label className="flex items-center justify-between">
+                                        <label className="flex items-center justify-between cursor-pointer">
                                             <span className="text-slate-600">Marketing emails</span>
-                                            <input type="checkbox" className="w-5 h-5 accent-[#10b981]" />
+                                            <input
+                                                type="checkbox"
+                                                checked={notifications?.marketing ?? false}
+                                                onChange={() => handleNotificationToggle('marketing')}
+                                                className="w-5 h-5 accent-[#10b981]"
+                                            />
                                         </label>
                                     </div>
                                 </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { databases } from '@/lib/appwrite';
 import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/lib/constants';
 import { Query } from 'appwrite';
@@ -13,11 +13,7 @@ export default function NewsletterAdminPage() {
   const [search, setSearch] = useState('');
   const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    loadSubscribers();
-  }, [search]);
-
-  const loadSubscribers = async () => {
+  const loadSubscribers = useCallback(async () => {
     setLoading(true);
     try {
       const queries = [
@@ -42,7 +38,11 @@ export default function NewsletterAdminPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search]);
+
+  useEffect(() => {
+    loadSubscribers();
+  }, [loadSubscribers]);
 
   const exportCSV = () => {
     const headers = ['Email', 'Status', 'Subscribed At', 'Is Active'];

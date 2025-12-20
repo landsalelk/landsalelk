@@ -9,6 +9,7 @@ import {
     Users, Search, UserCheck, UserX, Loader2,
     Shield, Briefcase, Mail, MoreVertical
 } from 'lucide-react';
+import Image from 'next/image';
 
 export function AdminUsers() {
     const [users, setUsers] = useState([]);
@@ -17,40 +18,40 @@ export function AdminUsers() {
     const [page, setPage] = useState(0);
 
     useEffect(() => {
+        const fetchUsers = async () => {
+            setLoading(true);
+            try {
+                const queries = [
+                    Query.limit(20),
+                    Query.offset(page * 20),
+                    Query.orderDesc('$createdAt')
+                ];
+
+                // Note: Search requires proper indexes. If simple search fails, we'll fall back to listing.
+                // For this implementation, we'll fetch list and filter client side if search is small, 
+                // or assume backend search if enabled.
+                // Given the complexity of Appwrite search setup, we will list latest users.
+
+                const response = await databases.listDocuments(
+                    DB_ID,
+                    COLLECTION_USERS_EXTENDED,
+                    queries
+                );
+
+                // For each user, we might want to check if they are an agent or admin
+                // This data might be in badges or roles in users_extended if we added them,
+                // or we just infer from functionality.
+                setUsers(response.documents);
+            } catch (error) {
+                console.error(error);
+                toast.error('Failed to load users');
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchUsers();
     }, [page, searchQuery]);
-
-    const fetchUsers = async () => {
-        setLoading(true);
-        try {
-            const queries = [
-                Query.limit(20),
-                Query.offset(page * 20),
-                Query.orderDesc('$createdAt')
-            ];
-
-            // Note: Search requires proper indexes. If simple search fails, we'll fall back to listing.
-            // For this implementation, we'll fetch list and filter client side if search is small, 
-            // or assume backend search if enabled.
-            // Given the complexity of Appwrite search setup, we will list latest users.
-
-            const response = await databases.listDocuments(
-                DB_ID,
-                COLLECTION_USERS_EXTENDED,
-                queries
-            );
-
-            // For each user, we might want to check if they are an agent or admin
-            // This data might be in badges or roles in users_extended if we added them,
-            // or we just infer from functionality.
-            setUsers(response.documents);
-        } catch (error) {
-            console.error(error);
-            toast.error('Failed to load users');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const toggleStatus = async (user) => {
         // This functionality depends on having a field like 'is_active' or similar.
@@ -127,7 +128,13 @@ export function AdminUsers() {
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg overflow-hidden">
                                                     {user.profile_iamge ? (
-                                                        <img src={user.profile_image} alt="" className="w-full h-full object-cover" />
+                                                        <Image
+                                                            src={user.profile_image}
+                                                            alt=""
+                                                            width={40}
+                                                            height={40}
+                                                            className="w-full h-full object-cover"
+                                                        />
                                                     ) : (
                                                         (user.first_name?.[0] || 'U')
                                                     )}
@@ -169,8 +176,8 @@ export function AdminUsers() {
                                             <button
                                                 onClick={() => toggleStatus(user)}
                                                 className={`p-2 rounded-lg transition-colors ${user.is_verified
-                                                        ? 'text-amber-600 hover:bg-amber-50 hover:text-amber-700'
-                                                        : 'text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700'
+                                                    ? 'text-amber-600 hover:bg-amber-50 hover:text-amber-700'
+                                                    : 'text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700'
                                                     }`}
                                                 title={user.is_verified ? "Revoke Verification" : "Verify User"}
                                             >

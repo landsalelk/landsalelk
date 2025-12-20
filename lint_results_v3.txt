@@ -1,0 +1,99 @@
+
+> landsalelk@0.1.0 lint
+> next lint
+
+
+./src/app/admin/newsletter/page.js
+18:6  Warning: React Hook useEffect has a missing dependency: 'loadSubscribers'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/admin/page.js
+32:8  Warning: React Hook useEffect has a missing dependency: 'checkAuth'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+261:49  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+261:49  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+274:49  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+274:49  Warning: img elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+
+./src/app/admin/training/page.js
+78:8  Warning: React Hook useEffect has a missing dependency: 'certificates.length'. Either include it or remove the dependency array. You can also replace multiple useState variables with useReducer if 'setStats' needs the current value of 'certificates.length'.  react-hooks/exhaustive-deps
+
+./src/app/agent/dashboard/page.js
+226:53  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/auth/magic-link/verify/page.js
+16:8  Warning: React Hook useEffect has a missing dependency: 'verifyMagicLink'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/auth/register/agent/page.js
+31:8  Warning: React Hook useEffect has a missing dependency: 'checkExistingProfile'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/blog/page.js
+21:8  Warning: React Hook useEffect has a missing dependency: 'loadPosts'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/blog/[slug]/page.js
+19:8  Warning: React Hook useEffect has a missing dependency: 'loadPost'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/dashboard/page.js
+59:8  Warning: React Hook useEffect has a missing dependency: 'loadDashboardData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/dashboard/wallet/page.js
+25:8  Warning: React Hook useEffect has a missing dependency: 'loadWalletData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/guides/[id]/page.js
+37:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/layout.js
+48:9  Warning: Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+./src/app/legal/page.js
+90:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/messages/page.js
+29:8  Warning: React Hook useEffect has a missing dependency: 'loadUserAndConversations'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/pages/[slug]/page.js
+17:8  Warning: React Hook useEffect has a missing dependency: 'loadPage'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/properties/create/page.js
+636:45  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/properties/[id]/edit/page.js
+49:8  Warning: React Hook useEffect has a missing dependency: 'loadProperty'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+426:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+440:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/verify-owner/[id]/page.tsx
+29:8  Warning: React Hook useEffect has a missing dependency: 'fetchListing'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+192:29  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/admin/AdminAgents.jsx
+119:53  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/admin/AdminUsers.jsx
+21:8  Warning: React Hook useEffect has a missing dependency: 'fetchUsers'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+130:57  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/admin/AuditLogs.jsx
+25:8  Warning: React Hook useEffect has a missing dependency: 'fetchLogs'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/dashboard/AgentLeadsTab.jsx
+17:8  Warning: React Hook useEffect has a missing dependency: 'loadUser'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/dashboard/LeadCRM.jsx
+43:8  Warning: React Hook useEffect has a missing dependency: 'initData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/dashboard/MarketingTools.jsx
+24:8  Warning: React Hook useEffect has a missing dependency: 'fetchListings'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+156:37  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/dashboard/OpenHouseScheduler.jsx
+30:8  Warning: React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/property/ROICalculator.jsx
+26:8  Warning: React Hook useEffect has a missing dependency: 'appreciation'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/tools/MortgageCalculator.jsx
+21:8  Warning: React Hook useEffect has a missing dependency: 'calculateMortgage'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/ui/NotificationBell.jsx
+19:8  Warning: React Hook useEffect has a missing dependency: 'checkUser'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

@@ -17,6 +17,9 @@ import { AdminAgents } from '@/components/admin/AdminAgents';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { databases } from '@/lib/appwrite';
 import { Query } from 'appwrite';
+import Image from 'next/image';
+
+export const dynamic = 'force-dynamic';
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -28,36 +31,36 @@ export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState('kyc');
 
     useEffect(() => {
-        checkAuth();
-    }, []);
-
-    const checkAuth = async () => {
-        try {
-            const user = await account.get();
-            // In a real app, check user.labels.includes('admin') or team membership
-            // For this demo, we'll try to fetch requests. If it fails (401/403), not admin.
+        const checkAuth = async () => {
             try {
-                const [pending, platformStats, pendingReviews] = await Promise.all([
-                    getPendingKYCRequests(),
-                    getPlatformStats(),
-                    databases.listDocuments(DB_ID, COLLECTION_REVIEWS, [
-                        Query.equal('is_approved', false),
-                        Query.orderDesc('$createdAt')
-                    ])
-                ]);
-                setRequests(pending);
-                setStats(platformStats);
-                setReviews(pendingReviews.documents);
-                setIsAdmin(true);
-            } catch (err) {
-                // Not admin
+                const user = await account.get();
+                // In a real app, check user.labels.includes('admin') or team membership
+                // For this demo, we'll try to fetch requests. If it fails (401/403), not admin.
+                try {
+                    const [pending, platformStats, pendingReviews] = await Promise.all([
+                        getPendingKYCRequests(),
+                        getPlatformStats(),
+                        databases.listDocuments(DB_ID, COLLECTION_REVIEWS, [
+                            Query.equal('is_approved', false),
+                            Query.orderDesc('$createdAt')
+                        ])
+                    ]);
+                    setRequests(pending);
+                    setStats(platformStats);
+                    setReviews(pendingReviews.documents);
+                    setIsAdmin(true);
+                } catch (err) {
+                    // Not admin
+                }
+            } catch (e) {
+                router.push('/auth/login');
+            } finally {
+                setLoading(false);
             }
-        } catch (e) {
-            router.push('/auth/login');
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+
+        checkAuth();
+    }, [router]);
 
     const handleDecision = async (id, status) => {
         try {
@@ -258,7 +261,12 @@ export default function AdminDashboard() {
                                             <p className="text-xs font-bold text-slate-500 uppercase mb-2">Front ID</p>
                                             <div className="aspect-video bg-white rounded-lg border border-slate-200 overflow-hidden relative group">
                                                 {/* We use getKYCFileView to generate the URL */}
-                                                <img src={storage.getFileView(BUCKET_KYC, req.nic_front_id)} className="w-full h-full object-cover" />
+                                                <Image
+                                                    src={storage.getFileView(BUCKET_KYC, req.nic_front_id)}
+                                                    alt="NIC Front"
+                                                    fill
+                                                    className="w-full h-full object-cover"
+                                                />
                                                 <a
                                                     href={storage.getFileView(BUCKET_KYC, req.nic_front_id)}
                                                     target="_blank"
@@ -271,7 +279,12 @@ export default function AdminDashboard() {
                                         <div>
                                             <p className="text-xs font-bold text-slate-500 uppercase mb-2">Back ID</p>
                                             <div className="aspect-video bg-white rounded-lg border border-slate-200 overflow-hidden relative group">
-                                                <img src={storage.getFileView(BUCKET_KYC, req.nic_back_id)} className="w-full h-full object-cover" />
+                                                <Image
+                                                    src={storage.getFileView(BUCKET_KYC, req.nic_back_id)}
+                                                    alt="NIC Back"
+                                                    fill
+                                                    className="w-full h-full object-cover"
+                                                />
                                                 <a
                                                     href={storage.getFileView(BUCKET_KYC, req.nic_back_id)}
                                                     target="_blank"

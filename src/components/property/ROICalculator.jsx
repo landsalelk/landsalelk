@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TrendingUp, Building2, Home } from 'lucide-react';
 
 export default function ROICalculator({ price }) {
@@ -23,7 +23,8 @@ export default function ROICalculator({ price }) {
         // Adjust defaults based on type
         if (type === 'commercial' && appreciation === 5) setAppreciation(8);
         if (type === 'residential' && appreciation === 8) setAppreciation(5);
-    }, [type]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [type]); // appreciation intentionally excluded to prevent infinite loop
 
     useEffect(() => {
         const annualRent = rent * 12;

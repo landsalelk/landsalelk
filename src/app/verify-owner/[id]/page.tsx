@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter, useParams } from 'next/navigation';
 import { databases } from '@/lib/appwrite';
 import { toast } from 'sonner';
+import Image from 'next/image';
 import { Check, X, ShieldCheck, MapPin, Loader2, User, Banknote } from 'lucide-react';
 import { declineListing, initiateAgentHiring } from '@/app/actions/owner-verification';
 
@@ -11,7 +12,8 @@ export default function OwnerVerificationPage() {
     const params = useParams();
     const searchParams = useSearchParams();
     const router = useRouter();
-    const id = Array.isArray(params.id) ? params.id[0] : params.id;
+    const idParam = params?.id;
+    const id = typeof idParam === 'string' ? idParam : Array.isArray(idParam) ? idParam[0] : undefined;
     const secret = searchParams.get('secret');
 
     const [listing, setListing] = useState(null);
@@ -20,46 +22,50 @@ export default function OwnerVerificationPage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const fetchListing = async () => {
+            try {
+                const doc = await databases.getDocument(
+                    process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk',
+                    'listings',
+                    id
+                );
+
+                if (doc.verification_code !== secret) {
+                    setError("Invalid or expired verification token.");
+                } else if (doc.status !== 'pending_owner') {
+                    if (doc.status === 'active') {
+                        setError("This listing has already been verified.");
+                    } else if (doc.status === 'rejected_by_owner') {
+                        setError("You have declined this listing.");
+                    } else {
+                        setError("Listing is not pending verification.");
+                    }
+                } else {
+                    setListing(doc);
+                }
+            } catch (err) {
+                console.error(err);
+                setError("Failed to load listing. It may have been removed.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
         if (id && secret) {
             fetchListing();
         } else {
             setError("Invalid verification link.");
             setLoading(false);
         }
-    }, [id, secret]);
-
-    const fetchListing = async () => {
-        try {
-            const doc = await databases.getDocument(
-                process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk',
-                'listings',
-                id
-            );
-
-            if (doc.verification_code !== secret) {
-                setError("Invalid or expired verification token.");
-            } else if (doc.status !== 'pending_owner') {
-                if (doc.status === 'active') {
-                    setError("This listing has already been verified.");
-                } else if (doc.status === 'rejected_by_owner') {
-                    setError("You have declined this listing.");
-                } else {
-                    setError("Listing is not pending verification.");
-                }
-            } else {
-                setListing(doc);
-            }
-        } catch (err) {
-            console.error(err);
-            setError("Failed to load listing details.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [id, secret]); // Moved function inside useEffect and removed unnecessary dependency
 
     const handleClaimFree = async () => {
         // Redirect to login/register logic via our Claim page
         // We pass the secret to ensure security holds
+        if (!id || !secret) {
+            toast.error("Invalid verification link");
+            return;
+        }
         toast.info("Please login or create an account to claim this listing.");
         // We redirect to a dedicated claim route which will enforce auth
         router.push(`/verify-owner/${id}/claim?secret=${secret}`);
@@ -73,21 +79,46 @@ export default function OwnerVerificationPage() {
 
             if (!result.success) throw new Error(result.error);
 
-            // Logic to handle payment params.
-            // Since we don't have the PayHere SDK loaded in this snippet,
-            // we will simulate the "Action" of opening payment.
-            // In a real integration, we would create a form and submit it, or use payhere.js.
-            // For this task, showing success/intent is key.
+            const params = result.paymentParams;
 
-            // TODO: Integrate actual PayHere form submission here.
-            // For now, we assume the user wanted to see the flow.
-            console.log("Payment Params:", result.paymentParams);
+            // Create and submit PayHere form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = params.sandbox
+                ? 'https://sandbox.payhere.lk/pay/checkout'
+                : 'https://www.payhere.lk/pay/checkout';
+
+            // Add all payment parameters as hidden fields
+            const fields = {
+                merchant_id: params.merchant_id,
+                return_url: params.return_url,
+                cancel_url: params.cancel_url,
+                notify_url: params.notify_url,
+                order_id: params.order_id,
+                items: params.items,
+                currency: params.currency,
+                amount: params.amount,
+                first_name: params.first_name,
+                last_name: params.last_name,
+                email: params.email,
+                phone: params.phone,
+                address: params.address,
+                city: params.city,
+                country: params.country,
+                hash: params.hash
+            };
+
+            Object.entries(fields).forEach(([key, value]) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = String(value);
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
             toast.success("Redirecting to PayHere Gateway...");
-
-            // Simulate delay then success (Mock)
-            setTimeout(() => {
-                router.push(`/verify-owner/${id}/success`); // Assume payment success page exists or we mock it
-            }, 2000);
+            form.submit();
 
         } catch (err) {
             toast.error(err.message || "Payment initiation failed");
@@ -164,10 +195,12 @@ export default function OwnerVerificationPage() {
                 <div className="bg-white rounded-3xl shadow-xl overflow-hidden mb-8">
                     {firstImage && (
                         <div className="relative h-64 w-full">
-                            <img
+                            <Image
                                 src={firstImage}
                                 alt="Property"
-                                className="w-full h-full object-cover"
+                                fill
+                                className="object-cover"
+                                unoptimized
                             />
                             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
                                 <h2 className="text-white text-xl font-bold">{listing.title}</h2>

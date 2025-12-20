@@ -1,12 +1,10 @@
 {
     "name": "send-otp-sms",
     "version": "1.0.0",
-    "description": "Send OTP for Listing Verification",
+    "description": "Send OTP for Listing Verification via text.lk",
     "main": "src/main.js",
     "type": "module",
     "dependencies": {
-        "node-appwrite": "^11.0.0",
-        "twilio": "^4.20.0"
-    },
-    "devDependencies": {}
+        "node-appwrite": "^21.0.0"
+    }
 }

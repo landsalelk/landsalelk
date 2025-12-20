@@ -13,26 +13,26 @@ export default function AgentLeadsTab() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
+        const loadLeads = async (agentId) => {
+            setLoading(true);
+            const result = await getAgentLeads(agentId);
+            setLeads(result);
+            setLoading(false);
+        };
+
+        const loadUser = async () => {
+            try {
+                const userData = await account.get();
+                setUser(userData);
+                loadLeads(userData.$id);
+            } catch {
+                setUser(null);
+                setLoading(false);
+            }
+        };
+
         loadUser();
     }, []);
-
-    const loadUser = async () => {
-        try {
-            const userData = await account.get();
-            setUser(userData);
-            loadLeads(userData.$id);
-        } catch {
-            setUser(null);
-            setLoading(false);
-        }
-    };
-
-    const loadLeads = async (agentId) => {
-        setLoading(true);
-        const result = await getAgentLeads(agentId);
-        setLeads(result);
-        setLoading(false);
-    };
 
     const handleStatusChange = async (leadId, newStatus) => {
         const success = await updateLeadStatus(leadId, newStatus);
@@ -124,8 +124,8 @@ export default function AgentLeadsTab() {
                         key={status}
                         onClick={() => setFilter(status)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${filter === status
-                                ? 'bg-emerald-600 text-white'
-                                : 'bg-white text-gray-600 hover:bg-gray-50'
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-white text-gray-600 hover:bg-gray-50'
                             }`}
                     >
                         {status === 'all' ? 'All Leads' : status.charAt(0).toUpperCase() + status.slice(1)}

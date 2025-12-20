@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getAgents } from '@/lib/agents';
 import { ShieldCheck, FileText, Scale, CheckCircle, Search, User, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function LegalServicesPage() {
     const [lawyers, setLawyers] = useState([]);
@@ -87,7 +88,7 @@ export default function LegalServicesPage() {
                             <div key={agent.$id} className="bg-white p-6 rounded-2xl border border-slate-100 flex flex-col items-center text-center hover:shadow-md transition-shadow">
                                 <div className="w-20 h-20 bg-slate-200 rounded-full mb-4 flex items-center justify-center text-slate-500">
                                     {agent.photo ? (
-                                        <img src={agent.photo} alt={agent.name} className="w-full h-full object-cover rounded-full" />
+                                        <Image src={agent.photo} alt={agent.name} width={80} height={80} className="w-full h-full object-cover rounded-full" />
                                     ) : (
                                         <User className="w-10 h-10" />
                                     )}

@@ -14,9 +14,30 @@ export default function NotificationBell() {
     const [loading, setLoading] = useState(false);
     const dropdownRef = useRef(null);
 
+    const loadNotifications = useCallback(async (userId) => {
+        setLoading(true);
+        const [notifs, count] = await Promise.all([
+            getNotifications(userId, 10),
+            getUnreadCount(userId)
+        ]);
+        setNotifications(notifs);
+        setUnreadCount(count);
+        setLoading(false);
+    }, []);
+
+    const checkUser = useCallback(async () => {
+        try {
+            const userData = await account.get();
+            setUser(userData);
+            loadNotifications(userData.$id);
+        } catch {
+            setUser(null);
+        }
+    }, [loadNotifications]);
+
     useEffect(() => {
         checkUser();
-    }, []);
+    }, [checkUser]);
 
     useEffect(() => {
         // Close on outside click
@@ -28,27 +49,6 @@ export default function NotificationBell() {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
-    const checkUser = async () => {
-        try {
-            const userData = await account.get();
-            setUser(userData);
-            loadNotifications(userData.$id);
-        } catch {
-            setUser(null);
-        }
-    };
-
-    const loadNotifications = async (userId) => {
-        setLoading(true);
-        const [notifs, count] = await Promise.all([
-            getNotifications(userId, 10),
-            getUnreadCount(userId)
-        ]);
-        setNotifications(notifs);
-        setUnreadCount(count);
-        setLoading(false);
-    };
 
     const handleMarkAsRead = async (notificationId) => {
         await markAsRead(notificationId);

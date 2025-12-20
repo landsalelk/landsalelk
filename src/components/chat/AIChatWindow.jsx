@@ -60,27 +60,29 @@ export default function AIChatWindow() {
     };
 
     return (
-        <div className="fixed bottom-6 left-6 z-50 font-sans">
+        <div className="fixed bottom-6 left-6 z-[9999] font-sans">
             {/* Toggle Button */}
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="group flex items-center gap-2 px-4 py-3 bg-slate-900 hover:bg-black text-white rounded-full shadow-2xl transition-all hover:scale-105"
+                    data-testid="ai-chat-toggle"
+                    className="group flex items-center gap-2 px-4 py-3 bg-slate-900 hover:bg-black text-white rounded-full shadow-2xl transition-all hover:scale-105 opacity-100 scale-100 ai-chat-toggle"
                 >
                     <div className="relative">
-                        <Bot className="w-6 h-6" />
+                        <Bot className="w-6 h-6 bot-icon" />
                         <span className="absolute -top-1 -right-1 flex h-3 w-3">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                         </span>
                     </div>
                     <span className="font-bold text-sm hidden group-hover:block transition-all">Ask AI Assistant</span>
+                    <span className="sr-only">AI Chat</span>
                 </button>
             )}
 
             {/* Chat Window */}
             {isOpen && (
-                <div className="bg-white w-[350px] md:w-[400px] h-[500px] rounded-2xl shadow-2xl flex flex-col border border-slate-200 overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300">
+                <div data-testid="ai-chat-window" className="bg-white w-[350px] md:w-[400px] h-[500px] rounded-2xl shadow-2xl flex flex-col border border-slate-200 overflow-hidden ai-chat-window">
 
                     {/* Header */}
                     <div className="p-4 bg-slate-900 text-white flex justify-between items-center">
@@ -98,7 +100,7 @@ export default function AIChatWindow() {
                         </div>
                         <button
                             onClick={() => setIsOpen(false)}
-                            className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                            className="p-1 hover:bg-white/10 rounded-lg transition-colors close-chat"
                         >
                             <X className="w-5 h-5 text-slate-400" />
                         </button>

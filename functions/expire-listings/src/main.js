@@ -32,24 +32,43 @@ export default async ({ req, res, log, error }) => {
             [
                 Query.lessThan('expires_at', now),
                 Query.equal('status', 'active'),
-                Query.limit(100) // Process in chunks to avoid timeouts
+                Query.limit(50)
             ]
         );
 
-        log(`Found ${expiredListings.documents.length} expired listings`);
+        // 1b. Find pending_owner listings passed their verification expiry
+        const expiredUnverifiedListings = await databases.listDocuments(
+            DATABASE_ID,
+            COLLECTION_LISTINGS,
+            [
+                Query.lessThan('verification_expires_at', now),
+                Query.equal('status', 'pending_owner'),
+                Query.limit(50)
+            ]
+        );
+
+        const allExpiredDocs = [...expiredListings.documents, ...expiredUnverifiedListings.documents];
+
+        log(`Found ${expiredListings.documents.length} expired active listings and ${expiredUnverifiedListings.documents.length} expired unverified listings`);
 
         let expiredCount = 0;
         let errorCount = 0;
 
-        for (const listing of expiredListings.documents) {
+        for (const listing of allExpiredDocs) {
             try {
+                // Determine new status based on current status
+                let newStatus = 'expired';
+                if (listing.status === 'pending_owner') {
+                    newStatus = 'expired_unverified';
+                }
+
                 // 2. Mark as expired
                 await databases.updateDocument(
                     DATABASE_ID,
                     COLLECTION_LISTINGS,
                     listing.$id,
                     {
-                        status: 'expired',
+                        status: newStatus,
                         is_boosted: false, // Remove boost if any
                         is_premium: false  // Remove premium if any
                     }

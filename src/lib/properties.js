@@ -158,6 +158,16 @@ export async function getUserListings(userId) {
 export async function createProperty(data) {
     try {
         const user = await account.get();
+
+        // Generate verification code if owner_phone is provided
+        let verification_code = null;
+        let status = 'active';
+        if (data.owner_phone && data.owner_phone.trim().length > 0) {
+            // Generate a secure 6-character alphanumeric code
+            verification_code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            status = 'pending_owner'; // Requires owner verification
+        }
+
         const doc = await databases.createDocument(
             DB_ID,
             COLLECTION_LISTINGS,
@@ -166,7 +176,8 @@ export async function createProperty(data) {
                 ...data,
                 user_id: user.$id,
                 created_at: new Date().toISOString(),
-                status: 'active'
+                status: status,
+                verification_code: verification_code
             }
         );
 

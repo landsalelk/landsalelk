@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, Loader2, MapPin, ArrowRight, User } from 'lucide-react';
 import Link from 'next/link';
@@ -14,6 +14,19 @@ export default function RegisterPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const { account } = await import('@/lib/appwrite');
+                await account.get();
+                router.replace('/dashboard');
+            } catch (error) {
+                // Not logged in
+            }
+        };
+        checkSession();
+    }, [router]);
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -33,22 +46,30 @@ export default function RegisterPage() {
         try {
             const { account, ID } = await import('@/lib/appwrite');
 
-            // Check if there's an existing session and delete it first
             try {
-                await account.get();
-                // If we get here, user is already logged in - delete current session
-                await account.deleteSession('current');
-            } catch (err) {
-                // No active session, proceed with registration
+                // Try creating account
+                await account.create(ID.unique(), email, password, name);
+            } catch (createError) {
+                // If user presumably already exists, we tried to create it. 
+                // Note: creating session for existing user is a different flow (Login).
+                // Let's just bubble up unless specific error we want to handle.
+                throw createError;
             }
 
-            await account.create(ID.unique(), email, password, name);
+            // Login immediately
             await account.createEmailPasswordSession(email, password);
-            toast.success("ගිණුම සාර්ථකයි! Account created!");
-            router.push('/dashboard');
+            toast.success("Account created successfully!");
+
+            // Force redirect
+            window.location.href = '/dashboard';
         } catch (error) {
             console.error(error);
-            toast.error(error.message || "Registration failed");
+            if (error?.code === 409) {
+                toast.error("User with this email already exists. Please login.");
+                router.push('/auth/login');
+            } else {
+                toast.error(error.message || "Registration failed");
+            }
         } finally {
             setLoading(false);
         }
@@ -95,6 +116,8 @@ export default function RegisterPage() {
                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <input
                                     type="text"
+                                    name="name"
+                                    data-testid="register-name"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder="John Doe"

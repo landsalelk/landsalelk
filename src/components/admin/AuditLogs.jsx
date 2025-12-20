@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { databases } from '@/lib/appwrite';
 import { DB_ID, COLLECTION_AUDIT_LOGS } from '@/lib/constants';
 import { Query } from 'appwrite';
@@ -20,11 +20,7 @@ export function AuditLogs() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedLog, setSelectedLog] = useState(null);
 
-    useEffect(() => {
-        fetchLogs();
-    }, [offset]);
-
-    const fetchLogs = async () => {
+    const fetchLogs = useCallback(async () => {
         setLoading(true);
         try {
             const queries = [
@@ -53,7 +49,11 @@ export function AuditLogs() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [offset, searchQuery]);
+
+    useEffect(() => {
+        fetchLogs();
+    }, [fetchLogs]);
 
     const handleNext = () => {
         if (offset + ITEMS_PER_PAGE < total) {

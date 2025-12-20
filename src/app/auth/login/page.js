@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, Loader2, MapPin, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -13,6 +13,19 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const { account } = await import('@/lib/appwrite');
+                await account.get();
+                router.replace('/dashboard');
+            } catch (error) {
+                // Not logged in
+            }
+        };
+        checkSession();
+    }, [router]);
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -20,15 +33,7 @@ export default function LoginPage() {
         try {
             const { account } = await import('@/lib/appwrite');
 
-            // Check if there's an existing session and delete it first
-            try {
-                await account.get();
-                // If we get here, user is already logged in - delete current session
-                await account.deleteSession('current');
-            } catch (err) {
-                // No active session, proceed with login
-            }
-
+            // Proceed with login
             const session = await account.createEmailPasswordSession(email, password);
             const user = await account.get();
 
@@ -91,6 +96,7 @@ export default function LoginPage() {
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <input
                                     type="email"
+                                    data-testid="login-email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="you@example.com"
@@ -114,6 +120,7 @@ export default function LoginPage() {
                                 />
                                 <button
                                     type="button"
+                                    data-testid="password-toggle"
                                     onClick={() => setShowPassword(!showPassword)}
                                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                                 >

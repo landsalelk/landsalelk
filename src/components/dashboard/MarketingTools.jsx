@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { databases } from '@/lib/appwrite';
 import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
 import { Query } from 'appwrite';
@@ -12,6 +12,7 @@ import {
 import { QRCodeCanvas } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import Image from 'next/image';
 
 export function MarketingTools({ userId }) {
     const [listings, setListings] = useState([]);
@@ -19,11 +20,7 @@ export function MarketingTools({ userId }) {
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
 
-    useEffect(() => {
-        if (userId) fetchListings();
-    }, [userId]);
-
-    const fetchListings = async () => {
+    const fetchListings = useCallback(async () => {
         try {
             const response = await databases.listDocuments(
                 DB_ID,
@@ -37,7 +34,11 @@ export function MarketingTools({ userId }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [userId]);
+
+    useEffect(() => {
+        if (userId) fetchListings();
+    }, [userId, fetchListings]);
 
     const generatePDF = async () => {
         setGenerating(true);
@@ -153,12 +154,25 @@ export function MarketingTools({ userId }) {
                             {/* Header Image */}
                             <div className="w-full h-[400px] relative">
                                 {selectedListing.images && selectedListing.images[0] ? (
-                                    <img
-                                        src={selectedListing.images[0]}
-                                        alt="Property"
-                                        className="w-full h-full object-cover"
-                                        crossOrigin="anonymous"
-                                    />
+                                    <div className="w-full h-full relative">
+                                        {selectedListing.images[0] && typeof selectedListing.images[0] === 'string' && selectedListing.images[0].trim() !== '' ? (
+                                            <Image
+                                                src={selectedListing.images[0]}
+                                                alt="Property"
+                                                fill
+                                                className="object-cover"
+                                                crossOrigin="anonymous"
+                                                unoptimized
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.style.display = 'none';
+                                                    e.target.parentNode.innerHTML += '<div class="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 absolute inset-0">Invalid Image</div>';
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 absolute inset-0">No Valid Image</div>
+                                        )}
+                                    </div>
                                 ) : (
                                     <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400">No Image</div>
                                 )}

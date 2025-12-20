@@ -1,17 +1,61 @@
 import { Client, Databases } from 'node-appwrite';
-import twilio from 'twilio';
 import crypto from 'crypto';
 
 // Environment Variables
 const PROJECT_ID = process.env.APPWRITE_FUNCTION_PROJECT_ID;
 const API_KEY = process.env.APPWRITE_API_KEY;
-const DATABASE_ID = process.env.DATABASE_ID || 'landsalelk';
+const DATABASE_ID = process.env.DATABASE_ID || 'landsalelkdb';
 const LISTINGS_COLLECTION_ID = 'listings';
 
-// Twilio Config
-const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
-const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
+// Text.lk Config
+const TEXT_LK_API_TOKEN = process.env.TEXT_LK_API_TOKEN;
+
+if (!TEXT_LK_API_TOKEN) {
+    console.error("Critical Error: TEXT_LK_API_TOKEN is missing.");
+    throw new Error("API Token missing");
+}
+const TEXT_LK_SENDER_ID = process.env.TEXT_LK_SENDER_ID || 'LandSale';
+const TEXT_LK_API_URL = 'https://app.text.lk/api/v3/sms/send';
+
+/**
+ * Send SMS via text.lk API
+ */
+async function sendSMS(recipient, message, log, error) {
+    if (!TEXT_LK_API_TOKEN) {
+        error('TEXT_LK_API_TOKEN is not configured');
+        return { success: false, error: 'SMS credentials missing' };
+    }
+
+    try {
+        const response = await fetch(TEXT_LK_API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${TEXT_LK_API_TOKEN}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                recipient: recipient,
+                sender_id: TEXT_LK_SENDER_ID,
+                type: 'plain',
+                message: message
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            log(`SMS sent successfully to ${recipient}`);
+            return { success: true, data };
+        } else {
+            error(`Text.lk API error: ${JSON.stringify(data)}`);
+            return { success: false, error: data };
+        }
+    } catch (e) {
+        error(`Failed to send SMS: ${e.message}`);
+        return { success: false, error: e.message };
+    }
+}
 
 export default async ({ req, res, log, error }) => {
     const client = new Client()
@@ -59,45 +103,44 @@ export default async ({ req, res, log, error }) => {
         // Generate Secure Token (UUID v4 or random hex)
         const token = crypto.randomBytes(16).toString('hex');
 
-        // Update Listing with token
+        // Calculate expiry (72 hours from now)
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 72);
+
+        // Update Listing with token and expiry
         await databases.updateDocument(
             DATABASE_ID,
             LISTINGS_COLLECTION_ID,
             listingId,
             {
-                verification_code: token, // Reusing this field for the token
-                status: 'pending_owner'
+                verification_code: token,
+                status: 'pending_owner',
+                verification_expires_at: expiresAt.toISOString()
             }
         );
 
         // Construct Link
-        // Assuming the site is hosted at https://landsale.lk (or use ENV if available)
         const siteUrl = process.env.SITE_URL || 'https://landsale.lk';
         const link = `${siteUrl}/verify-owner/${listingId}?secret=${token}`;
 
-        // Send SMS via Twilio
-        if (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER) {
-            const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-
-            let messageBody = `Landsale.lk: ${agentName} has listed your property "${title}" for Rs. ${price}.`;
-            if (serviceFee > 0) {
-                messageBody += ` Review proposal (Fee: LKR ${serviceFee}): ${link}`;
-            } else {
-                messageBody += ` Review & Publish for FREE: ${link}`;
-            }
-
-            await twilioClient.messages.create({
-                body: messageBody,
-                from: TWILIO_PHONE_NUMBER,
-                to: ownerPhone
-            });
-
-            log(`Verification Link sent to ${ownerPhone}`);
+        // Build SMS message
+        let messageBody = `Landsale.lk: ${agentName} has listed your property "${title}" for Rs. ${price}.`;
+        if (serviceFee > 0) {
+            messageBody += ` Review proposal (Fee: LKR ${serviceFee}): ${link}`;
         } else {
-            error('Twilio credentials missing. SMS not sent.');
+            messageBody += ` Review & Publish for FREE: ${link}`;
         }
 
-        return res.json({ success: true, message: 'Link sent' });
+        // Send SMS via text.lk
+        const smsResult = await sendSMS(ownerPhone, messageBody, log, error);
+
+        if (smsResult.success) {
+            log(`Verification Link sent to ${ownerPhone}`);
+            return res.json({ success: true, message: 'Link sent' });
+        } else {
+            error(`Failed to send SMS: ${JSON.stringify(smsResult.error)}`);
+            return res.json({ success: false, error: 'SMS delivery failed' }, 500);
+        }
 
     } catch (e) {
         error(`Failed to send Link: ${e.message}`);

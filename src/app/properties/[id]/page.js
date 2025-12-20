@@ -21,10 +21,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { account, databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTING_OFFERS } from '@/lib/constants';
-import { ID } from 'appwrite';
+import { DB_ID, COLLECTION_LISTING_OFFERS, COLLECTION_AGENTS } from '@/lib/constants';
+import { ID, Query } from 'appwrite';
 import { X, HandCoins } from 'lucide-react';
 import { incrementViewCount } from '@/app/actions/analytics';
+import { track } from '@/lib/track';
 
 export default function PropertyDetailsPage() {
     const { id } = useParams();
@@ -34,6 +35,7 @@ export default function PropertyDetailsPage() {
     const [activeImage, setActiveImage] = useState(0);
     const [isSaved, setIsSaved] = useState(false);
     const [savingFav, setSavingFav] = useState(false);
+    const [isAgentVerified, setIsAgentVerified] = useState(false);
 
     const [relatedProperties, setRelatedProperties] = useState([]);
 
@@ -48,6 +50,43 @@ export default function PropertyDetailsPage() {
     useEffect(() => {
         if (property?.price) setOfferAmount(property.price);
     }, [property]);
+
+     const contactPhone = property?.contact_phone || property?.phone || null;
+
+     const handleWhatsApp = () => {
+         track('cta_contact_clicked', { listing_id: id, channel: 'whatsapp' });
+
+         const number = contactPhone ? String(contactPhone).replace(/\s+/g, '') : '';
+         const title = parseSafe(property?.title, 'Property');
+
+         if (!number) {
+             toast.error('Phone number not available');
+             return;
+         }
+
+         const text = encodeURIComponent(`Hi, I'm interested in: ${title} (ID: ${id})`);
+         const waUrl = `https://wa.me/${number.replace(/^\+/, '')}?text=${text}`;
+         window.open(waUrl, '_blank', 'noopener,noreferrer');
+     };
+
+     const getCleanedPhoneNumber = () => {
+        return contactPhone ? String(contactPhone).replace(/\s+/g, '') : '';
+    };
+
+    const getFormattedPhoneNumber = () => {
+        return contactPhone || '+94 77 XXX XXXX';
+    };
+
+    const handleCall = () => {
+        track('cta_contact_clicked', { listing_id: id, channel: 'call' });
+
+        const number = getCleanedPhoneNumber();
+        if (!number) {
+            toast.error('Phone number not available');
+            return;
+        }
+        window.location.href = `tel:${number}`;
+    };
 
     const handleMakeOffer = async (e) => {
         e.preventDefault();
@@ -106,6 +145,32 @@ export default function PropertyDetailsPage() {
                     incrementViewCount(id).then(() => {
                         sessionStorage.setItem(storageKey, 'true');
                     }).catch(err => console.error("View tracking failed", err));
+                }
+
+                 // Client-side analytics event (safe no-op if no provider configured)
+                 if (!sessionStorage.getItem(`${storageKey}_analytics`)) {
+                     track('listing_viewed', {
+                         listing_id: id,
+                         listing_type: data?.listing_type,
+                         price: data?.price,
+                     });
+                     sessionStorage.setItem(`${storageKey}_analytics`, 'true');
+                 }
+
+                // Check Agent Verification
+                if (data.user_id) {
+                    try {
+                        const agents = await databases.listDocuments(
+                            DB_ID,
+                            COLLECTION_AGENTS,
+                            [Query.equal('user_id', data.user_id)]
+                        );
+                        if (agents.documents.length > 0 && agents.documents[0].is_verified) {
+                            setIsAgentVerified(true);
+                        }
+                    } catch (e) {
+                        console.warn("Agent check failed", e);
+                    }
                 }
 
             } catch (err) {
@@ -240,22 +305,22 @@ export default function PropertyDetailsPage() {
                     priority
                     unoptimized
                 />
-                 {/* Mobile Navigation */}
-                 <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2 z-10">
+                {/* Mobile Navigation */}
+                <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2 z-10">
                     {images.slice(0, 5).map((_, idx) => (
                         <div key={idx} className={`w-2 h-2 rounded-full ${activeImage === idx ? 'bg-white' : 'bg-white/50'}`} />
                     ))}
                 </div>
-                 {/* Mobile Nav Arrows */}
-                 <button onClick={() => setActiveImage(i => (i - 1 + images.length) % images.length)} className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/20 text-white backdrop-blur-sm"><ChevronLeft className="w-6 h-6"/></button>
-                 <button onClick={() => setActiveImage(i => (i + 1) % images.length)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/20 text-white backdrop-blur-sm"><ChevronRight className="w-6 h-6"/></button>
+                {/* Mobile Nav Arrows */}
+                <button onClick={() => setActiveImage(i => (i - 1 + images.length) % images.length)} className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/20 text-white backdrop-blur-sm"><ChevronLeft className="w-6 h-6" /></button>
+                <button onClick={() => setActiveImage(i => (i + 1) % images.length)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/20 text-white backdrop-blur-sm"><ChevronRight className="w-6 h-6" /></button>
 
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                     <span className="bg-emerald-600/90 backdrop-blur-md text-white px-3 py-1 text-sm font-bold rounded-lg shadow-sm">
                         {property.listing_type === 'sale' ? 'For Sale' : 'For Rent'}
                     </span>
                 </div>
-                 <div className="absolute top-4 right-4 flex gap-2">
+                <div className="absolute top-4 right-4 flex gap-2">
                     <button
                         onClick={handleSave}
                         disabled={savingFav}
@@ -334,7 +399,7 @@ export default function PropertyDetailsPage() {
 
                         {/* Scroll-driven Map */}
                         <FadeIn>
-                             <ScrollMap location={parseSafe(property.location, "")} />
+                            <ScrollMap location={parseSafe(property.location, "")} />
                         </FadeIn>
 
                         <FadeIn className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
@@ -431,22 +496,41 @@ export default function PropertyDetailsPage() {
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-slate-900 text-lg">{property.contact_name || "Land Sale Agent"}</h4>
-                                        <p className="text-emerald-600 text-sm font-medium flex items-center gap-1">
-                                            <ShieldCheck className="w-3 h-3" /> Verified Agent
-                                        </p>
+                                        {isAgentVerified && (
+                                            <p className="text-emerald-600 text-sm font-medium flex items-center gap-1">
+                                                <ShieldCheck className="w-3 h-3" /> Verified Agent
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
                                 <div className="space-y-3 mb-6">
-                                    <button className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                                    <button
+                                        onClick={handleWhatsApp}
+                                        className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+                                    >
                                         <MessageCircle className="w-5 h-5" /> Chat via WhatsApp
                                     </button>
                                     <button
-                                        onClick={() => setShowNumber(true)}
-                                        className="w-full py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                                        onClick={() => {
+                                            if (!showNumber) {
+                                                track('cta_contact_clicked', { listing_id: id, channel: 'show_number' });
+                                            }
+                                            setShowNumber(!showNumber);
+                                        }}
+                                        className={`w-full py-3 ${showNumber ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white text-slate-700 border-slate-200'} border rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2`}
                                     >
-                                        <Phone className="w-5 h-5" />
-                                        {showNumber ? (property.contact_phone || property.phone || '+94 77 XXX XXXX') : 'Show Number'}
+                                        {showNumber ? (
+                                            <a href={`tel:${getCleanedPhoneNumber()}`} className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                                <Phone className="w-5 h-5" />
+                                                {getFormattedPhoneNumber()}
+                                            </a>
+                                        ) : (
+                                            <>
+                                                <Phone className="w-5 h-5" />
+                                                Show Number
+                                            </>
+                                        )}
                                     </button>
 
                                     <button
@@ -474,7 +558,7 @@ export default function PropertyDetailsPage() {
                             </div>
 
                             {/* AI Valuation (Moved here to be sticky with agent) */}
-                             <ValuationCard property={property} />
+                            <ValuationCard property={property} />
 
                         </div>
                     </div>
@@ -500,6 +584,47 @@ export default function PropertyDetailsPage() {
 
             {/* Chat Widget */}
             <ChatWidget agentId={property.user_id} agentName={property.contact_name || "Agent"} />
+
+             {/* Mobile Sticky Contact Bar */}
+             <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
+                 <div className="bg-white/95 backdrop-blur border-t border-slate-200 px-4 py-3">
+                     <div className="grid grid-cols-2 gap-3">
+                         <button
+                             onClick={handleCall}
+                             className="py-3 rounded-xl font-bold bg-white text-slate-800 border border-slate-200 flex items-center justify-center gap-2"
+                         >
+                             <Phone className="w-5 h-5" /> Call
+                         </button>
+                         <button
+                             onClick={handleWhatsApp}
+                             className="py-3 rounded-xl font-bold bg-emerald-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+                         >
+                             <MessageCircle className="w-5 h-5" /> WhatsApp
+                         </button>
+                     </div>
+                     <button
+                         onClick={() => {
+                             if (!showNumber) {
+                                 track('cta_contact_clicked', { listing_id: id, channel: 'show_number' });
+                             }
+                             setShowNumber(!showNumber);
+                         }}
+                         className={`mt-3 w-full py-2 text-sm font-bold ${showNumber ? 'text-emerald-600' : 'text-slate-600'}`}
+                     >
+                         {showNumber ? (
+                             <a href={`tel:${getCleanedPhoneNumber()}`} className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                 <Phone className="w-4 h-4" />
+                                 {getFormattedPhoneNumber()}
+                             </a>
+                         ) : (
+                             'Show number'
+                         )}
+                     </button>
+                     <p className="mt-2 text-[11px] text-slate-400 text-center">
+                         Never transfer money before viewing the property.
+                     </p>
+                 </div>
+             </div>
 
             {/* Make Offer Modal */}
             {isOfferOpen && (

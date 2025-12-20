@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { databases, Query } from '@/lib/appwrite';
+import { databases } from '@/lib/appwrite';
+import { Query } from 'appwrite';
 import { DB_ID } from '@/lib/constants';
 import { BADGES } from '@/lib/agent_training';
 import { motion, AnimatePresence } from 'framer-motion';

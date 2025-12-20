@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { account } from '@/lib/appwrite';
 import { getAgentProfile, getTrainingProgress, TRAINING_MODULES, getOverallProgress, formatTimeSpent, BADGES } from '@/lib/agent_training';
 import { getUserListings } from '@/lib/properties';
@@ -223,9 +224,11 @@ export default function AgentDashboardPage() {
                                         >
                                             <div className="w-16 h-16 bg-slate-200 rounded-xl overflow-hidden shrink-0">
                                                 {listing.images?.[0] && (
-                                                    <img
+                                                    <Image
                                                         src={listing.images[0].startsWith('http') ? listing.images[0] : `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/listing_images/files/${listing.images[0]}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`}
                                                         alt=""
+                                                        width={64}
+                                                        height={64}
                                                         className="w-full h-full object-cover"
                                                     />
                                                 )}

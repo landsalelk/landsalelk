@@ -37,49 +37,49 @@ export function LeadCRM({ userId }) {
     });
 
     useEffect(() => {
+        const initData = async () => {
+            try {
+                setLoading(true);
+                const [leadsRes, listingsRes, agentRes] = await Promise.allSettled([
+                    databases.listDocuments(
+                        DB_ID,
+                        COLLECTION_AGENT_LEADS,
+                        [Query.equal('agent_user_id', userId), Query.orderDesc('$createdAt')]
+                    ),
+                    getUserListings(userId),
+                    databases.listDocuments(
+                        DB_ID,
+                        COLLECTION_AGENTS,
+                        [Query.equal('user_id', userId), Query.limit(1)]
+                    )
+                ]);
+
+                // Handle Leads
+                if (leadsRes.status === 'fulfilled') {
+                    setLeads(leadsRes.value.documents);
+                }
+
+                // Handle Listings
+                if (listingsRes.status === 'fulfilled') {
+                    setListings(listingsRes.value);
+                }
+
+                // Handle Agent Profile
+                if (agentRes.status === 'fulfilled' && agentRes.value.documents.length > 0) {
+                    setAgentProfile(agentRes.value.documents[0]);
+                }
+            } catch (error) {
+                console.error("Error loading CRM data", error);
+                toast.error("Failed to load CRM data");
+            } finally {
+                setLoading(false);
+            }
+        };
+
         if (userId) {
             initData();
         }
     }, [userId]);
-
-    const initData = async () => {
-        try {
-            setLoading(true);
-            const [leadsRes, listingsRes, agentRes] = await Promise.allSettled([
-                databases.listDocuments(
-                    DB_ID,
-                    COLLECTION_AGENT_LEADS,
-                    [Query.equal('agent_user_id', userId), Query.orderDesc('$createdAt')]
-                ),
-                getUserListings(userId),
-                databases.listDocuments(
-                    DB_ID,
-                    COLLECTION_AGENTS,
-                    [Query.equal('user_id', userId), Query.limit(1)]
-                )
-            ]);
-
-            // Handle Leads
-            if (leadsRes.status === 'fulfilled') {
-                setLeads(leadsRes.value.documents);
-            }
-
-            // Handle Listings
-            if (listingsRes.status === 'fulfilled') {
-                setListings(listingsRes.value);
-            }
-
-            // Handle Agent Profile
-            if (agentRes.status === 'fulfilled' && agentRes.value.documents.length > 0) {
-                setAgentProfile(agentRes.value.documents[0]);
-            }
-        } catch (error) {
-            console.error("Error loading CRM data", error);
-            toast.error("Failed to load CRM data");
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleCreateLead = async (e) => {
         e.preventDefault();
@@ -100,20 +100,16 @@ export function LeadCRM({ userId }) {
             // NOTE: The `agent_leads` collection schema does not currently support `customer_name`, `phone`, or `email` columns.
             // As a workaround, we serialize these details into the `notes` field.
             // Future schema updates should add these columns for better querying.
-            const structuredNotes = [
-                `Name: ${newLead.name}`,
-                `Phone: ${newLead.phone}`,
-                `Email: ${newLead.email}`,
-                `Note: ${newLead.notes}`
-            ].join('\n');
-
             const payload = {
                 agent_id: agentProfile.$id,
                 agent_user_id: userId,
                 property_id: newLead.property_id,
                 property_title: selectedProperty ? selectedProperty.title : 'Unknown Property',
                 status: newLead.status,
-                notes: structuredNotes,
+                customer_name: newLead.name,
+                customer_phone: newLead.phone,
+                customer_email: newLead.email,
+                notes: newLead.notes,
                 created_at: new Date().toISOString()
             };
 
@@ -166,18 +162,25 @@ export function LeadCRM({ userId }) {
         let phone = "";
         let email = "";
 
-        // Parsing logic for 'Key: Value' format stored in notes
-        const noteSource = Array.isArray(lead.notes) ? lead.notes.join('\n') : (lead.notes || '');
+        // new schema check
+        if (lead.customer_name) {
+            name = lead.customer_name;
+            phone = lead.customer_phone || "";
+            email = lead.customer_email || "";
+        } else {
+            // Legacy Parsing logic for 'Key: Value' format stored in notes
+            const noteSource = Array.isArray(lead.notes) ? lead.notes.join('\n') : (lead.notes || '');
 
-        if (noteSource) {
-             const nameMatch = noteSource.match(/Name: (.*)/);
-             if (nameMatch) name = nameMatch[1];
+            if (noteSource) {
+                const nameMatch = noteSource.match(/Name: (.*)/);
+                if (nameMatch) name = nameMatch[1];
 
-             const phoneMatch = noteSource.match(/Phone: (.*)/);
-             if (phoneMatch) phone = phoneMatch[1];
+                const phoneMatch = noteSource.match(/Phone: (.*)/);
+                if (phoneMatch) phone = phoneMatch[1];
 
-             const emailMatch = noteSource.match(/Email: (.*)/);
-             if (emailMatch) email = emailMatch[1];
+                const emailMatch = noteSource.match(/Email: (.*)/);
+                if (emailMatch) email = emailMatch[1];
+            }
         }
 
         return { ...lead, name, phone, email };
@@ -186,16 +189,16 @@ export function LeadCRM({ userId }) {
     if (loading) return <div className="p-12 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-600" /></div>;
 
     if (!agentProfile && !loading) {
-         return (
-             <div className="p-12 text-center bg-white rounded-2xl border border-slate-200">
-                 <Users className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-                 <h2 className="text-xl font-bold text-slate-900 mb-2">Agent Profile Required</h2>
-                 <p className="text-slate-500 mb-6">You need to set up your agent profile to manage leads.</p>
-                 <button className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold">
-                     Create Agent Profile
-                 </button>
-             </div>
-         );
+        return (
+            <div className="p-12 text-center bg-white rounded-2xl border border-slate-200">
+                <Users className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                <h2 className="text-xl font-bold text-slate-900 mb-2">Agent Profile Required</h2>
+                <p className="text-slate-500 mb-6">You need to set up your agent profile to manage leads.</p>
+                <button className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold">
+                    Create Agent Profile
+                </button>
+            </div>
+        );
     }
 
     return (

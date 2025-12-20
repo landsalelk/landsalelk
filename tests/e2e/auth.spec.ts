@@ -4,6 +4,10 @@ test.describe('Authentication Flow Tests', () => {
 
     test.describe('Login Page', () => {
 
+        test.beforeEach(async ({ page }) => {
+            await page.context().clearCookies();
+        });
+
         test('Login page loads correctly', async ({ page }) => {
             await page.goto('/auth/login');
             await page.waitForLoadState('networkidle');
@@ -11,8 +15,8 @@ test.describe('Authentication Flow Tests', () => {
             // Check page title or heading
             await expect(page.locator('h1, h2').first()).toBeVisible();
 
-            // Check for email input
-            const emailInput = page.locator('input[type="email"], input[name="email"], input[placeholder*="email" i]');
+            // Check for email input - Use TestID to distinguish from footer
+            const emailInput = page.getByTestId('login-email');
             await expect(emailInput).toBeVisible();
 
             // Check for password input
@@ -41,7 +45,7 @@ test.describe('Authentication Flow Tests', () => {
             await page.goto('/auth/login');
             await page.waitForLoadState('networkidle');
 
-            const emailInput = page.locator('input[type="email"], input[name="email"]').first();
+            const emailInput = page.getByTestId('login-email');
             await emailInput.fill('notanemail');
 
             const passwordInput = page.locator('input[type="password"]').first();
@@ -60,20 +64,18 @@ test.describe('Authentication Flow Tests', () => {
             await page.waitForLoadState('networkidle');
 
             // Look for eye icon button to toggle password visibility
-            const toggleButton = page.locator('button:has(svg), [class*="eye"]').first();
+            const toggleButton = page.getByTestId('password-toggle');
+            await expect(toggleButton).toBeVisible();
 
-            if (await toggleButton.isVisible()) {
-                const passwordInput = page.locator('input[type="password"]').first();
-                await expect(passwordInput).toHaveAttribute('type', 'password');
+            const passwordInput = page.locator('input[type="password"]').first();
+            await expect(passwordInput).toHaveAttribute('type', 'password');
 
-                await toggleButton.click();
-                await page.waitForTimeout(300);
+            await toggleButton.click({ force: true });
+            await page.waitForTimeout(1000);
 
-                // Password input should now be type="text"
-                const inputType = await page.locator('input[name="password"], input[placeholder*="password" i]').first().getAttribute('type');
-                // Either text or password is acceptable
-                expect(['text', 'password']).toContain(inputType);
-            }
+            // Password input should now be type="text"
+            const inputType = await page.locator('input[name="password"]').first().getAttribute('type');
+            expect(inputType).toBe('text');
         });
 
         test('Register link exists on login page', async ({ page }) => {
@@ -92,12 +94,12 @@ test.describe('Authentication Flow Tests', () => {
             await page.waitForLoadState('networkidle');
 
             // Check for name input
-            const nameInput = page.locator('input[name="name"], input[placeholder*="name" i]');
-            await expect(nameInput.first()).toBeVisible();
+            const nameInput = page.getByTestId('register-name');
+            await expect(nameInput).toBeVisible();
 
             // Check for email input
-            const emailInput = page.locator('input[type="email"], input[name="email"]');
-            await expect(emailInput.first()).toBeVisible();
+            const emailInput = page.locator('input[type="email"], input[name="email"]').first();
+            await expect(emailInput).toBeVisible();
 
             // Check for password input
             const passwordInput = page.locator('input[type="password"]');
@@ -140,9 +142,7 @@ test.describe('Authentication Flow Tests', () => {
 
             // Check for email input
             const emailInput = page.locator('input[type="email"], input[name="email"]');
-            if (await emailInput.isVisible()) {
-                await expect(emailInput).toBeVisible();
-            }
+            await expect(emailInput).toBeVisible();
         });
     });
 });
