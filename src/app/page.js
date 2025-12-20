@@ -1,56 +1,32 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import { Hero } from "@/components/home/Hero";
 import { PropertyCard } from "@/components/property/PropertyCard";
+import { NewsletterForm } from "@/components/home/NewsletterForm";
 import { getFeaturedProperties } from "@/lib/properties";
 import { databases } from "@/lib/appwrite";
 import { DB_ID, COLLECTION_LISTINGS } from "@/lib/constants";
-import { subscribeToNewsletter } from "@/app/actions/newsletter";
 import { Query } from "appwrite";
 import { ArrowRight, Sparkles, ShieldCheck, Brain, Scale, PlusCircle, Home, Building, Trees, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { toast } from "sonner";
 
-export default function HomePage() {
-  const [featuredProperties, setFeaturedProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [categoryCounts, setCategoryCounts] = useState({ lands: 0, houses: 0, apartments: 0 });
+// Server Component
+export default async function HomePage() {
+  // Fetch data in parallel
+  const propertiesPromise = getFeaturedProperties(8);
+  const landsPromise = databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'land'), Query.limit(1)]).catch(() => ({ total: 0 }));
+  const housesPromise = databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'house'), Query.limit(1)]).catch(() => ({ total: 0 }));
+  const apartmentsPromise = databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'apartment'), Query.limit(1)]).catch(() => ({ total: 0 }));
 
-  useEffect(() => {
-    setMounted(true);
-    loadFeaturedProperties();
-    loadCategoryCounts();
-  }, []);
+  const [featuredProperties, landsRes, housesRes, apartmentsRes] = await Promise.all([
+    propertiesPromise,
+    landsPromise,
+    housesPromise,
+    apartmentsPromise
+  ]);
 
-  const loadFeaturedProperties = async () => {
-    try {
-      const properties = await getFeaturedProperties(8);
-      setFeaturedProperties(properties);
-    } catch (error) {
-      setFeaturedProperties([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadCategoryCounts = async () => {
-    try {
-      const [landsRes, housesRes, apartmentsRes] = await Promise.all([
-        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'land'), Query.limit(1)]),
-        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'house'), Query.limit(1)]),
-        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'apartment'), Query.limit(1)])
-      ]);
-      setCategoryCounts({
-        lands: landsRes.total,
-        houses: housesRes.total,
-        apartments: apartmentsRes.total
-      });
-    } catch (e) {
-      // Silent fail - keep default 0
-    }
+  const categoryCounts = {
+    lands: landsRes.total,
+    houses: housesRes.total,
+    apartments: apartmentsRes.total
   };
 
   const categories = [
@@ -79,8 +55,6 @@ export default function HomePage() {
       color: "bg-purple-100 text-purple-600"
     },
   ];
-
-  if (!mounted) return null;
 
   return (
     <div className="min-h-screen animate-fade-in">
@@ -127,13 +101,9 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-[#10b981]" />
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProperties.map((property, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProperties.length > 0 ? (
+              featuredProperties.map((property, idx) => (
                 <div
                   key={property.$id || idx}
                   className="animate-fade-in"
@@ -141,9 +111,14 @@ export default function HomePage() {
                 >
                   <PropertyCard property={property} />
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            ) : (
+                // Empty state or skeleton could go here, but for SSR usually we just show nothing or a message
+                <div className="col-span-4 text-center py-12 text-slate-500">
+                    No featured properties found at the moment.
+                </div>
+            )}
+          </div>
         </div>
       </section>
 
@@ -229,45 +204,7 @@ export default function HomePage() {
           <p className="text-slate-500 mb-8">
             Subscribe to receive notifications about new listings and price drops
           </p>
-          <form
-            className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const email = e.target.email.value;
-              if (email && !submitting) {
-                setSubmitting(true);
-                try {
-                  const result = await subscribeToNewsletter(email);
-                  if (result.success) {
-                    toast.success(result.message);
-                    e.target.reset();
-                  } else {
-                    toast.error(result.error);
-                  }
-                } catch (error) {
-                  toast.error("Something went wrong. Please try again.");
-                } finally {
-                  setSubmitting(false);
-                }
-              }
-            }}
-          >
-            <input
-              type="email"
-              name="email"
-              required
-              disabled={submitting}
-              placeholder="Enter your email"
-              className="flex-1 px-6 py-4 bg-white rounded-2xl border border-slate-200 outline-none focus:border-[#10b981] font-medium disabled:opacity-50"
-            />
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-8 py-4 bg-[#10b981] text-white rounded-2xl font-bold hover:bg-[#059669] transition-colors shadow-lg shadow-[#10b981]/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]"
-            >
-              {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Subscribe"}
-            </button>
-          </form>
+          <NewsletterForm />
         </div>
       </section>
     </div>
