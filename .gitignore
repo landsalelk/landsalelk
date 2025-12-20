@@ -9,6 +9,9 @@
 
 # testing
 /coverage
+/test-results
+/playwright-report
+playwright-results.json
 
 # next.js
 /.next/
@@ -21,8 +24,11 @@
 .DS_Store
 *.pem
 .idea
+.vscode
 
 # debug
+*.log
+lint_*.txt
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

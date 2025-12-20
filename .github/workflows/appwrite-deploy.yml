@@ -1,9 +1,10 @@
 name: Appwrite Deploy
 
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
+  # Manual trigger only to avoid conflicts with Appwrite Cloud Git Integration
   workflow_dispatch:
 
 jobs:
