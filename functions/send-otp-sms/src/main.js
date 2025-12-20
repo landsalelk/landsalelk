@@ -59,7 +59,7 @@ async function sendSMS(recipient, message, log, error) {
 
 export default async ({ req, res, log, error }) => {
     const client = new Client()
-        .setEndpoint(process.env.APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
+        .setEndpoint(process.env.APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1')
         .setProject(PROJECT_ID)
         .setKey(API_KEY);
 

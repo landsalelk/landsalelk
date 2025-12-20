@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Heart, BedDouble, Bath, Square, Move, Scale, MessageCircle } from 'lucide-react';
 import { useComparison } from '@/context/ComparisonContext';
+import { APPWRITE_ENDPOINT } from '@/lib/constants';
 
 export function PropertyCard({ property }) {
     const { addToCompare, compareList } = useComparison() || {};
@@ -28,7 +29,7 @@ export function PropertyCard({ property }) {
     // Smart image extraction: Try primary_image, then images array, then fallback
     const getImageUrl = () => {
         const fallback = "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072";
-        const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+        const endpoint = APPWRITE_ENDPOINT;
         const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
         const bucketId = 'listing_images'; // Correct bucket ID
 

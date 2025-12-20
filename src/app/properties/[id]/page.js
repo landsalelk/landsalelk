@@ -21,7 +21,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { account, databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTING_OFFERS, COLLECTION_AGENTS } from '@/lib/constants';
+import { DB_ID, COLLECTION_LISTING_OFFERS, COLLECTION_AGENTS, APPWRITE_ENDPOINT } from '@/lib/constants';
 import { ID, Query } from 'appwrite';
 import { X, HandCoins } from 'lucide-react';
 import { incrementViewCount } from '@/app/actions/analytics';
@@ -240,7 +240,7 @@ export default function PropertyDetailsPage() {
     // Safe image parsing
     let images = [];
     try {
-        const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+        const endpoint = APPWRITE_ENDPOINT;
         const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
         const bucketId = 'listing_images'; // Correct bucket ID
 
