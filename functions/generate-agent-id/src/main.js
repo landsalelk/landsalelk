@@ -23,7 +23,7 @@ try {
 
 export default async ({ req, res, log, error }) => {
     const client = new Client()
-        .setEndpoint(process.env.APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
+        .setEndpoint(process.env.APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1')
         .setProject(PROJECT_ID)
         .setKey(process.env.APPWRITE_API_KEY);
 
@@ -213,7 +213,7 @@ export default async ({ req, res, log, error }) => {
             new File([buffer], fileName, { type: 'image/png' })
         );
 
-        const fileUrl = `${process.env.APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1'}/storage/buckets/${BUCKET_AGENT_IDS}/files/${fileId}/view?project=${PROJECT_ID}`;
+        const fileUrl = `${process.env.APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1'}/storage/buckets/${BUCKET_AGENT_IDS}/files/${fileId}/view?project=${PROJECT_ID}`;
 
         // Update agent record
         try {
