@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
+import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
 import { Query, ID } from 'appwrite';
 import { toast } from 'sonner';
 import {
     Calendar, Clock, MapPin, Users, Plus, Trash2, Eye, Loader2
 } from 'lucide-react';
 
-const COLLECTION_OPEN_HOUSES = 'open_houses'; // Assumed collection
+const COLLECTION_OPEN_HOUSES = 'open_houses'; // Assumed collection - check constants if exists
 
 export function OpenHouseScheduler({ userId }) {
     const [listings, setListings] = useState([]);

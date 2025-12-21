@@ -14,6 +14,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useComparison } from "@/context/ComparisonContext";
+import { APPWRITE_ENDPOINT } from '@/lib/constants';
 
 export function PropertyCard({ property }) {
   const { addToCompare, compareList } = useComparison() || {};
@@ -39,7 +40,7 @@ export function PropertyCard({ property }) {
     const fallback =
       "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
     const endpoint =
-      process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT ||
+      APPWRITE_ENDPOINT ||
       "https://sgp.cloud.appwrite.io/v1";
     const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || "landsalelkproject";
     const bucketId = "listing_images";

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
+import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
 import { Query, ID } from 'appwrite';
 import { toast } from 'sonner';
 import {

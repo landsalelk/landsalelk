@@ -1,5 +1,5 @@
-import { databases, account, storage, Query, ID } from "@/appwrite";
-import { DB_ID, COLLECTION_LISTINGS, COLLECTION_AGENTS, BUCKET_LISTING_IMAGES } from "@/appwrite/config";
+import { databases, account, storage, Query, ID } from "@/lib/appwrite";
+import { DB_ID, COLLECTION_LISTINGS, COLLECTION_AGENTS, BUCKET_LISTING_IMAGES } from "@/lib/constants";
 
 /**
  * Fetch a single property by its ID.
@@ -191,7 +191,7 @@ export async function createProperty(data) {
         if (data.owner_phone && data.owner_phone.trim().length > 0) {
             // Generate a secure 6-character alphanumeric code
             verification_code = Math.random().toString(36).substring(2, 8).toUpperCase();
-            status = 'pending'; // Requires owner verification (mapped to 'pending' in schema)
+            status = 'pending_owner'; // Requires owner verification
         }
 
         // Whitelist payload to avoid schema errors (Appwrite rejects unknown attributes)
