@@ -181,6 +181,22 @@
             "path": "functions/expire-listings"
         },
         {
+            "$id": "send-reminder-sms",
+            "execute": [],
+            "name": "Send Reminder SMS",
+            "enabled": true,
+            "logging": true,
+            "runtime": "node-20.0",
+            "scopes": [],
+            "events": [],
+            "schedule": "0 12 * * *",
+            "timeout": 15,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "specification": "s-0.5vcpu-512mb",
+            "path": "functions/send-reminder-sms"
+        },
+        {
             "$id": "send-sms",
             "execute": [],
             "name": "Send SMS",

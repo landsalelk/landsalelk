@@ -16,9 +16,16 @@ export default async ({ req, res, log, error }) => {
         }
 
         // text.lk API credentials
-        // text.lk API credentials
-        const API_TOKEN = process.env.TEXTLK_API_TOKEN || '2539|lJGD67Ptu3Gj6297q3rgouE2qA9daa7BHjmyxjQz096de7dc';
+        const API_TOKEN = process.env.TEXT_LK_API_TOKEN;
         const API_ENDPOINT = 'https://app.text.lk/api/v3/sms/send';
+
+        if (!API_TOKEN) {
+            error('TEXT_LK_API_TOKEN is not configured');
+            return res.json({
+                success: false,
+                error: 'SMS configuration missing'
+            }, 500);
+        }
 
         // Format phone number (ensure it has country code)
         let formattedPhone = phone.replace(/\s+/g, '').replace(/-/g, '');
