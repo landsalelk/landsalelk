@@ -9,12 +9,15 @@ import {
     Ticket, Plus, Trash2, Calendar, Percent,
     Loader2, AlertCircle, Copy
 } from 'lucide-react';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 
 export function AdminCoupons() {
     const [coupons, setCoupons] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
+    const [deleting, setDeleting] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -165,7 +168,7 @@ export function AdminCoupons() {
                                         <td className="px-6 py-4 text-sm text-slate-600">
                                             <div className="flex items-center gap-1">
                                                 <span className="font-medium text-slate-900">{coupon.used_count || 0}</span>
-                                                <span className="text-slate-400">/ {coupon.max_uses || '∞'}</span>
+                                                <span className="text-slate-500">/ {coupon.max_uses || '∞'}</span>
                                             </div>
                                             {coupon.max_uses && (
                                                 <div className="w-20 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
@@ -194,7 +197,7 @@ export function AdminCoupons() {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <button
-                                                onClick={() => handleDelete(coupon.$id)}
+                                                onClick={() => setDeleteId(coupon.$id)}
                                                 className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                                 title="Delete Coupon"
                                             >
@@ -222,7 +225,7 @@ export function AdminCoupons() {
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">Coupon Code</label>
                                 <div className="relative">
-                                    <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                    <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                                     <input
                                         type="text"
                                         required
@@ -232,14 +235,14 @@ export function AdminCoupons() {
                                         className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 focus:bg-white transition-all outline-none font-mono uppercase"
                                     />
                                 </div>
-                                <p className="text-xs text-slate-400 mt-1">Uppercase letters, numbers, and dashes only.</p>
+                                <p className="text-xs text-slate-500 mt-1">Uppercase letters, numbers, and dashes only.</p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Discount (%)</label>
                                     <div className="relative">
-                                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                         <input
                                             type="number"
                                             required
@@ -267,7 +270,7 @@ export function AdminCoupons() {
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">Valid Until (Optional)</label>
                                 <div className="relative">
-                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                                     <input
                                         type="date"
                                         value={formData.valid_until}
@@ -297,6 +300,17 @@ export function AdminCoupons() {
                     </div>
                 </div>
             )}
+
+            <ConfirmationModal
+                isOpen={!!deleteId}
+                onClose={() => setDeleteId(null)}
+                onConfirm={handleDelete}
+                title="Delete Coupon"
+                message="Are you sure you want to delete this coupon? This cannot be undone."
+                confirmText="Delete"
+                isDanger={true}
+                isLoading={deleting}
+            />
         </div>
     );
 }

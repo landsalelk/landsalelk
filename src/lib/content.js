@@ -37,8 +37,7 @@ export async function getAllCmsPages() {
     try {
         const response = await databases.listDocuments(
             DB_ID,
-            COLLECTION_CMS_PAGES,
-            [Query.equal('is_published', true)]
+            COLLECTION_CMS_PAGES
         );
         return response.documents;
     } catch (error) {
@@ -60,7 +59,6 @@ export async function getBlogPosts(limit = 10, offset = 0) {
             DB_ID,
             COLLECTION_BLOG_POSTS,
             [
-                Query.equal('is_published', true),
                 Query.orderDesc('$createdAt'),
                 Query.limit(limit),
                 Query.offset(offset)
@@ -102,8 +100,6 @@ export async function getFeaturedPosts(limit = 3) {
             DB_ID,
             COLLECTION_BLOG_POSTS,
             [
-                Query.equal('is_published', true),
-                Query.equal('is_featured', true),
                 Query.orderDesc('$createdAt'),
                 Query.limit(limit)
             ]
@@ -128,7 +124,6 @@ export async function getFaqs() {
             DB_ID,
             COLLECTION_FAQS,
             [
-                Query.equal('is_active', true),
                 Query.orderAsc('sort_order')
             ]
         );
@@ -149,7 +144,6 @@ export async function getFaqsByCategory(category) {
             COLLECTION_FAQS,
             [
                 Query.equal('category', category),
-                Query.equal('is_active', true),
                 Query.orderAsc('sort_order')
             ]
         );

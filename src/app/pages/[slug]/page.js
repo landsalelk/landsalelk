@@ -12,7 +12,6 @@ export default function CmsPage({ params }) {
     const [page, setPage] = useState(null);
     const [loading, setLoading] = useState(true);
 
-<<<<<<< HEAD
     const loadPage = useCallback(async () => {
         setLoading(true);
         const result = await getCmsPage(slug);
@@ -27,21 +26,6 @@ export default function CmsPage({ params }) {
     useEffect(() => {
         loadPage();
     }, [loadPage]);
-=======
-    useEffect(() => {
-        const loadPage = async () => {
-            setLoading(true);
-            const result = await getCmsPage(slug);
-            if (!result) {
-                router.push('/');
-                return;
-            }
-            setPage(result);
-            setLoading(false);
-        };
-        loadPage();
-    }, [slug, router]);
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
     if (loading) {
         return (

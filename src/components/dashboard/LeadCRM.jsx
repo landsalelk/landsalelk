@@ -36,7 +36,6 @@ export function LeadCRM({ userId }) {
         property_id: ''
     });
 
-<<<<<<< HEAD
     const initData = useCallback(async () => {
         try {
             setLoading(true);
@@ -81,52 +80,6 @@ export function LeadCRM({ userId }) {
             initData();
         }
     }, [userId, initData]);
-=======
-    useEffect(() => {
-        const initData = async () => {
-            try {
-                setLoading(true);
-                const [leadsRes, listingsRes, agentRes] = await Promise.allSettled([
-                    databases.listDocuments(
-                        DB_ID,
-                        COLLECTION_AGENT_LEADS,
-                        [Query.equal('agent_user_id', userId), Query.orderDesc('$createdAt')]
-                    ),
-                    getUserListings(userId),
-                    databases.listDocuments(
-                        DB_ID,
-                        COLLECTION_AGENTS,
-                        [Query.equal('user_id', userId), Query.limit(1)]
-                    )
-                ]);
-
-                // Handle Leads
-                if (leadsRes.status === 'fulfilled') {
-                    setLeads(leadsRes.value.documents);
-                }
-
-                // Handle Listings
-                if (listingsRes.status === 'fulfilled') {
-                    setListings(listingsRes.value);
-                }
-
-                // Handle Agent Profile
-                if (agentRes.status === 'fulfilled' && agentRes.value.documents.length > 0) {
-                    setAgentProfile(agentRes.value.documents[0]);
-                }
-            } catch (error) {
-                console.error("Error loading CRM data", error);
-                toast.error("Failed to load CRM data");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (userId) {
-            initData();
-        }
-    }, [userId]);
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
     const handleCreateLead = async (e) => {
         e.preventDefault();

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { account, databases } from '@/appwrite';
+import { account, databases } from '@/lib/appwrite';
 import { DB_ID, COLLECTION_AGENTS, COLLECTION_CERTIFICATES } from '@/appwrite/config';
 import { TRAINING_MODULES, BADGES } from '@/lib/agent_training';
 import { Query } from 'appwrite';
@@ -66,11 +66,7 @@ export default function AdminTrainingPage() {
                     certified,
                     inProgress,
                     notStarted: agentsResult.documents.length - certified - inProgress,
-<<<<<<< HEAD
                     certificatesIssued: certsDocuments.length,
-=======
-                    certificatesIssued: certsResult?.documents.length || 0,
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
                 });
 
             } catch (e) {

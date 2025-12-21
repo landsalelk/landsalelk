@@ -205,10 +205,26 @@
             "documentSecurity": true
         }
     ],
+    "sites": [
+        {
+            "$id": "landsalelk-updated",
+            "name": "landsalelk-updated",
+            "enabled": true,
+            "buildRuntime": "node-22",
+            "buildCommand": "npm run build",
+            "outputDirectory": ".next",
+            "fallbackDirectory": "public",
+            "buildEntrypoint": "",
+            "buildPath": ".",
+            "framework": "next.js",
+            "adapter": "ssr",
+            "variables": {}
+        }
+    ],
     "collections": [
         {
-            "$id": "users",
-            "name": "users",
+            "$id": "users_extended",
+            "name": "Users Extended",
             "databaseId": "landsalelkdb",
             "enabled": true,
             "rowSecurity": false,
@@ -372,8 +388,8 @@
                     "type": "integer",
                     "required": true,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -473,8 +489,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -482,8 +498,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -557,7 +573,7 @@
                     "required": false,
                     "array": false,
                     "min": 0,
-                    "max": 9223372036854775807,
+                    "max": 9223372036854776000,
                     "default": 0
                 },
                 {
@@ -750,7 +766,8 @@
                     "size": 50,
                     "default": null
                 }
-            ]
+            ],
+            "indexes": []
         },
         {
             "$id": "countries",
@@ -803,8 +820,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -846,8 +863,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -939,8 +956,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -993,8 +1010,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -1002,8 +1019,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 }
             ],
@@ -1131,8 +1148,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -1158,8 +1175,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -1167,8 +1184,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -1186,7 +1203,7 @@
                     "required": false,
                     "array": false,
                     "min": 0,
-                    "max": 9223372036854775807,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -1195,7 +1212,7 @@
                     "required": false,
                     "array": false,
                     "min": 0,
-                    "max": 9223372036854775807,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -1204,7 +1221,7 @@
                     "required": false,
                     "array": false,
                     "min": 0,
-                    "max": 9223372036854775807,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -1213,7 +1230,7 @@
                     "required": false,
                     "array": false,
                     "min": 0,
-                    "max": 9223372036854775807,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -1350,8 +1367,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -2063,200 +2080,6 @@
             ]
         },
         {
-            "$id": "blog_posts",
-            "$permissions": [
-                "read(\"any\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Blog Posts",
-            "enabled": true,
-            "rowSecurity": false,
-            "columns": [
-                {
-                    "key": "user_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "title",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 500,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "slug",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 200,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "content",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 20000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "excerpt",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 2000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "featured_image",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 500,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "status",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "is_featured",
-                    "type": "boolean",
-                    "required": true,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "published_at",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "user_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "user_id"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "slug_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "slug"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "status_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "status"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "faqs",
-            "$permissions": [
-                "read(\"any\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "FAQs",
-            "enabled": true,
-            "rowSecurity": false,
-            "columns": [
-                {
-                    "key": "question",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 500,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "answer",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 10000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "category",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "sort_order",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
-                    "default": null
-                },
-                {
-                    "key": "is_active",
-                    "type": "boolean",
-                    "required": true,
-                    "array": false,
-                    "default": null
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "category_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "category"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "is_active_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "is_active"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
             "$id": "agents",
             "$permissions": [
                 "read(\"any\")",
@@ -2320,7 +2143,7 @@
                     "required": false,
                     "array": false,
                     "min": 0,
-                    "max": 9223372036854775807,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -2389,8 +2212,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": 0
                 },
                 {
@@ -2398,8 +2221,8 @@
                     "type": "integer",
                     "required": false,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000,
                     "default": 0
                 },
                 {
@@ -2464,7 +2287,7 @@
                     "required": false,
                     "array": false,
                     "min": 0,
-                    "max": 9223372036854775807,
+                    "max": 9223372036854776000,
                     "default": 0
                 },
                 {
@@ -2473,7 +2296,7 @@
                     "required": false,
                     "array": false,
                     "min": 0,
-                    "max": 9223372036854775807,
+                    "max": 9223372036854776000,
                     "default": 0
                 },
                 {
@@ -3605,7 +3428,7 @@
                     "required": true,
                     "array": false,
                     "min": 0,
-                    "max": 9223372036854775807,
+                    "max": 9223372036854776000,
                     "default": null
                 },
                 {
@@ -3635,479 +3458,6 @@
                 }
             ],
             "indexes": []
-        },
-        {
-            "$id": "listings",
-            "name": "listings",
-            "databaseId": "landsalelkdb",
-            "enabled": true,
-            "documentSecurity": true,
-            "attributes": [
-                {
-                    "key": "title",
-                    "type": "string",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null
-                },
-                {
-                    "key": "description",
-                    "type": "string",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "size": 1000,
-                    "default": null
-                },
-                {
-                    "key": "price",
-                    "type": "double",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "min": 0,
-                    "max": 999999999,
-                    "default": null
-                },
-                {
-                    "key": "location",
-                    "type": "string",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null
-                },
-                {
-                    "key": "category",
-                    "type": "enum",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "elements": [
-                        "house",
-                        "apartment",
-                        "land",
-                        "commercial"
-                    ],
-                    "default": "house",
-                    "format": "enum"
-                },
-                {
-                    "key": "status",
-                    "type": "enum",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "elements": [
-                        "active",
-                        "pending",
-                        "sold",
-                        "expired"
-                    ],
-                    "default": "active",
-                    "format": "enum"
-                },
-                {
-                    "key": "sellerId",
-                    "type": "string",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null
-                },
-                {
-                    "key": "images",
-                    "type": "string",
-                    "status": "available",
-                    "required": false,
-                    "array": true,
-                    "size": 1000,
-                    "default": null
-                },
-                {
-                    "key": "createdAt",
-                    "type": "datetime",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "updatedAt",
-                    "type": "datetime",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "default": null
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "transactions",
-            "name": "transactions",
-            "databaseId": "landsalelkdb",
-            "enabled": true,
-            "documentSecurity": true,
-            "attributes": [
-                {
-                    "key": "listingId",
-                    "type": "string",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null
-                },
-                {
-                    "key": "buyerId",
-                    "type": "string",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null
-                },
-                {
-                    "key": "sellerId",
-                    "type": "string",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null
-                },
-                {
-                    "key": "amount",
-                    "type": "double",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "min": 0,
-                    "max": 999999999,
-                    "default": null
-                },
-                {
-                    "key": "status",
-                    "type": "enum",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "elements": [
-                        "pending",
-                        "completed",
-                        "failed",
-                        "cancelled"
-                    ],
-                    "default": "pending",
-                    "format": "enum"
-                },
-                {
-                    "key": "paymentMethod",
-                    "type": "enum",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "elements": [
-                        "stripe",
-                        "paypal",
-                        "bank_transfer"
-                    ],
-                    "default": "stripe",
-                    "format": "enum"
-                },
-                {
-                    "key": "createdAt",
-                    "type": "datetime",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "updatedAt",
-                    "type": "datetime",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "default": null
-                }
-            ],
-            "indexes": []
-        },
-        {
-            "$id": "notifications",
-            "name": "notifications",
-            "databaseId": "landsalelkdb",
-            "enabled": true,
-            "documentSecurity": true,
-            "attributes": [
-                {
-                    "key": "userId",
-                    "type": "string",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null
-                },
-                {
-                    "key": "type",
-                    "type": "enum",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "elements": [
-                        "listing_created",
-                        "listing_sold",
-                        "payment_received",
-                        "message_received"
-                    ],
-                    "default": "listing_created",
-                    "format": "enum"
-                },
-                {
-                    "key": "title",
-                    "type": "string",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null
-                },
-                {
-                    "key": "message",
-                    "type": "string",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "size": 1000,
-                    "default": null
-                },
-                {
-                    "key": "isRead",
-                    "type": "boolean",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "default": false
-                },
-                {
-                    "key": "createdAt",
-                    "type": "datetime",
-                    "status": "available",
-                    "required": true,
-                    "array": false,
-                    "default": null
-                }
-            ]
-        },
-        {
-            "$id": "agents",
-            "$permissions": [
-                "read(\"any\")",
-                "create(\"users\")",
-                "update(\"users\")",
-                "delete(\"team:admins\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Agents",
-            "enabled": true,
-            "rowSecurity": false,
-            "columns": [
-                {
-                    "key": "user_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "name",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "phone",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 20,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "email",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "experience_years",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 100,
-                    "default": 0
-                },
-                {
-                    "key": "service_areas",
-                    "type": "string",
-                    "required": false,
-                    "array": true,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "license_number",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "bio",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 1000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "nic_doc_id",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "is_verified",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": false
-                },
-                {
-                    "key": "status",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 20,
-                    "default": "pending",
-                    "encrypt": false
-                },
-                {
-                    "key": "rating",
-                    "type": "double",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 5,
-                    "default": 0
-                },
-                {
-                    "key": "review_count",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 1000000,
-                    "default": 0
-                },
-                {
-                    "key": "deals_count",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 1000000,
-                    "default": 0
-                },
-                {
-                    "key": "points",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 1000000,
-                    "default": 0
-                },
-                {
-                    "key": "listings_uploaded",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 1000000,
-                    "default": 0
-                },
-                {
-                    "key": "total_earnings",
-                    "type": "double",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 1000000000,
-                    "default": 0
-                },
-                {
-                    "key": "created_at",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "user_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "user_id"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "status_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "status"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "is_verified_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "is_verified"
-                    ],
-                    "orders": []
-                }
-            ]
         },
         {
             "$id": "sms_logs",
@@ -4287,22 +3637,467 @@
                     "orders": []
                 }
             ]
-        }
-    ],
-    "sites": [
+        },
         {
-            "$id": "landsalelk-updated",
-            "name": "landsalelk-updated",
+            "$id": "agent_leads",
+            "name": "Agent Leads",
+            "columns": [
+                {
+                    "key": "agent_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "name",
+                    "type": "string",
+                    "required": true,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "email",
+                    "type": "string",
+                    "required": false,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "phone",
+                    "type": "string",
+                    "required": true,
+                    "size": 50,
+                    "array": false
+                },
+                {
+                    "key": "message",
+                    "type": "string",
+                    "required": false,
+                    "size": 5000,
+                    "array": false
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": true,
+                    "size": 50,
+                    "array": false
+                },
+                {
+                    "key": "property_id",
+                    "type": "string",
+                    "required": false,
+                    "size": 36,
+                    "array": false
+                }
+            ],
+            "databaseId": "landsalelkdb",
             "enabled": true,
-            "buildRuntime": "node-22",
-            "buildCommand": "npm run build",
-            "outputDirectory": ".next",
-            "fallbackDirectory": "public",
-            "buildEntrypoint": "",
-            "buildPath": ".",
-            "framework": "next.js",
-            "adapter": "ssr",
-            "variables": {}
+            "rowSecurity": false,
+            "$permissions": [
+                "read(\"any\")"
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "training_progress",
+            "name": "Training Progress",
+            "columns": [
+                {
+                    "key": "agent_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "module_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 100,
+                    "array": false
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": true,
+                    "size": 50,
+                    "array": false
+                },
+                {
+                    "key": "score",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000
+                }
+            ],
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "rowSecurity": false,
+            "$permissions": [
+                "read(\"any\")"
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "certificates",
+            "name": "Certificates",
+            "columns": [
+                {
+                    "key": "agent_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "name",
+                    "type": "string",
+                    "required": true,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "issue_date",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "expiry_date",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "file_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 255,
+                    "array": false
+                }
+            ],
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "rowSecurity": false,
+            "$permissions": [
+                "read(\"any\")"
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "open_houses",
+            "name": "Open Houses",
+            "columns": [
+                {
+                    "key": "listing_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "agent_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "start_time",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "end_time",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "visitors",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000
+                }
+            ],
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "rowSecurity": false,
+            "$permissions": [
+                "read(\"any\")"
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "kyc_requests",
+            "name": "KYC Requests",
+            "columns": [
+                {
+                    "key": "user_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": true,
+                    "size": 50,
+                    "array": false
+                },
+                {
+                    "key": "notes",
+                    "type": "string",
+                    "required": false,
+                    "size": 1000,
+                    "array": false
+                },
+                {
+                    "key": "documents",
+                    "type": "string",
+                    "required": false,
+                    "array": true,
+                    "size": 255
+                }
+            ],
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "rowSecurity": false,
+            "$permissions": [
+                "read(\"any\")"
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "land_offices",
+            "name": "Land Offices",
+            "columns": [
+                {
+                    "key": "name",
+                    "type": "string",
+                    "required": true,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "region_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "city",
+                    "type": "string",
+                    "required": false,
+                    "size": 100,
+                    "array": false
+                },
+                {
+                    "key": "address",
+                    "type": "string",
+                    "required": false,
+                    "size": 500,
+                    "array": false
+                },
+                {
+                    "key": "phone",
+                    "type": "string",
+                    "required": false,
+                    "size": 50,
+                    "array": false
+                }
+            ],
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "rowSecurity": false,
+            "$permissions": [
+                "read(\"any\")"
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "legal_documents",
+            "name": "Legal Documents",
+            "columns": [
+                {
+                    "key": "title",
+                    "type": "string",
+                    "required": true,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "required": false,
+                    "size": 2000,
+                    "array": false
+                },
+                {
+                    "key": "file_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "price",
+                    "type": "double",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "category",
+                    "type": "string",
+                    "required": true,
+                    "size": 50,
+                    "array": false
+                }
+            ],
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "rowSecurity": false,
+            "$permissions": [
+                "read(\"any\")"
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "coupons",
+            "name": "Coupons",
+            "columns": [
+                {
+                    "key": "code",
+                    "type": "string",
+                    "required": true,
+                    "size": 50,
+                    "array": false
+                },
+                {
+                    "key": "discount_type",
+                    "type": "string",
+                    "required": true,
+                    "size": 20,
+                    "array": false
+                },
+                {
+                    "key": "value",
+                    "type": "double",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "expiry_date",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "usage_limit",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000
+                },
+                {
+                    "key": "usage_count",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": -9223372036854776000,
+                    "max": 9223372036854776000
+                }
+            ],
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "rowSecurity": false,
+            "$permissions": [
+                "read(\"any\")"
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "subscribers",
+            "name": "Subscribers",
+            "columns": [
+                {
+                    "key": "email",
+                    "type": "string",
+                    "required": true,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "is_active",
+                    "type": "boolean",
+                    "required": true,
+                    "array": false
+                }
+            ],
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "rowSecurity": false,
+            "$permissions": [
+                "read(\"any\")"
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "messages",
+            "name": "Messages",
+            "columns": [
+                {
+                    "key": "sender_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "receiver_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "content",
+                    "type": "string",
+                    "required": true,
+                    "size": 2000,
+                    "array": false
+                },
+                {
+                    "key": "listing_id",
+                    "type": "string",
+                    "required": false,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "is_read",
+                    "type": "boolean",
+                    "required": true,
+                    "array": false
+                }
+            ],
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "rowSecurity": false,
+            "$permissions": [
+                "read(\"any\")"
+            ],
+            "indexes": []
         }
     ]
 }

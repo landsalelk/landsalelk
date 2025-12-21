@@ -1,0 +1,124 @@
+{
+  "timestamp": "2025-12-21T16:52:40.328Z",
+  "pages": [
+    {
+      "route": "/",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/properties",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/agents",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/blog",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/auth/login",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/auth/register",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/auth/register/agent",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/become-agent",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/tools/mortgage-calculator",
+      "status": 200,
+      "title": "Mortgage Calculator | LandSale.lk",
+      "result": "Pass"
+    },
+    {
+      "route": "/legal",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/kyc",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/terms",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/privacy",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/faq",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/dashboard",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    },
+    {
+      "route": "/properties/create",
+      "status": 200,
+      "title": "LandSale.lk | Sri Lanka's Premier Real Estate Platform",
+      "result": "Pass"
+    }
+  ],
+  "errors": [],
+  "workingFeatures": [
+    "Page Load: /",
+    "Home: Hero Section",
+    "Page Load: /properties",
+    "Properties: Found 51 listings",
+    "Page Load: /agents",
+    "Page Load: /blog",
+    "Page Load: /auth/login",
+    "Page Load: /auth/register",
+    "Page Load: /auth/register/agent",
+    "Page Load: /become-agent",
+    "Page Load: /tools/mortgage-calculator",
+    "Page Load: /legal",
+    "Page Load: /kyc",
+    "Page Load: /terms",
+    "Page Load: /privacy",
+    "Page Load: /faq",
+    "Page Load: /dashboard",
+    "Page Load: /properties/create",
+    "Dynamic Property Page"
+  ],
+  "brokenFeatures": []
+}

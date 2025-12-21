@@ -12,7 +12,6 @@ export default function AgentLeadsTab() {
     const [filter, setFilter] = useState('all');
     const [user, setUser] = useState(null);
 
-<<<<<<< HEAD
     const loadUser = useCallback(async () => {
         try {
             const userData = await account.get();
@@ -35,30 +34,6 @@ export default function AgentLeadsTab() {
         setLoading(false);
     };
 
-=======
-    useEffect(() => {
-        const loadLeads = async (agentId) => {
-            setLoading(true);
-            const result = await getAgentLeads(agentId);
-            setLeads(result);
-            setLoading(false);
-        };
-
-        const loadUser = async () => {
-            try {
-                const userData = await account.get();
-                setUser(userData);
-                loadLeads(userData.$id);
-            } catch {
-                setUser(null);
-                setLoading(false);
-            }
-        };
-
-        loadUser();
-    }, []);
-
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
     const handleStatusChange = async (leadId, newStatus) => {
         const success = await updateLeadStatus(leadId, newStatus);
         if (success) {

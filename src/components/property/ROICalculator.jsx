@@ -23,12 +23,8 @@ export default function ROICalculator({ price }) {
         // Adjust defaults based on type
         if (type === 'commercial' && appreciation === 5) setAppreciation(8);
         if (type === 'residential' && appreciation === 8) setAppreciation(5);
-<<<<<<< HEAD
-    }, [type, appreciation]);
-=======
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [type]); // appreciation intentionally excluded to prevent infinite loop
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
     useEffect(() => {
         const annualRent = rent * 12;

@@ -1,11 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-<<<<<<< HEAD
-import { account } from '@/appwrite';
-=======
 import { account } from '@/lib/appwrite';
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 import { sendMessage, getConversation, subscribeToMessages } from '@/lib/chat';
 import { getAgents } from '@/lib/agents';
 import {
@@ -27,8 +23,6 @@ export default function MessagesPage() {
     const [mounted, setMounted] = useState(false);
     const messagesEndRef = useRef(null);
 
-<<<<<<< HEAD
-=======
     const updateConversationPreview = useCallback((msg) => {
         setConversations(prev => prev.map(conv => {
             if (conv.userId === msg.sender_id || conv.userId === msg.receiver_id) {
@@ -43,7 +37,6 @@ export default function MessagesPage() {
         }));
     }, []);
 
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
     const loadUserAndConversations = useCallback(async () => {
         try {
             const userData = await account.get();
@@ -70,42 +63,11 @@ export default function MessagesPage() {
             setLoading(false);
         }
     }, [router]);
-<<<<<<< HEAD
 
     useEffect(() => {
         setMounted(true);
         loadUserAndConversations();
     }, [loadUserAndConversations]);
-
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
-
-    useEffect(() => {
-        if (!user) return;
-
-        // Subscribe to real-time messages
-        const unsubscribe = subscribeToMessages(user.$id, (newMsg) => {
-            if (activeConversation &&
-                (newMsg.sender_id === activeConversation.userId ||
-                    newMsg.receiver_id === activeConversation.userId)) {
-                setMessages(prev => [...prev, newMsg]);
-            }
-            // Update conversation preview
-            updateConversationPreview(newMsg);
-        });
-
-        return () => {
-            if (unsubscribe) unsubscribe();
-        };
-    }, [user, activeConversation]);
-=======
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
-
-    useEffect(() => {
-        setMounted(true);
-        loadUserAndConversations();
-    }, [loadUserAndConversations, setMounted]); // Added missing dependency
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

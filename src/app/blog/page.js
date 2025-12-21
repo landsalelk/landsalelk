@@ -15,7 +15,6 @@ export default function BlogPage() {
     const [total, setTotal] = useState(0);
     const POSTS_PER_PAGE = 9;
 
-<<<<<<< HEAD
     const loadPosts = useCallback(async () => {
         setLoading(true);
         const result = await getBlogPosts(POSTS_PER_PAGE, page * POSTS_PER_PAGE);
@@ -33,25 +32,6 @@ export default function BlogPage() {
         loadPosts();
         loadFeatured();
     }, [loadPosts, loadFeatured]);
-=======
-    useEffect(() => {
-        const loadPosts = async () => {
-            setLoading(true);
-            const result = await getBlogPosts(POSTS_PER_PAGE, page * POSTS_PER_PAGE);
-            setPosts(result.posts);
-            setTotal(result.total);
-            setLoading(false);
-        };
-
-        const loadFeatured = async () => {
-            const result = await getFeaturedPosts(3);
-            setFeatured(result);
-        };
-
-        loadPosts();
-        loadFeatured();
-    }, [page]); // Removed unnecessary dependencies
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {

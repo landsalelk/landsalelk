@@ -9,12 +9,15 @@ import {
     Mail, Plus, Edit2, Save, Trash2,
     Loader2, Variable, Info
 } from 'lucide-react';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 
 export function EmailTemplates() {
     const [templates, setTemplates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingTemplate, setEditingTemplate] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         fetchTemplates();
@@ -185,7 +188,7 @@ export function EmailTemplates() {
                             <div>
                                 <label className="block text-sm font-bold text-slate-700 mb-1">Available Variables (comma separated)</label>
                                 <div className="relative">
-                                    <Variable className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Variable className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                     <input
                                         type="text"
                                         value={editingTemplate.variables}
@@ -194,7 +197,7 @@ export function EmailTemplates() {
                                         placeholder="{name}, {link}"
                                     />
                                 </div>
-                                <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                                <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
                                     <Info className="w-3 h-3" />
                                     Define placeholders used in the body.
                                 </p>
@@ -235,6 +238,17 @@ export function EmailTemplates() {
                     </div>
                 </div>
             )}
+
+            <ConfirmationModal
+                isOpen={!!deleteId}
+                onClose={() => setDeleteId(null)}
+                onConfirm={handleDelete}
+                title="Delete Template"
+                message="Delete this template? System emails depending on it may fail."
+                confirmText="Delete"
+                isDanger={true}
+                isLoading={deleting}
+            />
         </div>
     );
 }

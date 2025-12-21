@@ -16,19 +16,13 @@ import ROICalculator from '@/components/property/ROICalculator';
 import { StickyGallery } from '@/components/property/StickyGallery';
 import { ScrollMap } from '@/components/property/ScrollMap';
 import { FadeIn, FadeInItem } from '@/components/animations/FadeIn';
-import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2, Train, Globe, Banknote, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2, Train, Globe, Banknote, ChevronLeft, ChevronRight, X, HandCoins } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'sonner';
-<<<<<<< HEAD
-import { account, databases, ID } from '@/appwrite';
-import { DB_ID, COLLECTION_LISTING_OFFERS } from '@/appwrite/config';
-=======
 import { account, databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTING_OFFERS, COLLECTION_AGENTS, APPWRITE_ENDPOINT } from '@/lib/constants';
+import { DB_ID, COLLECTION_LISTING_OFFERS, COLLECTION_AGENTS } from '@/appwrite/config';
 import { ID, Query } from 'appwrite';
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
-import { X, HandCoins } from 'lucide-react';
 import { incrementViewCount } from '@/app/actions/analytics';
 import { track } from '@/lib/track';
 
@@ -245,13 +239,8 @@ export default function PropertyDetailsPage() {
     // Safe image parsing
     let images = [];
     try {
-<<<<<<< HEAD
         const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
         const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || 'landsalelkproject';
-=======
-        const endpoint = APPWRITE_ENDPOINT;
-        const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
         const bucketId = 'listing_images'; // Correct bucket ID
 
         const resolveUrl = (val) => {

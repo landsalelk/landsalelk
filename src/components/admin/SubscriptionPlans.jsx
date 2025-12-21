@@ -9,12 +9,15 @@ import {
     CreditCard, Plus, Edit2, Save, Trash2,
     Loader2, Check, X, Calendar, DollarSign
 } from 'lucide-react';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 
 export function SubscriptionPlans() {
     const [plans, setPlans] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingPlan, setEditingPlan] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         fetchPlans();
@@ -179,33 +182,33 @@ export function SubscriptionPlans() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-1">Price (LKR)</label>
-                                    <div className="relative">
-                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                        <input
-                                            type="number"
-                                            required
-                                            min="0"
-                                            value={editingPlan.price}
-                                            onChange={(e) => setEditingPlan({ ...editingPlan, price: e.target.value })}
-                                            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 focus:bg-white transition-colors"
-                                        />
-                                    </div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1">Price (LKR)</label>
+                                <div className="relative">
+                                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <input
+                                        type="number"
+                                        required
+                                        min="0"
+                                        value={editingPlan.price}
+                                        onChange={(e) => setEditingPlan({ ...editingPlan, price: e.target.value })}
+                                        className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 focus:bg-white transition-colors"
+                                    />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-1">Duration (Days)</label>
-                                    <div className="relative">
-                                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                        <input
-                                            type="number"
-                                            required
-                                            min="1"
-                                            value={editingPlan.duration_days}
-                                            onChange={(e) => setEditingPlan({ ...editingPlan, duration_days: e.target.value })}
-                                            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 focus:bg-white transition-colors"
-                                        />
-                                    </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-1">Duration (Days)</label>
+                                <div className="relative">
+                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <input
+                                        type="number"
+                                        required
+                                        min="1"
+                                        value={editingPlan.duration_days}
+                                        onChange={(e) => setEditingPlan({ ...editingPlan, duration_days: e.target.value })}
+                                        className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:border-emerald-500 focus:bg-white transition-colors"
+                                    />
                                 </div>
+                            </div>
                             </div>
 
                             <div>
@@ -254,6 +257,17 @@ export function SubscriptionPlans() {
                     </div>
                 </div>
             )}
+
+            <ConfirmationModal
+                isOpen={!!deleteId}
+                onClose={() => setDeleteId(null)}
+                onConfirm={handleDelete}
+                title="Delete Plan"
+                message='Are you sure? Removing a plan might affect historical data if not handled carefully. Use "Deactivate" instead if possible.'
+                confirmText="Delete"
+                isDanger={true}
+                isLoading={deleting}
+            />
         </div>
     );
 }

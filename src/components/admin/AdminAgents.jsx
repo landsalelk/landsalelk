@@ -1,30 +1,12 @@
 "use client";
 
-<<<<<<< HEAD
-import { useState, useEffect } from "react";
-import { databases, storage } from "@/appwrite";
-import { DB_ID, COLLECTION_AGENTS } from "@/appwrite/config";
-import { calculateProfileCompleteness } from "@/lib/profileUtils";
-import {
-  Loader2,
-  CheckCircle,
-  XCircle,
-  Search,
-  Shield,
-  User,
-  MapPin,
-  Award,
-} from "lucide-react";
-import { toast } from "sonner";
-=======
 import { useState, useEffect } from 'react';
 import { databases, storage } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_AGENTS } from '@/lib/constants';
+import { DB_ID, COLLECTION_AGENTS } from '@/appwrite/config';
 import { calculateProfileCompleteness } from '@/lib/profileUtils';
 import { Loader2, CheckCircle, XCircle, Search, Shield, User, MapPin, Award } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
 export function AdminAgents() {
   const [agents, setAgents] = useState([]);
@@ -79,11 +61,6 @@ export function AdminAgents() {
 
   if (loading) {
     return (
-<<<<<<< HEAD
-      <div className="flex justify-center p-8">
-        <Loader2 className="animate-spin text-emerald-500" />
-      </div>
-=======
         <div className="space-y-6 animate-fade-in">
             {/* Header / Filters */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
@@ -216,7 +193,6 @@ export function AdminAgents() {
                 </div>
             </div>
         </div>
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
     );
   }
 

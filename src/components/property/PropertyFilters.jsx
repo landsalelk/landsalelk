@@ -49,14 +49,26 @@ export function PropertyFilters({ filters, onChange }) {
                     {/* Drag Handle (Mobile Only) */}
                     <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 md:hidden" />
 
-                    <div className="flex justify-between items-center mb-6 md:hidden">
-                        <h3 className="font-bold text-xl text-slate-800">Filters</h3>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
-                        >
-                            <X className="w-5 h-5 text-slate-500" />
-                        </button>
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="font-bold text-xl text-slate-800 md:text-lg">Filters</h3>
+                        
+                        <div className="flex items-center gap-2">
+                             {/* Mobile Close */}
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="md:hidden p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
+                            >
+                                <X className="w-5 h-5 text-slate-500" />
+                            </button>
+                            
+                            {/* Clear All (Desktop/Visible) */}
+                            <button 
+                                onClick={() => onChange({})}
+                                className="text-xs font-semibold text-red-500 hover:text-red-600 px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                            >
+                                Clear All
+                            </button>
+                        </div>
                     </div>
 
                     <div className="space-y-6 pb-20 md:pb-0">
@@ -103,12 +115,14 @@ export function PropertyFilters({ filters, onChange }) {
                                     type="number"
                                     placeholder="Min"
                                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                                    value={filters.minPrice || ''}
                                     onChange={(e) => handleChange('minPrice', e.target.value)}
                                 />
                                 <input
                                     type="number"
                                     placeholder="Max"
                                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                                    value={filters.maxPrice || ''}
                                     onChange={(e) => handleChange('maxPrice', e.target.value)}
                                 />
                             </div>

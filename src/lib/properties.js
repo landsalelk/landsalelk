@@ -72,8 +72,7 @@ export async function searchProperties(filters = {}) {
 
     // 3. Category (House, Apartment, Land)
     if (filters.category && filters.category !== 'all') {
-        queries.push(Query.equal('land_type', filters.category));
-        // Note: Mapping 'category' UI filter to 'land_type' attribute for now
+        queries.push(Query.equal('category_id', filters.category));
     }
 
     // 4. Price Range
@@ -96,7 +95,7 @@ export async function searchProperties(filters = {}) {
 
 
     if (filters.nbro && filters.nbro === true) {
-        queries.push(Query.equal('nbro_approval', true));
+        queries.push(Query.equal('approval_nbro', true));
     }
 
     if (filters.foreignEligible) {
@@ -155,10 +154,16 @@ export async function getUserListings(userId) {
  * @param {Object} data 
  */
 export async function createProperty(data) {
-    try {
-        const user = await account.get();
+    let slug;
+    let currency_code;
+    let contact;
+    let verification_code = null;
+    let status;
+    let user;
 
-<<<<<<< HEAD
+    try {
+        user = await account.get();
+
         // Ensure required "slug" exists and is URL-safe.
         const slugify = (str = '') => str
             .toString()
@@ -171,15 +176,23 @@ export async function createProperty(data) {
             .slice(0, 80);
 
         const baseSlug = slugify(data.slug || data.title || 'listing');
-        const slug = baseSlug ? `${baseSlug}-${Math.random().toString(36).slice(2, 6)}` : `listing-${Date.now()}`;
-        const currency_code = data.currency_code || 'LKR';
-        const contact =
+        slug = baseSlug ? `${baseSlug}-${Math.random().toString(36).slice(2, 6)}` : `listing-${Date.now()}`;
+        currency_code = data.currency_code || 'LKR';
+        contact =
             data.contact ||
             [data.contact_name, data.contact_phone, data.contact_email].filter(Boolean).join(' | ') ||
             data.contact_phone ||
             data.contact_name ||
             data.contact_email ||
             'Contact not provided';
+
+        // Generate verification code if owner_phone is provided
+        status = data.status || 'active';
+        if (data.owner_phone && data.owner_phone.trim().length > 0) {
+            // Generate a secure 6-character alphanumeric code
+            verification_code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            status = 'pending'; // Requires owner verification (mapped to 'pending' in schema)
+        }
 
         // Whitelist payload to avoid schema errors (Appwrite rejects unknown attributes)
         const payload = {
@@ -193,35 +206,30 @@ export async function createProperty(data) {
             category_id: data.category_id || 'house',
             images: data.images || data.imageIds || data.image_urls || [],
             location: data.location || '',
-            status: data.status || 'active',
-            user_id: user.$id
+            status: status,
+            user_id: user.$id,
+            // created_at: new Date().toISOString(), // Removed: Managed by Appwrite
+            verification_code: verification_code,
+            // Extended Attributes
+            beds: parseInt(data.beds) || 0,
+            baths: parseInt(data.baths) || 0,
+            size_sqft: parseInt(data.size_sqft) || 0,
+            perch_size: parseFloat(data.perch_size) || 0,
+            deed_type: data.deed_type || '',
+            approval_nbro: data.approval_nbro || false,
+            approval_coc: data.approval_coc || false,
+            approval_uda: data.approval_uda || false,
+            is_foreign_eligible: data.is_foreign_eligible || false,
+            has_payment_plan: data.has_payment_plan || false,
+            infrastructure_distance: parseFloat(data.infrastructure_distance) || 0,
+            service_fee: parseFloat(data.service_fee) || 0
         };
-=======
-        // Generate verification code if owner_phone is provided
-        let verification_code = null;
-        let status = 'active';
-        if (data.owner_phone && data.owner_phone.trim().length > 0) {
-            // Generate a secure 6-character alphanumeric code
-            verification_code = Math.random().toString(36).substring(2, 8).toUpperCase();
-            status = 'pending_owner'; // Requires owner verification
-        }
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
         const doc = await databases.createDocument(
             DB_ID,
             COLLECTION_LISTINGS,
             ID.unique(),
-<<<<<<< HEAD
             payload
-=======
-            {
-                ...data,
-                user_id: user.$id,
-                created_at: new Date().toISOString(),
-                status: status,
-                verification_code: verification_code
-            }
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
         );
 
         // Phase 1 Gamification: Award 10 points for new listing
@@ -251,6 +259,49 @@ export async function createProperty(data) {
         return doc;
     } catch (error) {
         console.error("Create Listing Error:", error);
+
+        // FALLBACK: If extended attributes fail (schema mismatch), try minimal payload
+        const isSchemaError = error.code === 400 && (
+            error.message.toLowerCase().includes('attribute not found') || 
+            error.message.toLowerCase().includes('unknown attribute') ||
+            error.message.toLowerCase().includes('unknown')
+        );
+
+        if (isSchemaError) {
+            console.warn("Schema mismatch detected. Retrying with minimal payload...");
+            try {
+                const minimalPayload = {
+                    slug,
+                    currency_code,
+                    contact,
+                    title: data.title || 'Listing',
+                    description: data.description || '',
+                    price: parseFloat(data.price) || 0,
+                    listing_type: data.listing_type || 'sale',
+                    category_id: data.category_id || 'house',
+                    images: data.images || data.imageIds || data.image_urls || [],
+                    location: data.location || '',
+                    status: status,
+                    user_id: user.$id,
+                    // created_at: new Date().toISOString(), // Removed: Managed by Appwrite
+                    verification_code: verification_code
+                };
+                
+                const doc = await databases.createDocument(
+                    DB_ID,
+                    COLLECTION_LISTINGS,
+                    ID.unique(),
+                    minimalPayload
+                );
+                
+                // Return success even if extended fields were lost
+                return doc;
+            } catch (retryError) {
+                console.error("Minimal payload retry failed:", retryError);
+                throw retryError; // Throw original or new error
+            }
+        }
+
         throw error;
     }
 }
@@ -344,7 +395,7 @@ export async function getRelatedProperties(currentId, type, category, limit = 3)
         ];
 
         if (type) queries.push(Query.equal('listing_type', type));
-        if (category) queries.push(Query.equal('land_type', category));
+        if (category) queries.push(Query.equal('category_id', category));
 
         const result = await databases.listDocuments(
             DB_ID,

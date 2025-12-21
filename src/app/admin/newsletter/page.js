@@ -1,13 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-<<<<<<< HEAD
-import { databases } from '@/appwrite';
-import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/appwrite/config';
-=======
 import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/lib/constants';
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
+import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/appwrite/config';
 import { Query } from 'appwrite';
 import { Loader2, Download, Search, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { toast } from 'sonner';

@@ -11,21 +11,12 @@ const APPWRITE_API_KEY = process.env.APPWRITE_API_KEY; // Must be a server-side 
 const DATABASE_ID = process.env.NEXT_PUBLIC_DATABASE_ID || "landsalelkdb";
 
 const COLLECTIONS = {
-<<<<<<< HEAD
   TRANSACTIONS: "transactions",
   ACCOUNTS: "user_wallets",
   LISTINGS: "listings",
   AGENTS: "agents",
   DIGITAL_PURCHASES: "digital_purchases",
   AGENT_PAYMENTS: "agent_payments",
-=======
-    TRANSACTIONS: 'transactions',
-    ACCOUNTS: 'user_wallets',
-    LISTINGS: 'listings',
-    AGENTS: 'agents',
-    DIGITAL_PURCHASES: 'digital_purchases',
-    AGENT_PAYMENTS: 'agent_payments'
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 };
 
 export async function POST(request) {
@@ -178,15 +169,6 @@ export async function POST(request) {
       }
     }
 
-    // Handle other types as needed (boost, premium, etc.)
-    // For now, focusing on wallet top-up as the primary flow.
-    // The implementation plan mentions "Unlock Feature".
-
-    // Note: For direct purchases (not wallet top-up), we might need to update 'digital_purchases' or 'listings'.
-    // Assuming listing_boost passes listing_id in custom_3? PayHere allows custom_1 and custom_2.
-    // We can parse more data if packed into strings, but let's stick to Wallet Deposit for safety
-    // and consistency, unless the user explicitely buys a product.
-
     // 5. Handle Agent Hiring Payment (order_id format: HIRE_{listingId}_{timestamp})
     if (order_id && order_id.startsWith("HIRE_")) {
       const parts = order_id.split("_");
@@ -261,102 +243,7 @@ export async function POST(request) {
         } catch (listingErr) {
           console.error("Error processing agent hire:", listingErr);
         }
-<<<<<<< HEAD
       }
-=======
-
-        // Handle other types as needed (boost, premium, etc.)
-        // For now, focusing on wallet top-up as the primary flow. 
-        // The implementation plan mentions "Unlock Feature".
-
-        // Note: For direct purchases (not wallet top-up), we might need to update 'digital_purchases' or 'listings'.
-        // Assuming listing_boost passes listing_id in custom_3? PayHere allows custom_1 and custom_2. 
-        // We can parse more data if packed into strings, but let's stick to Wallet Deposit for safety 
-        // and consistency, unless the user explicitely buys a product.
-
-        // 5. Handle Agent Hiring Payment (order_id format: HIRE_{listingId}_{timestamp})
-        if (order_id && order_id.startsWith('HIRE_')) {
-            const parts = order_id.split('_');
-            if (parts.length >= 2) {
-                const listingId = parts[1];
-
-                try {
-                    // Get listing details
-                    const listing = await databases.getDocument(
-                        DATABASE_ID,
-                        COLLECTIONS.LISTINGS,
-                        listingId
-                    );
-
-                    const agentId = listing.agent_id;
-                    const platformFeePercent = 0.20; // 20% platform fee
-                    const platformFee = amount * platformFeePercent;
-                    const agentShare = amount - platformFee;
-
-                    // Create agent_payments record
-                    await databases.createDocument(
-                        DATABASE_ID,
-                        COLLECTIONS.AGENT_PAYMENTS,
-                        ID.unique(),
-                        {
-                            agent_id: agentId || 'unknown',
-                            listing_id: listingId,
-                            amount: amount,
-                            platform_fee: platformFee,
-                            agent_share: agentShare,
-                            status: 'completed',
-                            payhere_order_id: order_id,
-                            paid_at: new Date().toISOString()
-                        }
-                    );
-
-                    // Activate the listing
-                    await databases.updateDocument(
-                        DATABASE_ID,
-                        COLLECTIONS.LISTINGS,
-                        listingId,
-                        {
-                            status: 'active',
-                            verification_code: null // Clear security token
-                        }
-                    );
-
-                    // Update agent stats if agent exists
-                    if (agentId) {
-                        try {
-                            const agent = await databases.getDocument(
-                                DATABASE_ID,
-                                COLLECTIONS.AGENTS,
-                                agentId
-                            );
-
-                            await databases.updateDocument(
-                                DATABASE_ID,
-                                COLLECTIONS.AGENTS,
-                                agentId,
-                                {
-                                    total_earnings: (agent.total_earnings || 0) + agentShare,
-                                    listings_uploaded: (agent.listings_uploaded || 0) + 1
-                                }
-                            );
-                        } catch (agentErr) {
-                            console.warn('Could not update agent stats:', agentErr.message);
-                        }
-                    }
-
-                    console.log(`Agent hire payment completed for listing ${listingId}`);
-                } catch (listingErr) {
-                    console.error('Error processing agent hire:', listingErr);
-                }
-            }
-        }
-
-        return NextResponse.json({ status: 'ok', message: 'Transaction recorded' });
-
-    } catch (error) {
-        console.error('PayHere Notify Error:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
     }
 
     return NextResponse.json({ status: "ok", message: "Transaction recorded" });

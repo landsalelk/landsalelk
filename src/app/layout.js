@@ -47,19 +47,17 @@ export const metadata = {
   },
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#ffffff',
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${outfit.variable} ${inter.variable} ${abhayaLibre.variable}`} suppressHydrationWarning>
       <head>
-<<<<<<< HEAD
-        {/* Google Fonts for Sinhala */}
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
-=======
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
       </head>
       <body className={`${outfit.className} bg-[#f0f9ff] min-h-screen`}>
         <ComparisonProvider>

@@ -1,14 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-<<<<<<< HEAD
-import { databases } from '@/appwrite';
-import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
-=======
 import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
-import { Query } from 'appwrite';
+import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
+import { Query, ID } from 'appwrite';
 import { toast } from 'sonner';
 import {
     Download, Printer, QrCode, FileText, Share2,
@@ -158,39 +153,25 @@ export function MarketingTools({ userId }) {
                         >
                             {/* Header Image */}
                             <div className="w-full h-[400px] relative">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                {selectedListing.images && selectedListing.images[0] ? (
-<<<<<<< HEAD
-                                    <img
-                                        src={selectedListing.images[0]}
-                                        alt={selectedListing.title || 'Property image'}
-                                        className="w-full h-full object-cover"
-                                        crossOrigin="anonymous"
-                                    />
-=======
-                                    <div className="w-full h-full relative">
-                                        {selectedListing.images[0] && typeof selectedListing.images[0] === 'string' && selectedListing.images[0].trim() !== '' ? (
-                                            <Image
-                                                src={selectedListing.images[0]}
-                                                alt="Property"
-                                                fill
-                                                className="object-cover"
-                                                crossOrigin="anonymous"
-                                                unoptimized
-                                                onError={(e) => {
-                                                    e.target.onerror = null;
-                                                    e.target.style.display = 'none';
-                                                    e.target.parentNode.innerHTML += '<div class="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 absolute inset-0">Invalid Image</div>';
-                                                }}
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 absolute inset-0">No Valid Image</div>
-                                        )}
-                                    </div>
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
-                                ) : (
-                                    <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400">No Image</div>
-                                )}
+                                <div className="w-full h-full relative">
+                                    {selectedListing.images[0] && typeof selectedListing.images[0] === 'string' && selectedListing.images[0].trim() !== '' ? (
+                                        <Image
+                                            src={selectedListing.images[0]}
+                                            alt="Property"
+                                            fill
+                                            className="object-cover"
+                                            crossOrigin="anonymous"
+                                            unoptimized
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.style.display = 'none';
+                                                e.target.parentNode.innerHTML += '<div class="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 absolute inset-0">Invalid Image</div>';
+                                            }}
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 absolute inset-0">No Valid Image</div>
+                                    )}
+                                </div>
                                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-8 text-left">
                                     <h1 className="text-3xl font-bold text-white mb-2">{selectedListing.title}</h1>
                                     <p className="text-xl text-emerald-400 font-bold">LKR {selectedListing.price.toLocaleString()}</p>

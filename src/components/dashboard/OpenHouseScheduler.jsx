@@ -1,13 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-<<<<<<< HEAD
-import { databases } from '@/appwrite';
-import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
-=======
 import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
+import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
 import { Query, ID } from 'appwrite';
 import { toast } from 'sonner';
 import {
@@ -203,7 +198,7 @@ export function OpenHouseScheduler({ userId }) {
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div>
+                                <div className="">
                                     <label className="block text-sm font-bold text-slate-700 mb-1">Start Time</label>
                                     <input
                                         type="time"

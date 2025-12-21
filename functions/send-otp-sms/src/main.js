@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { Client, Databases, Functions } from 'node-appwrite';
-=======
 import { Client, Databases } from 'node-appwrite';
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 import crypto from 'crypto';
 
 // Environment Variables
@@ -10,16 +6,13 @@ const PROJECT_ID = process.env.APPWRITE_FUNCTION_PROJECT_ID;
 const API_KEY = process.env.APPWRITE_API_KEY;
 const DATABASE_ID = process.env.DATABASE_ID || 'landsalelkdb';
 const LISTINGS_COLLECTION_ID = 'listings';
-<<<<<<< HEAD
-const SEND_SMS_FUNCTION_ID = 'send-sms'; // Function ID for the send-sms function
-=======
 
 // Text.lk Config
 const TEXT_LK_API_TOKEN = process.env.TEXT_LK_API_TOKEN;
 
 if (!TEXT_LK_API_TOKEN) {
     console.error("Critical Error: TEXT_LK_API_TOKEN is missing.");
-    throw new Error("API Token missing");
+    // We don't throw here to avoid crashing the function initialization, but requests will fail
 }
 const TEXT_LK_SENDER_ID = process.env.TEXT_LK_SENDER_ID || 'LandSale';
 const TEXT_LK_API_URL = 'https://app.text.lk/api/v3/sms/send';
@@ -63,7 +56,6 @@ async function sendSMS(recipient, message, log, error) {
         return { success: false, error: e.message };
     }
 }
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
 export default async ({ req, res, log, error }) => {
     const client = new Client()
@@ -72,7 +64,6 @@ export default async ({ req, res, log, error }) => {
         .setKey(API_KEY);
 
     const databases = new Databases(client);
-    const functions = new Functions(client);
 
     try {
         let payload = req.body;
@@ -140,30 +131,6 @@ export default async ({ req, res, log, error }) => {
             messageBody += ` Review & Publish for FREE: ${link}`;
         }
 
-<<<<<<< HEAD
-        // Send SMS via 'send-sms' function execution
-        try {
-            log(`Triggering send-sms for ${ownerPhone}`);
-            const execution = await functions.createExecution(
-                SEND_SMS_FUNCTION_ID,
-                JSON.stringify({
-                    phone: ownerPhone,
-                    message: messageBody,
-                    related_to: listingId,
-                    related_type: 'listing_verification'
-                }),
-                false // Async execution to avoid timeout issues waiting for external API
-            );
-
-            log(`SMS function execution triggered: ${execution.$id}`);
-            return res.json({ success: true, message: 'Verification link sent', executionId: execution.$id });
-
-        } catch (smsError) {
-            error(`Failed to trigger SMS function: ${smsError.message}`);
-            // Even if SMS notification fails, the token is generated, so we might return success or partial success.
-            // But for user feedback, maybe 500 is better if it's critical.
-            return res.json({ success: false, error: 'Failed to send SMS notification' }, 500);
-=======
         // Send SMS via text.lk
         const smsResult = await sendSMS(ownerPhone, messageBody, log, error);
 
@@ -173,7 +140,6 @@ export default async ({ req, res, log, error }) => {
         } else {
             error(`Failed to send SMS: ${JSON.stringify(smsResult.error)}`);
             return res.json({ success: false, error: 'SMS delivery failed' }, 500);
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
         }
 
     } catch (e) {

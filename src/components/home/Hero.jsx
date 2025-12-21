@@ -143,6 +143,11 @@ export function Hero() {
   const handleRecentClick = (item) => {
     setSearchQuery(item.query);
     setShowRecent(false);
+
+    // Update active tab to match the search type
+    const tabId = tabs.find((t) => t.type === item.type)?.id;
+    if (tabId) setActiveTab(tabId);
+
     const params = new URLSearchParams();
     params.set("type", item.type);
     params.set("q", item.query);
@@ -289,7 +294,6 @@ export function Hero() {
                 className="w-full bg-transparent py-3 font-bold text-slate-700 placeholder-slate-400 outline-none"
                 aria-label="Search properties"
                 aria-haspopup="listbox"
-                aria-expanded={showRecent}
               />
 
               {/* Recent Searches Dropdown */}
@@ -317,6 +321,7 @@ export function Hero() {
                       <li
                         key={`${item.query}-${idx}`}
                         role="option"
+                        aria-selected={false}
                         className="group flex cursor-pointer items-center justify-between px-4 py-2.5 hover:bg-slate-50"
                         onClick={() => handleRecentClick(item)}
                       >

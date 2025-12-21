@@ -20,11 +20,7 @@ const TEXT_LK_API_URL = 'https://app.text.lk/api/v3/sms/send';
  * Get text.lk configuration from environment
  */
 function getConfig() {
-<<<<<<< HEAD
-    const apiToken = process.env.TEXT_LK_API_TOKEN || process.env.NEXT_PUBLIC_TEXT_LK_API_TOKEN || '2539|lJGD67Ptu3Gj6297q3rgouE2qA9daa7BHjmyxjQz096de7dc';
-=======
     const apiToken = process.env.TEXT_LK_API_TOKEN || process.env.NEXT_PUBLIC_TEXT_LK_API_TOKEN;
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
     const senderId = process.env.TEXT_LK_SENDER_ID || process.env.NEXT_PUBLIC_TEXT_LK_SENDER_ID || 'LandSale';
 
     return { apiToken, senderId };
@@ -88,7 +84,7 @@ export async function sendSMS(recipient, message, options = {}) {
 /**
  * Send SMS to multiple recipients
  * 
- * @param {string[]} recipients - Array of phone numbers
+ * @param {string} recipients - Array of phone numbers
  * @param {string} message - SMS message content
  * @param {Object} options - Optional configuration
  * @returns {Promise<{success: boolean, data?: object, error?: string}>}
@@ -177,7 +173,6 @@ export async function sendVerificationLink(recipient, listing) {
     return sendSMS(recipient, message);
 }
 
-<<<<<<< HEAD
 const smsService = {
     sendSMS,
     sendBulkSMS,
@@ -186,6 +181,3 @@ const smsService = {
 };
 
 export default smsService;
-=======
-
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d

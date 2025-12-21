@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getBlogPostBySlug, getBlogPosts } from '@/lib/content';
-import { Calendar, Clock, ArrowLeft, Share2, Facebook, Twitter } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, Facebook, Twitter } from 'lucide-react';
 
 export default function BlogPostPage({ params }) {
     const { slug } = use(params);
@@ -14,7 +14,6 @@ export default function BlogPostPage({ params }) {
     const [relatedPosts, setRelatedPosts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-<<<<<<< HEAD
     const loadPost = useCallback(async () => {
         setLoading(true);
         const result = await getBlogPostBySlug(slug);
@@ -33,26 +32,6 @@ export default function BlogPostPage({ params }) {
     useEffect(() => {
         loadPost();
     }, [loadPost]);
-=======
-    useEffect(() => {
-        const loadPost = async () => {
-            setLoading(true);
-            const result = await getBlogPostBySlug(slug);
-            if (!result) {
-                router.push('/blog');
-                return;
-            }
-            setPost(result);
-
-            // Load related posts
-            const related = await getBlogPosts(3);
-            setRelatedPosts(related.posts.filter(p => p.$id !== result.$id).slice(0, 2));
-            setLoading(false);
-        };
-        
-        loadPost();
-    }, [slug, router]); // Added router dependency
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
