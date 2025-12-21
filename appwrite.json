@@ -195,6 +195,22 @@
             "commands": "npm install",
             "specification": "s-0.5vcpu-512mb",
             "path": "functions/send-sms"
+        },
+        {
+            "$id": "github-logger",
+            "execute": [],
+            "name": "GitHub Logger",
+            "enabled": true,
+            "logging": true,
+            "runtime": "node-20.0",
+            "scopes": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "specification": "s-0.5vcpu-512mb",
+            "path": "functions/github-logger"
         }
     ],
     "databases": [

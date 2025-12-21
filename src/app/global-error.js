@@ -2,8 +2,24 @@
 
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect } from 'react';
+import { logErrorToGitHub } from '@/app/actions/logger';
 
 export default function GlobalError({ error, reset }) {
+    useEffect(() => {
+        // Log the error to GitHub when it occurs
+        if (error) {
+            const errorMessage = error.message || 'Unknown Error';
+            const errorStack = error.stack || 'No stack trace available';
+
+            logErrorToGitHub(
+                `Global Error: ${errorMessage}`,
+                `### Error Details\n${errorMessage}\n\n### Stack Trace\n\`\`\`\n${errorStack}\n\`\`\``,
+                ['bug', 'production', 'global-error']
+            ).catch(err => console.error('Failed to report error to GitHub', err));
+        }
+    }, [error]);
+
     return (
         <html>
             <body className="bg-slate-50">
