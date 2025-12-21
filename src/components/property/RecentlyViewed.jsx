@@ -12,15 +12,32 @@ const parseLocalized = (val) => {
     if (typeof val === 'object') {
         return val.en || Object.values(val)[0] || '';
     }
+    
+    const str = String(val).trim();
+    // If it's a simple string, return it
+    if (!str.startsWith('{')) return val;
+
     try {
-        const str = String(val).trim();
-        // If it's a simple string, return it
-        if (!str.startsWith('{')) return val;
-        
         const parsed = JSON.parse(str);
         // Prefer English, then any available value
         return parsed.en || Object.values(parsed)[0] || val;
     } catch (e) {
+        // Fallback: try to extract content using regex if JSON parse fails
+        try {
+            // Match "en":"value" handling escaped quotes
+            const enMatch = str.match(/"en"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+            if (enMatch && enMatch[1]) {
+                return enMatch[1].replace(/\\"/g, '"');
+            }
+            
+            // Match any first key "key":"value"
+            const anyMatch = str.match(/"[^"]+"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+            if (anyMatch && anyMatch[1]) {
+                return anyMatch[1].replace(/\\"/g, '"');
+            }
+        } catch (err) {
+            // Ignore regex errors
+        }
         return val;
     }
 };
