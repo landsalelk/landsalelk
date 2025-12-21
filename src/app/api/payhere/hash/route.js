@@ -1,22 +1,28 @@
-import { NextResponse } from 'next/server';
-import { generatePayHereHash } from '@/lib/payhere';
+import { NextResponse } from "next/server";
+import { generatePayHereHash } from "@/lib/payhere";
 
 export async function POST(request) {
-    try {
-        const body = await request.json();
-        const { order_id, amount, currency } = body;
+  try {
+    const body = await request.json();
+    const { order_id, amount, currency = "LKR" } = body;
 
-        const merchantId = process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID;
-        const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET;
-
-        if (!merchantId || !merchantSecret) {
-            return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
-        }
-
-        const hash = generatePayHereHash(merchantId, order_id, amount, currency, merchantSecret);
-
-        return NextResponse.json({ hash });
-    } catch (error) {
-        return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    if (!order_id || !amount) {
+      return NextResponse.json(
+        { error: "order_id and amount are required" },
+        { status: 400 },
+      );
     }
+
+    // generatePayHereHash only takes (orderId, amount, currency)
+    // It gets merchantId and merchantSecret from environment variables internally
+    const hash = generatePayHereHash(order_id, amount, currency);
+
+    return NextResponse.json({ hash });
+  } catch (error) {
+    console.error("PayHere hash generation error:", error);
+    return NextResponse.json(
+      { error: "Failed to generate hash" },
+      { status: 500 },
+    );
+  }
 }

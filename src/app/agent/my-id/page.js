@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { account, databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_AGENTS } from '@/lib/constants';
+import { account, databases } from '@/appwrite';
+import { DB_ID, COLLECTION_AGENTS } from '@/appwrite/config';
 import { Query } from 'appwrite';
 import { DigitalAgentID } from '@/components/agent/DigitalAgentID';
 import { getTrainingProgress, TRAINING_MODULES, BADGES } from '@/lib/agent_training';

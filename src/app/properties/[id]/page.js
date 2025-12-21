@@ -20,9 +20,8 @@ import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, 
 import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'sonner';
-import { account, databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTING_OFFERS } from '@/lib/constants';
-import { ID } from 'appwrite';
+import { account, databases, ID } from '@/appwrite';
+import { DB_ID, COLLECTION_LISTING_OFFERS } from '@/appwrite/config';
 import { X, HandCoins } from 'lucide-react';
 import { incrementViewCount } from '@/app/actions/analytics';
 
@@ -175,22 +174,37 @@ export default function PropertyDetailsPage() {
     // Safe image parsing
     let images = [];
     try {
-        const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
-        const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+        const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
+        const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || 'landsalelkproject';
         const bucketId = 'listing_images'; // Correct bucket ID
 
         const resolveUrl = (val) => {
             if (!val) return null;
-            if (val.startsWith('http')) return val; // Already a URL
+            const str = String(val).trim();
+            if (!str) return null;
+            if (str.startsWith('http')) return str; // Already a URL
             // Assume it's a File ID
-            return `${endpoint}/storage/buckets/${bucketId}/files/${val}/view?project=${projectId}`;
+            return `${endpoint}/storage/buckets/${bucketId}/files/${str}/view?project=${projectId}`;
         };
 
+        // Accept multiple possible shapes from the collection
+        const candidate =
+            property.images ??
+            property.image_urls ??
+            property.imageIds ??
+            property.image_ids ??
+            property.imageUrls;
+
         let rawImages = [];
-        if (Array.isArray(property.images)) {
-            rawImages = property.images;
-        } else if (typeof property.images === 'string') {
-            rawImages = JSON.parse(property.images);
+        if (Array.isArray(candidate)) {
+            rawImages = candidate;
+        } else if (typeof candidate === 'string') {
+            try {
+                rawImages = JSON.parse(candidate);
+            } catch {
+                // fallback: split by comma
+                rawImages = candidate.split(',').map((s) => s.trim());
+            }
         }
 
         if (Array.isArray(rawImages)) {
@@ -240,22 +254,22 @@ export default function PropertyDetailsPage() {
                     priority
                     unoptimized
                 />
-                 {/* Mobile Navigation */}
-                 <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2 z-10">
+                {/* Mobile Navigation */}
+                <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2 z-10">
                     {images.slice(0, 5).map((_, idx) => (
                         <div key={idx} className={`w-2 h-2 rounded-full ${activeImage === idx ? 'bg-white' : 'bg-white/50'}`} />
                     ))}
                 </div>
-                 {/* Mobile Nav Arrows */}
-                 <button onClick={() => setActiveImage(i => (i - 1 + images.length) % images.length)} className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/20 text-white backdrop-blur-sm"><ChevronLeft className="w-6 h-6"/></button>
-                 <button onClick={() => setActiveImage(i => (i + 1) % images.length)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/20 text-white backdrop-blur-sm"><ChevronRight className="w-6 h-6"/></button>
+                {/* Mobile Nav Arrows */}
+                <button onClick={() => setActiveImage(i => (i - 1 + images.length) % images.length)} className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/20 text-white backdrop-blur-sm"><ChevronLeft className="w-6 h-6" /></button>
+                <button onClick={() => setActiveImage(i => (i + 1) % images.length)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-black/20 text-white backdrop-blur-sm"><ChevronRight className="w-6 h-6" /></button>
 
                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                     <span className="bg-emerald-600/90 backdrop-blur-md text-white px-3 py-1 text-sm font-bold rounded-lg shadow-sm">
                         {property.listing_type === 'sale' ? 'For Sale' : 'For Rent'}
                     </span>
                 </div>
-                 <div className="absolute top-4 right-4 flex gap-2">
+                <div className="absolute top-4 right-4 flex gap-2">
                     <button
                         onClick={handleSave}
                         disabled={savingFav}
@@ -334,7 +348,7 @@ export default function PropertyDetailsPage() {
 
                         {/* Scroll-driven Map */}
                         <FadeIn>
-                             <ScrollMap location={parseSafe(property.location, "")} />
+                            <ScrollMap location={parseSafe(property.location, "")} />
                         </FadeIn>
 
                         <FadeIn className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
@@ -474,7 +488,7 @@ export default function PropertyDetailsPage() {
                             </div>
 
                             {/* AI Valuation (Moved here to be sticky with agent) */}
-                             <ValuationCard property={property} />
+                            <ValuationCard property={property} />
 
                         </div>
                     </div>

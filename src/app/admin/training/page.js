@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { account, databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_AGENTS, COLLECTION_CERTIFICATES } from '@/lib/constants';
+import { account, databases } from '@/appwrite';
+import { DB_ID, COLLECTION_AGENTS, COLLECTION_CERTIFICATES } from '@/appwrite/config';
 import { TRAINING_MODULES, BADGES } from '@/lib/agent_training';
 import { Query } from 'appwrite';
 import {
@@ -44,13 +44,15 @@ export default function AdminTrainingPage() {
                 setAgents(agentsResult.documents);
 
                 // Fetch certificates
+                let certsDocuments = [];
                 try {
                     const certsResult = await databases.listDocuments(
                         DB_ID,
                         COLLECTION_CERTIFICATES,
                         [Query.orderDesc('issued_at'), Query.limit(100)]
                     );
-                    setCertificates(certsResult.documents);
+                    certsDocuments = certsResult.documents;
+                    setCertificates(certsDocuments);
                 } catch (e) {
                     // Collection might not exist yet
                     // Certificates collection not set up yet - continue gracefully
@@ -64,7 +66,7 @@ export default function AdminTrainingPage() {
                     certified,
                     inProgress,
                     notStarted: agentsResult.documents.length - certified - inProgress,
-                    certificatesIssued: certificates.length,
+                    certificatesIssued: certsDocuments.length,
                 });
 
             } catch (e) {

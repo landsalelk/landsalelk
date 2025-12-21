@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { account } from '@/lib/appwrite';
+import { account } from '@/appwrite';
 import { Mail, ArrowLeft, Loader2, CheckCircle, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 

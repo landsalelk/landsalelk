@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { account } from '@/lib/appwrite';
+import { account } from '@/appwrite';
 import { OpenHouseScheduler } from '@/components/dashboard/OpenHouseScheduler';
 import { LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';

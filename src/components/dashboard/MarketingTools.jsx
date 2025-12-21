@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
+import { useState, useEffect, useCallback } from 'react';
+import { databases } from '@/appwrite';
+import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
 import { Query } from 'appwrite';
 import { toast } from 'sonner';
 import {
@@ -19,11 +19,7 @@ export function MarketingTools({ userId }) {
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState(false);
 
-    useEffect(() => {
-        if (userId) fetchListings();
-    }, [userId]);
-
-    const fetchListings = async () => {
+    const fetchListings = useCallback(async () => {
         try {
             const response = await databases.listDocuments(
                 DB_ID,
@@ -37,7 +33,11 @@ export function MarketingTools({ userId }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [userId]);
+
+    useEffect(() => {
+        if (userId) fetchListings();
+    }, [userId, fetchListings]);
 
     const generatePDF = async () => {
         setGenerating(true);
@@ -152,10 +152,11 @@ export function MarketingTools({ userId }) {
                         >
                             {/* Header Image */}
                             <div className="w-full h-[400px] relative">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 {selectedListing.images && selectedListing.images[0] ? (
                                     <img
                                         src={selectedListing.images[0]}
-                                        alt="Property"
+                                        alt={selectedListing.title || 'Property image'}
                                         className="w-full h-full object-cover"
                                         crossOrigin="anonymous"
                                     />

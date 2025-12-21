@@ -1,4 +1,5 @@
 import { getPropertyById } from '@/lib/properties';
+import { BUCKET_LISTING_IMAGES } from '@/appwrite/config';
 
 // Helper to safely parse JSON strings (for i18n fields)
 const parseSafe = (val, fallback = '') => {
@@ -21,7 +22,17 @@ const parseSafe = (val, fallback = '') => {
 
 export async function generateMetadata({ params }) {
     try {
-        const property = await getPropertyById(params.id);
+        // In Next.js 15 params may be a promise; await it to avoid sync dynamic API error.
+        const resolvedParams = await params;
+        const propertyId = resolvedParams?.id;
+        if (!propertyId) {
+            return {
+                title: 'Property | LandSale.lk',
+                description: 'View property details on LandSale.lk',
+            };
+        }
+
+        const property = await getPropertyById(propertyId);
 
         if (!property) {
             return {
@@ -38,15 +49,42 @@ export async function generateMetadata({ params }) {
             ? parsedDescription.slice(0, 160)
             : `${property.listing_type || 'Property'} in ${property.city || 'Sri Lanka'} - ${property.price ? `LKR ${property.price.toLocaleString()}` : 'Contact for price'}`;
 
+        const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+        const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+        const resolveImg = (val) => {
+            if (!val) return null;
+            const str = String(val).trim();
+            if (!str) return null;
+            if (str.startsWith('http')) return str;
+            return `${endpoint}/storage/buckets/${BUCKET_LISTING_IMAGES}/files/${str}/view?project=${projectId}`;
+        };
+
         // Get first image for OG
         let images = [];
         try {
-            const parsedImages = JSON.parse(property.images || '[]');
-            if (parsedImages.length > 0) {
-                images = [{ url: parsedImages[0], width: 1200, height: 630 }];
+            const raw =
+                property.images ||
+                property.image_urls ||
+                property.imageIds ||
+                property.image_ids ||
+                property.imageUrls;
+
+            let arr = [];
+            if (Array.isArray(raw)) arr = raw;
+            else if (typeof raw === 'string') {
+                if (raw.trim().startsWith('[')) {
+                    arr = JSON.parse(raw);
+                } else {
+                    arr = raw.split(',').map((s) => s.trim());
+                }
+            }
+
+            const firstUrl = arr.map(resolveImg).filter(Boolean)[0];
+            if (firstUrl) {
+                images = [{ url: firstUrl, width: 1200, height: 630 }];
             }
         } catch (e) {
-            // Invalid JSON, skip images
+            // Invalid images, skip
         }
 
         return {
@@ -56,7 +94,7 @@ export async function generateMetadata({ params }) {
                 title,
                 description,
                 type: 'website',
-                url: `https://landsale.lk/properties/${params.id}`,
+                url: `https://landsale.lk/properties/${propertyId}`,
                 images,
             },
             twitter: {

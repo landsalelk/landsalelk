@@ -3,9 +3,8 @@
  * Secure document storage for land deeds, survey plans, and legal documents
  */
 
-import { databases, storage, account } from './appwrite';
-import { Query, ID } from 'appwrite';
-import { DB_ID } from './constants';
+import { databases, storage, account, Query, ID } from '@/appwrite';
+import { DB_ID } from '@/appwrite/config';
 
 // Collection and Bucket IDs
 const COLLECTION_LEGAL_DOCUMENTS = 'legal_documents';

@@ -1,7 +1,7 @@
 'use server';
 
 import { Client, Databases, ID, Query, Functions } from 'node-appwrite';
-import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/lib/constants';
+import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/appwrite/config';
 import { headers } from 'next/headers';
 
 const createAdminClient = () => {

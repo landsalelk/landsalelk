@@ -1,6 +1,5 @@
-import { databases, storage, account } from "./appwrite";
-import { ID, Query, Permission, Role } from "appwrite";
-import { DB_ID, COLLECTION_KYC, BUCKET_KYC } from "./constants";
+import { databases, storage, account, ID, Query, Permission, Role } from "@/appwrite";
+import { DB_ID, COLLECTION_KYC, BUCKET_KYC } from "@/appwrite/config";
 
 /**
  * Submit a KYC request with files.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getBlogPosts, getFeaturedPosts } from '@/lib/content';
@@ -15,23 +15,23 @@ export default function BlogPage() {
     const [total, setTotal] = useState(0);
     const POSTS_PER_PAGE = 9;
 
-    useEffect(() => {
-        loadPosts();
-        loadFeatured();
-    }, [page]);
-
-    const loadPosts = async () => {
+    const loadPosts = useCallback(async () => {
         setLoading(true);
         const result = await getBlogPosts(POSTS_PER_PAGE, page * POSTS_PER_PAGE);
         setPosts(result.posts);
         setTotal(result.total);
         setLoading(false);
-    };
+    }, [page]);
 
-    const loadFeatured = async () => {
+    const loadFeatured = useCallback(async () => {
         const result = await getFeaturedPosts(3);
         setFeatured(result);
-    };
+    }, []);
+
+    useEffect(() => {
+        loadPosts();
+        loadFeatured();
+    }, [loadPosts, loadFeatured]);
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {

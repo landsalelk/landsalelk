@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { account } from '@/lib/appwrite';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { account } from '@/appwrite';
 import { sendMessage, getConversation, subscribeToMessages } from '@/lib/chat';
 import { getAgents } from '@/lib/agents';
 import {
@@ -23,35 +23,7 @@ export default function MessagesPage() {
     const [mounted, setMounted] = useState(false);
     const messagesEndRef = useRef(null);
 
-    useEffect(() => {
-        setMounted(true);
-        loadUserAndConversations();
-    }, []);
-
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
-
-    useEffect(() => {
-        if (!user) return;
-
-        // Subscribe to real-time messages
-        const unsubscribe = subscribeToMessages(user.$id, (newMsg) => {
-            if (activeConversation &&
-                (newMsg.sender_id === activeConversation.userId ||
-                    newMsg.receiver_id === activeConversation.userId)) {
-                setMessages(prev => [...prev, newMsg]);
-            }
-            // Update conversation preview
-            updateConversationPreview(newMsg);
-        });
-
-        return () => {
-            if (unsubscribe) unsubscribe();
-        };
-    }, [user, activeConversation]);
-
-    const loadUserAndConversations = async () => {
+    const loadUserAndConversations = useCallback(async () => {
         try {
             const userData = await account.get();
             setUser(userData);
@@ -76,7 +48,35 @@ export default function MessagesPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [router]);
+
+    useEffect(() => {
+        setMounted(true);
+        loadUserAndConversations();
+    }, [loadUserAndConversations]);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    useEffect(() => {
+        if (!user) return;
+
+        // Subscribe to real-time messages
+        const unsubscribe = subscribeToMessages(user.$id, (newMsg) => {
+            if (activeConversation &&
+                (newMsg.sender_id === activeConversation.userId ||
+                    newMsg.receiver_id === activeConversation.userId)) {
+                setMessages(prev => [...prev, newMsg]);
+            }
+            // Update conversation preview
+            updateConversationPreview(newMsg);
+        });
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
+    }, [user, activeConversation]);
 
     const updateConversationPreview = (msg) => {
         setConversations(prev => prev.map(conv => {

@@ -1,6 +1,5 @@
-import { databases } from "./appwrite";
-import { Query } from "appwrite";
-import { DB_ID, COLLECTION_LISTINGS, COLLECTION_KYC } from "./constants";
+import { databases, Query } from "@/appwrite";
+import { DB_ID, COLLECTION_LISTINGS, COLLECTION_KYC } from "@/appwrite/config";
 // Assuming we might have a users collection or use the count of KYC for now since we can't query auth users directly from client easily without function
 // But we actually DO have a 'users_extended' collection in the schema list, let's use that if it exists, or just use Listings/KYC as proxies.
 // The user previously saw 'users_extended' in collections.json.

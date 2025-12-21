@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_AGENTS } from '@/lib/constants';
+import { databases } from '@/appwrite';
+import { DB_ID, COLLECTION_AGENTS } from '@/appwrite/config';
 import {
     Loader2, CheckCircle, XCircle, Shield, Calendar, MapPin,
     Award, ExternalLink, Clock, AlertTriangle

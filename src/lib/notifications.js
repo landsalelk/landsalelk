@@ -5,7 +5,7 @@
  * Provides email and push notification capabilities by calling Appwrite Functions.
  */
 
-import { account, functions } from '@/lib/appwrite';
+import { account, functions } from '@/appwrite';
 
 const FUNCTION_SEND_EMAIL = 'send-email';
 

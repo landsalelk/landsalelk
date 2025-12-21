@@ -1,8 +1,7 @@
 'use client';
 
-import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_CATEGORIES } from './constants';
-import { Query } from 'appwrite';
+import { databases, Query } from '@/appwrite';
+import { DB_ID, COLLECTION_CATEGORIES } from '@/appwrite/config';
 
 /**
  * Fetch all active categories from database

@@ -1,8 +1,7 @@
 'use client';
 
-import { databases, account } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_NOTIFICATIONS } from './constants';
-import { Query, ID } from 'appwrite';
+import { databases, account, Query, ID } from '@/appwrite';
+import { DB_ID, COLLECTION_NOTIFICATIONS } from '@/appwrite/config';
 
 /**
  * Fetch user's notifications

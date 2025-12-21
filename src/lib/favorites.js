@@ -1,6 +1,5 @@
-import { databases, account } from "./appwrite";
-import { ID, Query } from "appwrite";
-import { DB_ID, COLLECTION_FAVORITES } from "./constants";
+import { databases, account, ID, Query } from "@/appwrite";
+import { DB_ID, COLLECTION_FAVORITES } from "@/appwrite/config";
 
 /**
  * Add a property to user's favorites

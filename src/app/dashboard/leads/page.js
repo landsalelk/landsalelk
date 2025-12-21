@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { account } from '@/lib/appwrite';
+import { account } from '@/appwrite';
 import { LeadCRM } from '@/components/dashboard/LeadCRM';
 import { LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';

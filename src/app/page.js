@@ -1,14 +1,28 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { Hero } from "@/components/home/Hero";
 import { PropertyCard } from "@/components/property/PropertyCard";
 import { getFeaturedProperties } from "@/lib/properties";
-import { databases } from "@/lib/appwrite";
-import { DB_ID, COLLECTION_LISTINGS } from "@/lib/constants";
+import { databases } from "@/appwrite";
+import { DB_ID, COLLECTION_LISTINGS } from "@/appwrite/config";
 import { subscribeToNewsletter } from "@/app/actions/newsletter";
 import { Query } from "appwrite";
-import { ArrowRight, Sparkles, ShieldCheck, Brain, Scale, PlusCircle, Home, Building, Trees, Loader2 } from "lucide-react";
+import {
+  ArrowRight,
+  Sparkles,
+  ShieldCheck,
+  Brain,
+  Scale,
+  PlusCircle,
+  Home,
+  Building,
+  Trees,
+  Loader2,
+  AlertCircle,
+  CheckCircle,
+  Mail,
+} from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -17,7 +31,14 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [categoryCounts, setCategoryCounts] = useState({ lands: 0, houses: 0, apartments: 0 });
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterError, setNewsletterError] = useState("");
+  const [newsletterSuccess, setNewsletterSuccess] = useState(false);
+  const [categoryCounts, setCategoryCounts] = useState({
+    lands: 0,
+    houses: 0,
+    apartments: 0,
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -39,14 +60,23 @@ export default function HomePage() {
   const loadCategoryCounts = async () => {
     try {
       const [landsRes, housesRes, apartmentsRes] = await Promise.all([
-        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'land'), Query.limit(1)]),
-        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'house'), Query.limit(1)]),
-        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'apartment'), Query.limit(1)])
+        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [
+          Query.equal("category_id", "land"),
+          Query.limit(1),
+        ]),
+        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [
+          Query.equal("category_id", "house"),
+          Query.limit(1),
+        ]),
+        databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [
+          Query.equal("category_id", "apartment"),
+          Query.limit(1),
+        ]),
       ]);
       setCategoryCounts({
         lands: landsRes.total,
         houses: housesRes.total,
-        apartments: apartmentsRes.total
+        apartments: apartmentsRes.total,
       });
     } catch (e) {
       // Silent fail - keep default 0
@@ -54,9 +84,27 @@ export default function HomePage() {
   };
 
   const categories = [
-    { name: 'Lands', icon: Trees, href: '/properties?type=land', count: categoryCounts.lands, color: 'bg-green-50 text-green-600' },
-    { name: 'Houses', icon: Home, href: '/properties?type=sale', count: categoryCounts.houses, color: 'bg-blue-50 text-blue-600' },
-    { name: 'Apartments', icon: Building, href: '/properties?type=apartment', count: categoryCounts.apartments, color: 'bg-purple-50 text-purple-600' },
+    {
+      name: "Lands",
+      icon: Trees,
+      href: "/properties?type=land",
+      count: categoryCounts.lands,
+      color: "bg-green-50 text-green-600",
+    },
+    {
+      name: "Houses",
+      icon: Home,
+      href: "/properties?type=sale",
+      count: categoryCounts.houses,
+      color: "bg-blue-50 text-blue-600",
+    },
+    {
+      name: "Apartments",
+      icon: Building,
+      href: "/properties?type=apartment",
+      count: categoryCounts.apartments,
+      color: "bg-purple-50 text-purple-600",
+    },
   ];
 
   const valueProps = [
@@ -64,43 +112,105 @@ export default function HomePage() {
       icon: ShieldCheck,
       title: "Verified Listings",
       description: "Every property is verified by our team for authenticity",
-      color: "bg-emerald-100 text-emerald-600"
+      color: "bg-emerald-100 text-emerald-600",
     },
     {
       icon: Brain,
       title: "AI Valuation",
       description: "Get instant property valuations powered by AI",
-      color: "bg-blue-100 text-blue-600"
+      color: "bg-blue-100 text-blue-600",
     },
     {
       icon: Scale,
       title: "Legal Support",
       description: "Free legal document checklist for every transaction",
-      color: "bg-purple-100 text-purple-600"
+      color: "bg-purple-100 text-purple-600",
     },
   ];
 
-  if (!mounted) return null;
+  // Show skeleton while mounting to prevent content flash
+  if (!mounted) {
+    return (
+      <div className="min-h-screen">
+        {/* Hero Skeleton */}
+        <div className="relative flex min-h-[80vh] items-center justify-center px-4">
+          <div className="live-gradient absolute inset-0 opacity-90" />
+          <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
+            <div className="skeleton mx-auto mb-4 h-12 w-3/4 rounded-xl" />
+            <div className="skeleton mx-auto mb-8 h-8 w-1/2 rounded-xl" />
+            <div className="skeleton mx-auto h-16 w-full max-w-2xl rounded-2xl" />
+          </div>
+        </div>
+
+        {/* Categories Skeleton */}
+        <div className="relative z-10 -mt-10 py-16">
+          <div className="mx-auto max-w-7xl px-4">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="glass-card rounded-3xl p-8">
+                  <div className="flex items-center gap-6">
+                    <div className="skeleton h-16 w-16 rounded-2xl" />
+                    <div className="flex-1">
+                      <div className="skeleton mb-2 h-6 w-24 rounded" />
+                      <div className="skeleton h-4 w-32 rounded" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Featured Properties Skeleton */}
+        <div className="py-16">
+          <div className="mx-auto max-w-7xl px-4">
+            <div className="skeleton mx-auto mb-8 h-10 w-64 rounded-xl" />
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="glass-card overflow-hidden rounded-2xl">
+                  <div className="skeleton aspect-[4/3]" />
+                  <div className="space-y-3 p-4">
+                    <div className="skeleton h-5 w-3/4 rounded" />
+                    <div className="skeleton h-4 w-1/2 rounded" />
+                    <div className="flex gap-2">
+                      <div className="skeleton h-6 w-16 rounded-lg" />
+                      <div className="skeleton h-6 w-16 rounded-lg" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen animate-fade-in">
+    <div className="animate-fade-in min-h-screen">
       <Hero />
 
       {/* Categories Section */}
-      <section className="py-16 -mt-10 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className="relative z-10 -mt-10 py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {categories.map((cat, idx) => (
               <Link key={idx} href={cat.href}>
-                <div className="glass-card rounded-3xl p-8 flex items-center gap-6 cursor-pointer group hover:shadow-2xl hover:-translate-y-2 transition-all">
-                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${cat.color}`}>
-                    <cat.icon className="w-8 h-8" />
+                <div className="glass-card group flex cursor-pointer items-center gap-6 rounded-3xl p-8 transition-all hover:-translate-y-2 hover:shadow-2xl">
+                  <div
+                    className={`flex h-16 w-16 items-center justify-center rounded-2xl ${cat.color}`}
+                  >
+                    <cat.icon className="h-8 w-8" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-slate-800 group-hover:text-[#10b981] transition-colors">{cat.name}</h3>
-                    <p className="text-slate-500 font-medium">{cat.count} Properties</p>
+                    <h3 className="text-xl font-bold text-slate-800 transition-colors group-hover:text-[#10b981]">
+                      {cat.name}
+                    </h3>
+                    <p className="font-medium text-slate-500">
+                      {cat.count} Properties
+                    </p>
                   </div>
-                  <ArrowRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-[#10b981] group-hover:translate-x-1 transition-all" />
+                  <ArrowRight className="ml-auto h-5 w-5 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-[#10b981]" />
                 </div>
               </Link>
             ))}
@@ -110,29 +220,33 @@ export default function HomePage() {
 
       {/* Featured Properties Section */}
       <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-12 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div>
-              <div className="inline-flex items-center gap-2 bg-[#ecfdf5] text-[#10b981] px-3 py-1.5 rounded-full text-sm font-bold mb-3">
-                <Sparkles className="w-4 h-4" /> Featured Listings
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#ecfdf5] px-3 py-1.5 text-sm font-bold text-[#10b981]">
+                <Sparkles className="h-4 w-4" /> Featured Listings
               </div>
-              <h2 className="text-3xl font-bold text-slate-800">Handpicked Properties</h2>
-              <p className="text-slate-500 mt-2">Verified listings from trusted sellers across Sri Lanka</p>
+              <h2 className="text-3xl font-bold text-slate-800">
+                Handpicked Properties
+              </h2>
+              <p className="mt-2 text-slate-500">
+                Verified listings from trusted sellers across Sri Lanka
+              </p>
             </div>
             <Link
               href="/properties"
-              className="inline-flex items-center gap-2 text-[#10b981] font-bold hover:underline"
+              className="inline-flex items-center gap-2 font-bold text-[#10b981] hover:underline"
             >
-              View All Properties <ArrowRight className="w-4 h-4" />
+              View All Properties <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-[#10b981]" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               {featuredProperties.map((property, idx) => (
                 <div
                   key={property.$id || idx}
@@ -149,30 +263,31 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#10b981] via-[#06b6d4] to-[#3b82f6] p-12 text-white">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -mr-48 -mt-48" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -ml-32 -mb-32" />
+            <div className="absolute top-0 right-0 -mt-48 -mr-48 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute bottom-0 left-0 -mb-32 -ml-32 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
             <div className="relative z-10 max-w-2xl">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <h2 className="mb-4 text-3xl font-bold md:text-4xl">
                 Ready to Sell Your Property?
               </h2>
-              <p className="text-white/80 text-lg mb-8">
-                List your property for free and reach thousands of potential buyers across Sri Lanka.
-                Get AI-powered valuation and verified badge.
+              <p className="mb-8 text-lg text-white/80">
+                List your property for free and reach thousands of potential
+                buyers across Sri Lanka. Get AI-powered valuation and verified
+                badge.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link
                   href="/properties/create"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-white text-[#10b981] rounded-2xl font-bold hover:bg-slate-100 transition-colors shadow-xl"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-white px-8 py-4 font-bold text-[#10b981] shadow-xl transition-colors hover:bg-slate-100"
                 >
-                  <PlusCircle className="w-5 h-5" />
+                  <PlusCircle className="h-5 w-5" />
                   Post Free Ad
                 </Link>
                 <Link
                   href="/agents"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-white/20 text-white rounded-2xl font-bold hover:bg-white/30 transition-colors backdrop-blur-sm"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-white/20 px-8 py-4 font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/30"
                 >
                   Find an Agent
                 </Link>
@@ -180,11 +295,27 @@ export default function HomePage() {
             </div>
 
             {/* Decorative House */}
-            <div className="absolute right-8 bottom-0 w-64 h-64 opacity-30 hidden lg:block">
-              <svg viewBox="0 0 200 200" fill="none" className="w-full h-full">
-                <path d="M40 180V100L100 40L160 100V180H40Z" fill="white" opacity="0.3" />
-                <path d="M30 100L100 30L170 100" stroke="white" strokeWidth="6" opacity="0.5" />
-                <rect x="80" y="120" width="40" height="60" fill="white" opacity="0.3" />
+            <div className="absolute right-8 bottom-0 hidden h-64 w-64 opacity-30 lg:block">
+              <svg viewBox="0 0 200 200" fill="none" className="h-full w-full">
+                <path
+                  d="M40 180V100L100 40L160 100V180H40Z"
+                  fill="white"
+                  opacity="0.3"
+                />
+                <path
+                  d="M30 100L100 30L170 100"
+                  stroke="white"
+                  strokeWidth="6"
+                  opacity="0.5"
+                />
+                <rect
+                  x="80"
+                  y="120"
+                  width="40"
+                  height="60"
+                  fill="white"
+                  opacity="0.3"
+                />
               </svg>
             </div>
           </div>
@@ -192,27 +323,32 @@ export default function HomePage() {
       </section>
 
       {/* Value Props Section */}
-      <section className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-800 mb-4">
+      <section className="bg-slate-50 py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-3xl font-bold text-slate-800">
               Why Choose LandSale.lk?
             </h2>
-            <p className="text-slate-500 max-w-2xl mx-auto">
-              Sri Lanka's most trusted real estate platform with AI-powered tools and verified listings
+            <p className="mx-auto max-w-2xl text-slate-500">
+              Sri Lanka's most trusted real estate platform with AI-powered
+              tools and verified listings
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {valueProps.map((prop, idx) => (
               <div
                 key={idx}
-                className="glass-card rounded-3xl p-8 text-center group hover:shadow-2xl hover:-translate-y-2 transition-all"
+                className="glass-card group rounded-3xl p-8 text-center transition-all hover:-translate-y-2 hover:shadow-2xl"
               >
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 ${prop.color} group-hover:scale-110 transition-transform`}>
-                  <prop.icon className="w-8 h-8" />
+                <div
+                  className={`mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl ${prop.color} transition-transform group-hover:scale-110`}
+                >
+                  <prop.icon className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-3">{prop.title}</h3>
+                <h3 className="mb-3 text-xl font-bold text-slate-800">
+                  {prop.title}
+                </h3>
                 <p className="text-slate-500">{prop.description}</p>
               </div>
             ))}
@@ -222,52 +358,128 @@ export default function HomePage() {
 
       {/* Newsletter Section */}
       <section className="py-16">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-slate-800 mb-4">
+        <div className="mx-auto max-w-3xl px-4 text-center">
+          <h2 className="mb-4 text-2xl font-bold text-slate-800">
             Get the Latest Property Alerts
           </h2>
-          <p className="text-slate-500 mb-8">
-            Subscribe to receive notifications about new listings and price drops
+          <p className="mb-8 text-slate-500">
+            Subscribe to receive notifications about new listings and price
+            drops
           </p>
-          <form
-            className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const email = e.target.email.value;
-              if (email && !submitting) {
+
+          {newsletterSuccess ? (
+            <div className="animate-fade-in mx-auto max-w-md rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+                <CheckCircle className="h-8 w-8 text-emerald-600" />
+              </div>
+              <h3 className="mb-2 text-lg font-bold text-emerald-800">
+                You&apos;re subscribed!
+              </h3>
+              <p className="mb-4 text-sm text-emerald-700">
+                Check your email to verify your subscription and start receiving
+                property alerts.
+              </p>
+              <button
+                onClick={() => {
+                  setNewsletterSuccess(false);
+                  setNewsletterEmail("");
+                }}
+                className="text-sm font-semibold text-emerald-600 hover:underline"
+              >
+                Subscribe another email
+              </button>
+            </div>
+          ) : (
+            <form
+              className="mx-auto max-w-md"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const email = newsletterEmail.trim();
+
+                // Validate email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!email) {
+                  setNewsletterError("Please enter your email address");
+                  return;
+                }
+                if (!emailRegex.test(email)) {
+                  setNewsletterError("Please enter a valid email address");
+                  return;
+                }
+
+                setNewsletterError("");
                 setSubmitting(true);
+
                 try {
                   const result = await subscribeToNewsletter(email);
                   if (result.success) {
+                    setNewsletterSuccess(true);
                     toast.success(result.message);
-                    e.target.reset();
                   } else {
-                    toast.error(result.error);
+                    setNewsletterError(
+                      result.error || "Subscription failed. Please try again.",
+                    );
                   }
                 } catch (error) {
-                  toast.error("Something went wrong. Please try again.");
+                  setNewsletterError("Something went wrong. Please try again.");
                 } finally {
                   setSubmitting(false);
                 }
-              }
-            }}
-          >
-            <input
-              type="email"
-              name="email"
-              required
-              disabled={submitting}
-              placeholder="Enter your email"
-              className="flex-1 px-6 py-4 bg-white rounded-2xl border border-slate-200 outline-none focus:border-[#10b981] font-medium disabled:opacity-50"
-            />
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-8 py-4 bg-[#10b981] text-white rounded-2xl font-bold hover:bg-[#059669] transition-colors shadow-lg shadow-[#10b981]/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]"
+              }}
             >
-              {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Subscribe"}
-            </button>
-          </form>
+              <div className="mb-3 flex flex-col gap-4 sm:flex-row">
+                <div className="relative flex-1">
+                  <Mail className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={newsletterEmail}
+                    onChange={(e) => {
+                      setNewsletterEmail(e.target.value);
+                      if (newsletterError) setNewsletterError("");
+                    }}
+                    disabled={submitting}
+                    placeholder="Enter your email"
+                    aria-invalid={!!newsletterError}
+                    aria-describedby={
+                      newsletterError ? "newsletter-error" : undefined
+                    }
+                    className={`w-full rounded-2xl border bg-white py-4 pr-6 pl-12 font-medium transition-colors outline-none disabled:opacity-50 ${
+                      newsletterError
+                        ? "border-red-300 focus:border-red-500"
+                        : "border-slate-200 focus:border-[#10b981]"
+                    }`}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex min-w-[140px] items-center justify-center rounded-2xl bg-[#10b981] px-8 py-4 font-bold text-white shadow-lg shadow-[#10b981]/30 transition-colors hover:bg-[#059669] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {submitting ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    "Subscribe"
+                  )}
+                </button>
+              </div>
+
+              {newsletterError && (
+                <p
+                  id="newsletter-error"
+                  className="flex items-center justify-center gap-1 text-sm text-red-600"
+                  role="alert"
+                >
+                  <AlertCircle className="h-4 w-4" />
+                  {newsletterError}
+                </p>
+              )}
+
+              <p className="mt-4 text-xs text-slate-400">
+                We respect your privacy. Unsubscribe anytime.
+              </p>
+            </form>
+          )}
         </div>
       </section>
     </div>

@@ -1,8 +1,7 @@
 'use client';
 
-import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_SAVED_SEARCHES } from './constants';
-import { Query, ID } from 'appwrite';
+import { databases, Query, ID } from '@/appwrite';
+import { DB_ID, COLLECTION_SAVED_SEARCHES } from '@/appwrite/config';
 
 /**
  * Get user's saved searches

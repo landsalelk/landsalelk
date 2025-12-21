@@ -1,17 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getPropertyById } from '@/lib/properties';
-import { databases, storage, account } from '@/lib/appwrite';
-import { ID } from 'appwrite';
+import { databases, storage, account, ID, Permission, Role } from '@/appwrite';
 import { toast } from 'sonner';
 import {
     Save, Loader2, ImagePlus, X, MapPin, Home, Banknote,
     BedDouble, Bath, Ruler, ArrowLeft, Trash2, ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
-import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
+import { DB_ID, COLLECTION_LISTINGS, BUCKET_LISTING_IMAGES } from '@/appwrite/config';
 
 export default function EditPropertyPage() {
     const { id } = useParams();
@@ -43,12 +42,7 @@ export default function EditPropertyPage() {
         has_payment_plan: false
     });
 
-    useEffect(() => {
-        setMounted(true);
-        loadProperty();
-    }, [id]);
-
-    const loadProperty = async () => {
+    const loadProperty = useCallback(async () => {
         try {
             const user = await account.get();
             const property = await getPropertyById(id);
@@ -80,11 +74,20 @@ export default function EditPropertyPage() {
                 has_payment_plan: property.has_payment_plan || false
             });
 
-            // Parse existing images
+            // Parse existing images (array, JSON, or CSV)
             if (property.images) {
+                let raw = property.images;
                 try {
-                    const parsed = JSON.parse(property.images);
-                    setImages(Array.isArray(parsed) ? parsed : []);
+                    if (Array.isArray(raw)) {
+                        setImages(raw);
+                    } else if (typeof raw === 'string' && raw.trim().startsWith('[')) {
+                        const parsed = JSON.parse(raw);
+                        setImages(Array.isArray(parsed) ? parsed : []);
+                    } else if (typeof raw === 'string') {
+                        setImages(raw.split(',').map((s) => s.trim()).filter(Boolean));
+                    } else {
+                        setImages([]);
+                    }
                 } catch {
                     setImages([]);
                 }
@@ -96,7 +99,12 @@ export default function EditPropertyPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, router]);
+
+    useEffect(() => {
+        setMounted(true);
+        loadProperty();
+    }, [loadProperty]);
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
@@ -116,12 +124,17 @@ export default function EditPropertyPage() {
         setSaving(true);
 
         try {
-            // Upload new images
+            // Upload new images (to listing_images bucket, public read)
             const uploadedUrls = [];
             for (const img of newImages) {
                 try {
-                    const res = await storage.createFile('listings', ID.unique(), img);
-                    const url = `https://cloud.appwrite.io/v1/storage/buckets/listings/files/${res.$id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`;
+                    const res = await storage.createFile(
+                        BUCKET_LISTING_IMAGES,
+                        ID.unique(),
+                        img,
+                        [Permission.read(Role.any())]
+                    );
+                    const url = `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1'}/storage/buckets/${BUCKET_LISTING_IMAGES}/files/${res.$id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || 'landsalelkproject'}`;
                     uploadedUrls.push(url);
                 } catch (err) {
                     console.warn("Image upload failed:", err);
@@ -155,7 +168,7 @@ export default function EditPropertyPage() {
                     infrastructure_distance: parseFloat(formData.infrastructure_distance) || 0,
                     is_foreign_eligible: formData.is_foreign_eligible,
                     has_payment_plan: formData.has_payment_plan,
-                    images: JSON.stringify(allImages),
+                    images: allImages,
                     updated_at: new Date().toISOString()
                 }
             );
@@ -423,7 +436,8 @@ export default function EditPropertyPage() {
                                 {/* Existing Images */}
                                 {images.map((img, i) => (
                                     <div key={`existing-${i}`} className="relative aspect-square rounded-2xl overflow-hidden group">
-                                        <img src={img} alt="" className="w-full h-full object-cover" />
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={img} alt={`Existing property image ${i + 1}`} className="w-full h-full object-cover" />
                                         <button
                                             type="button"
                                             onClick={() => removeExistingImage(i)}
@@ -437,7 +451,8 @@ export default function EditPropertyPage() {
                                 {/* New Images */}
                                 {newImages.map((img, i) => (
                                     <div key={`new-${i}`} className="relative aspect-square rounded-2xl overflow-hidden group border-2 border-[#10b981]">
-                                        <img src={URL.createObjectURL(img)} alt="" className="w-full h-full object-cover" />
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={URL.createObjectURL(img)} alt={`New property image ${i + 1}`} className="w-full h-full object-cover" />
                                         <div className="absolute top-0 left-0 bg-[#10b981] text-white text-xs px-2 py-1">New</div>
                                         <button
                                             type="button"

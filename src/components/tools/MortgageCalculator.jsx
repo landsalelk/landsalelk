@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Calculator, DollarSign, Percent, Calendar, PieChart } from 'lucide-react';
 
 export function MortgageCalculator({ defaultPrice = 25000000 }) {
@@ -16,11 +16,7 @@ export function MortgageCalculator({ defaultPrice = 25000000 }) {
         totalInterest: 0
     });
 
-    useEffect(() => {
-        calculateMortgage();
-    }, [price, downPayment, interestRate, loanTerm]);
-
-    const calculateMortgage = () => {
+    const calculateMortgage = useCallback(() => {
         const principal = price - downPayment;
         const monthlyRate = interestRate / 100 / 12;
         const numberOfPayments = loanTerm * 12;
@@ -46,7 +42,11 @@ export function MortgageCalculator({ defaultPrice = 25000000 }) {
             totalPayment: isNaN(totalPayment) ? 0 : totalPayment,
             totalInterest: isNaN(totalInterest) ? 0 : totalInterest
         });
-    };
+    }, [price, downPayment, interestRate, loanTerm]);
+
+    useEffect(() => {
+        calculateMortgage();
+    }, [calculateMortgage]);
 
     const formatCurrency = (val) => {
         return new Intl.NumberFormat('en-LK', {

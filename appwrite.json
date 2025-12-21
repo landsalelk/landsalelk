@@ -177,12 +177,28 @@
             "commands": "npm install",
             "specification": "s-0.5vcpu-512mb",
             "path": "functions/expire-listings"
+        },
+        {
+            "$id": "send-sms",
+            "execute": [],
+            "name": "Send SMS",
+            "enabled": true,
+            "logging": true,
+            "runtime": "node-18.0",
+            "scopes": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "specification": "s-0.5vcpu-512mb",
+            "path": "functions/send-sms"
         }
     ],
     "sites": [
         {
             "$id": "6941d9280032a28b0536",
-            "name": "landsalelk",
+            "name": "landsalelk-updated",
             "enabled": true,
             "logging": true,
             "framework": "nextjs",
@@ -361,10 +377,13 @@
                     "elements": [
                         "draft",
                         "pending",
+                        "pending_owner",
                         "active",
                         "sold",
                         "expired",
-                        "rejected"
+                        "expired_unverified",
+                        "rejected",
+                        "rejected_by_owner"
                     ],
                     "format": "enum",
                     "default": null
@@ -543,6 +562,60 @@
                     "min": -1.7976931348623157e+308,
                     "max": 1.7976931348623157e+308,
                     "default": null
+                },
+                {
+                    "key": "agent_id",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "service_fee",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 9223372036854775807,
+                    "default": 0
+                },
+                {
+                    "key": "verification_expires_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "format": "",
+                    "default": null
+                },
+                {
+                    "key": "reminder_sent_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "format": "",
+                    "default": null
+                },
+                {
+                    "key": "refund_status",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "elements": [
+                        "none",
+                        "pending",
+                        "processed"
+                    ],
+                    "format": "enum",
+                    "default": "none"
+                },
+                {
+                    "key": "is_claimed",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": false
                 }
             ],
             "indexes": [
@@ -2685,6 +2758,33 @@
                     "size": 255,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "points",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 9223372036854775807,
+                    "default": 0
+                },
+                {
+                    "key": "listings_uploaded",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 9223372036854775807,
+                    "default": 0
+                },
+                {
+                    "key": "total_earnings",
+                    "type": "double",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 1.7976931348623157e+308,
+                    "default": 0
                 }
             ],
             "indexes": [
@@ -3998,6 +4098,133 @@
             ]
         },
         {
+            "$id": "agent_payments",
+            "$permissions": [
+                "read(\"team:admins\")",
+                "read(\"label:agent\")",
+                "create(\"any\")"
+            ],
+            "databaseId": "landsalelkdb",
+            "name": "Agent Payments",
+            "enabled": true,
+            "rowSecurity": false,
+            "columns": [
+                {
+                    "key": "agent_id",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "listing_id",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "amount",
+                    "type": "double",
+                    "required": true,
+                    "array": false,
+                    "min": 0,
+                    "max": 1.7976931348623157e+308,
+                    "default": null
+                },
+                {
+                    "key": "platform_fee",
+                    "type": "double",
+                    "required": true,
+                    "array": false,
+                    "min": 0,
+                    "max": 1.7976931348623157e+308,
+                    "default": null
+                },
+                {
+                    "key": "agent_share",
+                    "type": "double",
+                    "required": true,
+                    "array": false,
+                    "min": 0,
+                    "max": 1.7976931348623157e+308,
+                    "default": null
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "elements": [
+                        "pending",
+                        "completed",
+                        "settled",
+                        "refunded"
+                    ],
+                    "format": "enum",
+                    "default": "pending"
+                },
+                {
+                    "key": "payhere_order_id",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 100,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "paid_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "format": "",
+                    "default": null
+                },
+                {
+                    "key": "settled_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "format": "",
+                    "default": null
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "agent_id_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "agent_id"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "listing_id_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "listing_id"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "status_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "status"
+                    ],
+                    "orders": []
+                }
+            ]
+        },
+        {
             "$id": "blog_posts",
             "$permissions": [
                 "read(\"any\")",
@@ -4997,6 +5224,388 @@
                     "status": "available",
                     "columns": [
                         "status"
+                    ],
+                    "orders": []
+                }
+            ]
+        },
+        {
+            "$id": "agents",
+            "$permissions": [
+                "read(\"any\")",
+                "create(\"users\")",
+                "update(\"users\")",
+                "delete(\"team:admins\")"
+            ],
+            "databaseId": "landsalelkdb",
+            "name": "Agents",
+            "enabled": true,
+            "rowSecurity": false,
+            "columns": [
+                {
+                    "key": "user_id",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "name",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 100,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "phone",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 20,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "email",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 100,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "experience_years",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 100,
+                    "default": 0
+                },
+                {
+                    "key": "service_areas",
+                    "type": "string",
+                    "required": false,
+                    "array": true,
+                    "size": 100,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "license_number",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 50,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "bio",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 1000,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "nic_doc_id",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "is_verified",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": false
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 20,
+                    "default": "pending",
+                    "encrypt": false
+                },
+                {
+                    "key": "rating",
+                    "type": "double",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 5,
+                    "default": 0
+                },
+                {
+                    "key": "review_count",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 1000000,
+                    "default": 0
+                },
+                {
+                    "key": "deals_count",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 1000000,
+                    "default": 0
+                },
+                {
+                    "key": "points",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 1000000,
+                    "default": 0
+                },
+                {
+                    "key": "listings_uploaded",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 1000000,
+                    "default": 0
+                },
+                {
+                    "key": "total_earnings",
+                    "type": "double",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 1000000000,
+                    "default": 0
+                },
+                {
+                    "key": "created_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "format": "",
+                    "default": null
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "user_id_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "user_id"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "status_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "status"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "is_verified_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "is_verified"
+                    ],
+                    "orders": []
+                }
+            ]
+        },
+        {
+            "$id": "sms_logs",
+            "$permissions": [
+                "read(\"team:admins\")",
+                "create(\"any\")",
+                "update(\"team:admins\")",
+                "delete(\"team:admins\")"
+            ],
+            "databaseId": "landsalelkdb",
+            "name": "SMS Logs",
+            "enabled": true,
+            "rowSecurity": false,
+            "columns": [
+                {
+                    "key": "phone",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 20,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "message",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 1000,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 20,
+                    "default": "pending",
+                    "encrypt": false
+                },
+                {
+                    "key": "provider",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 20,
+                    "default": "textlk",
+                    "encrypt": false
+                },
+                {
+                    "key": "response_code",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 50,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "error_message",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "related_to",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "related_type",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 50,
+                    "default": null,
+                    "encrypt": false
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "status_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "status"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "phone_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "phone"
+                    ],
+                    "orders": []
+                }
+            ]
+        },
+        {
+            "$id": "activity_logs",
+            "$permissions": [
+                "read(\"team:admins\")",
+                "create(\"any\")",
+                "update(\"team:admins\")",
+                "delete(\"team:admins\")"
+            ],
+            "databaseId": "landsalelkdb",
+            "name": "Activity Logs",
+            "enabled": true,
+            "rowSecurity": false,
+            "columns": [
+                {
+                    "key": "action",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 50,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "entity_type",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 50,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "entity_id",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "details",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 5000,
+                    "default": null,
+                    "encrypt": false
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "action_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "action"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "entity_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "entity_type",
+                        "entity_id"
                     ],
                     "orders": []
                 }

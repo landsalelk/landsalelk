@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTINGS, COLLECTION_USERS_EXTENDED, COLLECTION_TRANSACTIONS } from '@/lib/constants';
+import { databases } from '@/appwrite';
+import { DB_ID, COLLECTION_LISTINGS, COLLECTION_USERS_EXTENDED, COLLECTION_TRANSACTIONS } from '@/appwrite/config';
 import { Query } from 'appwrite';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,

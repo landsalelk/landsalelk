@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_SETTINGS, COLLECTION_SEO_META } from '@/lib/constants';
+import { databases } from '@/appwrite';
+import { DB_ID, COLLECTION_SETTINGS, COLLECTION_SEO_META } from '@/appwrite/config';
 import { Query, ID } from 'appwrite';
 import { Save, RefreshCw, Globe, Settings as SettingsIcon, Search, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';

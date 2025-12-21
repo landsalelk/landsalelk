@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_COUPONS } from '@/lib/constants';
+import { databases } from '@/appwrite';
+import { DB_ID, COLLECTION_COUPONS } from '@/appwrite/config';
 import { ID, Query } from 'appwrite';
 import { toast } from 'sonner';
 import {

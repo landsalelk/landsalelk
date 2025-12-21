@@ -1,6 +1,5 @@
-import { databases } from "./appwrite";
-import { ID, Permission, Role } from "appwrite";
-import { DB_ID } from "./constants";
+import { databases, ID, Permission, Role } from "@/appwrite";
+import { DB_ID } from "@/appwrite/config";
 
 const COLLECTION_TRANSACTIONS = 'transactions';
 

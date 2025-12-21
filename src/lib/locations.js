@@ -1,14 +1,13 @@
 'use client';
 
-import { databases } from '@/lib/appwrite';
+import { databases, Query } from '@/appwrite';
 import {
     DB_ID,
     COLLECTION_COUNTRIES,
     COLLECTION_REGIONS,
     COLLECTION_CITIES,
     COLLECTION_AREAS
-} from './constants';
-import { Query } from 'appwrite';
+} from '@/appwrite/config';
 
 /**
  * Fetch all countries (defaults to Sri Lanka)

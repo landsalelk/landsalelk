@@ -1,12 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, ArrowRight } from 'lucide-react';
+import { BUCKET_LISTING_IMAGES } from '@/appwrite/config';
 
 export function RecentlyViewed({ currentId }) {
     const [recent, setRecent] = useState([]);
+
+    const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+    const resolveUrl = useMemo(() => (val) => {
+        if (!val) return null;
+        const str = String(val).trim();
+        if (!str) return null;
+        if (str.startsWith('http')) return str;
+        return `${endpoint}/storage/buckets/${BUCKET_LISTING_IMAGES}/files/${str}/view?project=${projectId}`;
+    }, [endpoint, projectId]);
 
     useEffect(() => {
         // Load from local storage
@@ -14,11 +25,16 @@ export function RecentlyViewed({ currentId }) {
             const stored = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
             // Filter out current property to avoid duplicate if we are on the page
             const filtered = stored.filter(item => item.id !== currentId);
-            setRecent(filtered.slice(0, 4)); // Show max 4
+            // Resolve any legacy raw IDs to view URLs
+            const normalized = filtered.map(item => ({
+                ...item,
+                image: resolveUrl(item.image) || '/placeholder.jpg'
+            }));
+            setRecent(normalized.slice(0, 4)); // Show max 4
         } catch (e) {
             console.error('Failed to load history');
         }
-    }, [currentId]);
+    }, [currentId, resolveUrl]);
 
     if (recent.length === 0) return null;
 
@@ -59,6 +75,16 @@ export function RecentlyViewed({ currentId }) {
 export const addToHistory = (property) => {
     if (!property || !property.$id) return;
 
+    const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+    const resolveUrl = (val) => {
+        if (!val) return null;
+        const str = String(val).trim();
+        if (!str) return null;
+        if (str.startsWith('http')) return str;
+        return `${endpoint}/storage/buckets/${BUCKET_LISTING_IMAGES}/files/${str}/view?project=${projectId}`;
+    };
+
     try {
         const history = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
 
@@ -66,12 +92,29 @@ export const addToHistory = (property) => {
         const filtered = history.filter(h => h.id !== property.$id);
 
         // Add new
+        const rawImages = property.images;
+        let firstImage = null;
+        if (Array.isArray(rawImages)) {
+            firstImage = rawImages[0];
+        } else if (typeof rawImages === 'string') {
+            if (rawImages.trim().startsWith('[')) {
+                try {
+                    const parsed = JSON.parse(rawImages);
+                    firstImage = Array.isArray(parsed) ? parsed[0] : parsed;
+                } catch {
+                    firstImage = rawImages.split(',').map(s => s.trim())[0];
+                }
+            } else {
+                firstImage = rawImages;
+            }
+        }
+
         const newItem = {
             id: property.$id,
             title: property.title,
             price: property.price,
             location: property.location,
-            image: property.images && property.images.length > 0 ? property.images[0] : null // Simplified image logic
+            image: resolveUrl(firstImage) || null
         };
 
         const updated = [newItem, ...filtered].slice(0, 10); // Keep last 10

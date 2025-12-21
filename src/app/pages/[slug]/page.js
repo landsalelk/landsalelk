@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCmsPage } from '@/lib/content';
 import { ArrowLeft } from 'lucide-react';
@@ -12,11 +12,7 @@ export default function CmsPage({ params }) {
     const [page, setPage] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadPage();
-    }, [slug]);
-
-    const loadPage = async () => {
+    const loadPage = useCallback(async () => {
         setLoading(true);
         const result = await getCmsPage(slug);
         if (!result) {
@@ -25,7 +21,11 @@ export default function CmsPage({ params }) {
         }
         setPage(result);
         setLoading(false);
-    };
+    }, [slug, router]);
+
+    useEffect(() => {
+        loadPage();
+    }, [loadPage]);
 
     if (loading) {
         return (

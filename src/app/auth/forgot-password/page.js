@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { account } from '@/lib/appwrite';
+import { account } from '@/appwrite';
 import { Mail, Loader2, MapPin, ArrowLeft, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';

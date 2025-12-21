@@ -1,17 +1,12 @@
-import { Client, Databases } from 'node-appwrite';
-import twilio from 'twilio';
+import { Client, Databases, Functions } from 'node-appwrite';
 import crypto from 'crypto';
 
 // Environment Variables
 const PROJECT_ID = process.env.APPWRITE_FUNCTION_PROJECT_ID;
 const API_KEY = process.env.APPWRITE_API_KEY;
-const DATABASE_ID = process.env.DATABASE_ID || 'landsalelk';
+const DATABASE_ID = process.env.DATABASE_ID || 'landsalelkdb';
 const LISTINGS_COLLECTION_ID = 'listings';
-
-// Twilio Config
-const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
-const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
+const SEND_SMS_FUNCTION_ID = 'send-sms'; // Function ID for the send-sms function
 
 export default async ({ req, res, log, error }) => {
     const client = new Client()
@@ -20,6 +15,7 @@ export default async ({ req, res, log, error }) => {
         .setKey(API_KEY);
 
     const databases = new Databases(client);
+    const functions = new Functions(client);
 
     try {
         let payload = req.body;
@@ -59,45 +55,57 @@ export default async ({ req, res, log, error }) => {
         // Generate Secure Token (UUID v4 or random hex)
         const token = crypto.randomBytes(16).toString('hex');
 
-        // Update Listing with token
+        // Calculate expiry (72 hours from now)
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 72);
+
+        // Update Listing with token and expiry
         await databases.updateDocument(
             DATABASE_ID,
             LISTINGS_COLLECTION_ID,
             listingId,
             {
-                verification_code: token, // Reusing this field for the token
-                status: 'pending_owner'
+                verification_code: token,
+                status: 'pending_owner',
+                verification_expires_at: expiresAt.toISOString()
             }
         );
 
         // Construct Link
-        // Assuming the site is hosted at https://landsale.lk (or use ENV if available)
         const siteUrl = process.env.SITE_URL || 'https://landsale.lk';
         const link = `${siteUrl}/verify-owner/${listingId}?secret=${token}`;
 
-        // Send SMS via Twilio
-        if (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER) {
-            const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-
-            let messageBody = `Landsale.lk: ${agentName} has listed your property "${title}" for Rs. ${price}.`;
-            if (serviceFee > 0) {
-                messageBody += ` Review proposal (Fee: LKR ${serviceFee}): ${link}`;
-            } else {
-                messageBody += ` Review & Publish for FREE: ${link}`;
-            }
-
-            await twilioClient.messages.create({
-                body: messageBody,
-                from: TWILIO_PHONE_NUMBER,
-                to: ownerPhone
-            });
-
-            log(`Verification Link sent to ${ownerPhone}`);
+        // Build SMS message
+        let messageBody = `Landsale.lk: ${agentName} has listed your property "${title}" for Rs. ${price}.`;
+        if (serviceFee > 0) {
+            messageBody += ` Review proposal (Fee: LKR ${serviceFee}): ${link}`;
         } else {
-            error('Twilio credentials missing. SMS not sent.');
+            messageBody += ` Review & Publish for FREE: ${link}`;
         }
 
-        return res.json({ success: true, message: 'Link sent' });
+        // Send SMS via 'send-sms' function execution
+        try {
+            log(`Triggering send-sms for ${ownerPhone}`);
+            const execution = await functions.createExecution(
+                SEND_SMS_FUNCTION_ID,
+                JSON.stringify({
+                    phone: ownerPhone,
+                    message: messageBody,
+                    related_to: listingId,
+                    related_type: 'listing_verification'
+                }),
+                false // Async execution to avoid timeout issues waiting for external API
+            );
+
+            log(`SMS function execution triggered: ${execution.$id}`);
+            return res.json({ success: true, message: 'Verification link sent', executionId: execution.$id });
+
+        } catch (smsError) {
+            error(`Failed to trigger SMS function: ${smsError.message}`);
+            // Even if SMS notification fails, the token is generated, so we might return success or partial success.
+            // But for user feedback, maybe 500 is better if it's critical.
+            return res.json({ success: false, error: 'Failed to send SMS notification' }, 500);
+        }
 
     } catch (e) {
         error(`Failed to send Link: ${e.message}`);

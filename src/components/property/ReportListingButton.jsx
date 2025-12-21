@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Flag, X, AlertTriangle, Loader2, CheckCircle } from 'lucide-react';
-import { databases, account } from '@/lib/appwrite';
-import { DB_ID } from '@/lib/constants';
+import { databases, account } from '@/appwrite';
+import { DB_ID } from '@/appwrite/config';
 import { ID } from 'appwrite';
 import { toast } from 'sonner';
 

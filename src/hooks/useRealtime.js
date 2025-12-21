@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { client } from '@/lib/appwrite';
-import { DB_ID } from '@/lib/constants';
+import { client } from '@/appwrite';
+import { DB_ID } from '@/appwrite/config';
 
 /**
  * Hook for subscribing to Appwrite Realtime updates

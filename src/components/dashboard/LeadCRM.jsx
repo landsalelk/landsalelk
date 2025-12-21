@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_AGENT_LEADS, COLLECTION_AGENTS } from '@/lib/constants';
+import { useState, useEffect, useCallback } from 'react';
+import { databases } from '@/appwrite';
+import { DB_ID, COLLECTION_AGENT_LEADS, COLLECTION_AGENTS } from '@/appwrite/config';
 import { getUserListings } from '@/lib/properties';
 import { Query, ID } from 'appwrite';
 import { toast } from 'sonner';
@@ -36,13 +36,7 @@ export function LeadCRM({ userId }) {
         property_id: ''
     });
 
-    useEffect(() => {
-        if (userId) {
-            initData();
-        }
-    }, [userId]);
-
-    const initData = async () => {
+    const initData = useCallback(async () => {
         try {
             setLoading(true);
             const [leadsRes, listingsRes, agentRes] = await Promise.allSettled([
@@ -79,7 +73,13 @@ export function LeadCRM({ userId }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [userId]);
+
+    useEffect(() => {
+        if (userId) {
+            initData();
+        }
+    }, [userId, initData]);
 
     const handleCreateLead = async (e) => {
         e.preventDefault();

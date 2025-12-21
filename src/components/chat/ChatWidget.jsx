@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { account } from '@/lib/appwrite';
+import { account } from '@/appwrite';
 import { sendMessage, subscribeToMessages, getConversation } from '@/lib/chat';
 import { MessageCircle, X, Send, User } from 'lucide-react';
 import { cn } from '@/lib/utils';

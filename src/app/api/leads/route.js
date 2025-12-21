@@ -2,20 +2,41 @@
 import { Client, Databases, Query, ID } from 'node-appwrite';
 import { NextResponse } from 'next/server';
 
-// Initialize Admin Client
-const client = new Client()
-    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
-    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
-
-const databases = new Databases(client);
-
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
 const COLLECTION_AGENT_LEADS = 'agent_leads';
 const COLLECTION_AGENTS = 'agents';
 
 export async function POST(request) {
     try {
+        // Initialize Admin Client inside the handler to avoid build-time crashes
+        // when environment variables are not present during `next build`.
+        const endpoint =
+            process.env.APPWRITE_ENDPOINT ||
+            process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT ||
+            'https://sgp.cloud.appwrite.io/v1';
+        const projectId =
+            process.env.APPWRITE_PROJECT_ID ||
+            process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID ||
+            'landsalelkproject';
+        const apiKey = process.env.APPWRITE_API_KEY;
+        const DB_ID =
+            process.env.APPWRITE_DATABASE_ID ||
+            process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID ||
+            'landsalelkdb';
+
+        if (!apiKey) {
+            return NextResponse.json(
+                { error: 'Server not configured: APPWRITE_API_KEY is missing' },
+                { status: 500 }
+            );
+        }
+
+        const client = new Client()
+            .setEndpoint(endpoint)
+            .setProject(projectId)
+            .setKey(apiKey);
+
+        const databases = new Databases(client);
+
         const { name, phone, message, requirements, location } = await request.json();
 
         if (!name || !phone) {
@@ -67,8 +88,13 @@ export async function POST(request) {
             }
         }
 
-        // If still no agent, we might want to assign to a default admin agent or leave unassigned
-        // For now, let's proceed even if null (unassigned lead)
+        // If still no agent, don't create the lead because `agent_id` is required in Appwrite schema
+        if (!assignedAgentId) {
+            return NextResponse.json(
+                { error: 'No active agents available to assign this lead' },
+                { status: 503 }
+            );
+        }
 
         const leadData = {
             name,

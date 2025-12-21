@@ -1,6 +1,5 @@
-import { databases } from "./appwrite";
-import { Query } from "appwrite";
-import { DB_ID, COLLECTION_AGENTS } from "./constants";
+import { databases, Query } from "@/appwrite";
+import { DB_ID, COLLECTION_AGENTS } from "@/appwrite/config";
 
 /**
  * Get all agents

@@ -1,14 +1,13 @@
 'use client';
 
-import { databases } from '@/lib/appwrite';
+import { databases, Query } from '@/appwrite';
 import {
     DB_ID,
     COLLECTION_CMS_PAGES,
     COLLECTION_BLOG_POSTS,
     COLLECTION_FAQS,
     COLLECTION_SETTINGS
-} from './constants';
-import { Query } from 'appwrite';
+} from '@/appwrite/config';
 
 // ================================
 // CMS PAGES

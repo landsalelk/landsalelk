@@ -1,13 +1,27 @@
 'use server';
 
 import { Client, Databases } from 'node-appwrite';
-import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
+import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
+
+// Fallback values for build time - should be overridden by env vars in production
+const FALLBACK_ENDPOINT = 'https://sgp.cloud.appwrite.io/v1';
+const FALLBACK_PROJECT_ID = 'landsalelkproject';
 
 const createAdminClient = () => {
+  const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || FALLBACK_ENDPOINT;
+  const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || FALLBACK_PROJECT_ID;
+  const apiKey = process.env.APPWRITE_API_KEY;
+
+  // If no API key, return null to skip the operation gracefully
+  if (!apiKey) {
+    console.warn('[Analytics] APPWRITE_API_KEY is not set. View count will not be tracked.');
+    return null;
+  }
+
   const client = new Client()
-    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
-    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+    .setEndpoint(endpoint)
+    .setProject(projectId)
+    .setKey(apiKey);
 
   return {
     getDatabases: () => new Databases(client),
@@ -18,7 +32,14 @@ export async function incrementViewCount(listingId) {
   if (!listingId) return { success: false, error: 'Listing ID is required' };
 
   try {
-    const { getDatabases } = createAdminClient();
+    const adminClient = createAdminClient();
+
+    // If admin client is not available (missing API key), skip gracefully
+    if (!adminClient) {
+      return { success: false, error: 'Analytics not configured' };
+    }
+
+    const { getDatabases } = adminClient;
     const databases = getDatabases();
 
     // 1. Get current document to know current count

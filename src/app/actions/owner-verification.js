@@ -113,6 +113,21 @@ export async function claimListing(listingId, secret, userId) {
             throw new Error("User ID required to claim listing");
         }
 
+        // Award points to agent who created the listing (DIY referral)
+        const agentId = listing.agent_id;
+        if (agentId) {
+            try {
+                const agent = await databases.getDocument(DB_ID, 'agents', agentId);
+                await databases.updateDocument(DB_ID, 'agents', agentId, {
+                    points: (agent.points || 0) + 1, // 1 point for DIY referral
+                    listings_uploaded: (agent.listings_uploaded || 0) + 1
+                });
+                console.log(`Awarded 1 point to agent ${agentId} for DIY claim`);
+            } catch (agentErr) {
+                console.warn('Could not update agent points:', agentErr.message);
+            }
+        }
+
         // Transfer Ownership Logic
         // 1. Update document data
         // 2. Update permissions so the new owner has write access
@@ -123,7 +138,7 @@ export async function claimListing(listingId, secret, userId) {
             listingId,
             {
                 user_id: userId,          // Set new owner ID
-                agent_id: null,           // Remove agent (or keep as 'referral_agent_id' if schema supports)
+                agent_id: null,           // Remove agent (already awarded points)
                 status: 'active',         // Activate
                 verification_code: null,  // Clear token
                 is_claimed: true          // Flag as claimed

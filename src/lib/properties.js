@@ -1,6 +1,5 @@
-import { databases, account, storage } from "./appwrite";
-import { Query, ID } from "appwrite";
-import { DB_ID, COLLECTION_LISTINGS, COLLECTION_AGENTS, BUCKET_LISTING_IMAGES } from "./constants";
+import { databases, account, storage, Query, ID } from "@/appwrite";
+import { DB_ID, COLLECTION_LISTINGS, COLLECTION_AGENTS, BUCKET_LISTING_IMAGES } from "@/appwrite/config";
 
 /**
  * Fetch a single property by its ID.
@@ -158,16 +157,50 @@ export async function getUserListings(userId) {
 export async function createProperty(data) {
     try {
         const user = await account.get();
+
+        // Ensure required "slug" exists and is URL-safe.
+        const slugify = (str = '') => str
+            .toString()
+            .normalize('NFKD')
+            .replace(/[\u0300-\u036f]/g, '') // strip diacritics
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
+            .replace(/-{2,}/g, '-')
+            .slice(0, 80);
+
+        const baseSlug = slugify(data.slug || data.title || 'listing');
+        const slug = baseSlug ? `${baseSlug}-${Math.random().toString(36).slice(2, 6)}` : `listing-${Date.now()}`;
+        const currency_code = data.currency_code || 'LKR';
+        const contact =
+            data.contact ||
+            [data.contact_name, data.contact_phone, data.contact_email].filter(Boolean).join(' | ') ||
+            data.contact_phone ||
+            data.contact_name ||
+            data.contact_email ||
+            'Contact not provided';
+
+        // Whitelist payload to avoid schema errors (Appwrite rejects unknown attributes)
+        const payload = {
+            slug,
+            currency_code,
+            contact,
+            title: data.title || 'Listing',
+            description: data.description || '',
+            price: parseFloat(data.price) || 0,
+            listing_type: data.listing_type || 'sale',
+            category_id: data.category_id || 'house',
+            images: data.images || data.imageIds || data.image_urls || [],
+            location: data.location || '',
+            status: data.status || 'active',
+            user_id: user.$id
+        };
+
         const doc = await databases.createDocument(
             DB_ID,
             COLLECTION_LISTINGS,
             ID.unique(),
-            {
-                ...data,
-                user_id: user.$id,
-                created_at: new Date().toISOString(),
-                status: 'active'
-            }
+            payload
         );
 
         // Phase 1 Gamification: Award 10 points for new listing

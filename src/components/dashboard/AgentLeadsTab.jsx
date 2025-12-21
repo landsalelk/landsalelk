@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { account } from '@/lib/appwrite';
+import { useState, useEffect, useCallback } from 'react';
+import { account } from '@/appwrite';
 import { getAgentLeads, updateLeadStatus, LeadStatus } from '@/lib/agentLeads';
 import { Phone, Mail, Calendar, Clock, User, ChevronDown, CheckCircle, XCircle, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -12,11 +12,7 @@ export default function AgentLeadsTab() {
     const [filter, setFilter] = useState('all');
     const [user, setUser] = useState(null);
 
-    useEffect(() => {
-        loadUser();
-    }, []);
-
-    const loadUser = async () => {
+    const loadUser = useCallback(async () => {
         try {
             const userData = await account.get();
             setUser(userData);
@@ -25,7 +21,11 @@ export default function AgentLeadsTab() {
             setUser(null);
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        loadUser();
+    }, [loadUser]);
 
     const loadLeads = async (agentId) => {
         setLoading(true);

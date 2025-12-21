@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { account } from '@/lib/appwrite';
+import { account } from '@/appwrite';
 import { getUserListings, getPropertyById } from '@/lib/properties';
 import { getKYCStatus } from '@/lib/kyc';
 import { saveTransaction } from '@/lib/transactions';

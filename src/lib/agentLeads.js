@@ -1,8 +1,7 @@
 'use client';
 
-import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_AGENT_LEADS, COLLECTION_LAND_OFFICES } from './constants';
-import { Query, ID } from 'appwrite';
+import { databases, Query, ID } from '@/appwrite';
+import { DB_ID, COLLECTION_AGENT_LEADS, COLLECTION_LAND_OFFICES } from '@/appwrite/config';
 
 // ================================
 // AGENT LEADS

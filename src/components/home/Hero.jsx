@@ -1,152 +1,395 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Search, MapPin, Home, Building, Trees, Sparkles } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Search,
+  MapPin,
+  Home,
+  Building,
+  Trees,
+  Sparkles,
+  Clock,
+  X,
+} from "lucide-react";
+
+// Safe localStorage helper for private browsing mode
+const safeLocalStorage = {
+  getItem: (key) => {
+    try {
+      if (typeof window !== "undefined") {
+        return localStorage.getItem(key);
+      }
+    } catch (e) {
+      console.warn("localStorage not available:", e);
+    }
+    return null;
+  },
+  setItem: (key, value) => {
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(key, value);
+        return true;
+      }
+    } catch (e) {
+      console.warn("localStorage not available:", e);
+    }
+    return false;
+  },
+};
+
+const MAX_RECENT_SEARCHES = 5;
 
 export function Hero() {
-    const router = useRouter();
-    const [activeTab, setActiveTab] = useState('buy');
-    const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("buy");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [showRecent, setShowRecent] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const searchInputRef = useRef(null);
+  const dropdownRef = useRef(null);
 
-    const tabs = [
-        { id: 'buy', label: 'Buy', icon: Home, type: 'sale' },
-        { id: 'rent', label: 'Rent', icon: Building, type: 'rent' },
-        { id: 'land', label: 'Lands', icon: Trees, type: 'land' },
-    ];
+  const tabs = [
+    { id: "buy", label: "Buy", icon: Home, type: "sale" },
+    { id: "rent", label: "Rent", icon: Building, type: "rent" },
+    { id: "land", label: "Lands", icon: Trees, type: "land" },
+  ];
 
-    const handleSearch = () => {
-        const activeType = tabs.find(t => t.id === activeTab)?.type || 'sale';
-        const params = new URLSearchParams();
-        params.set('type', activeType);
-        if (searchQuery) params.set('q', searchQuery); // Changed 'search' to 'q' for consistency
-        router.push(`/properties?${params.toString()}`);
+  // Load recent searches from localStorage on mount
+  useEffect(() => {
+    setMounted(true);
+    const saved = safeLocalStorage.getItem("recentSearches");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setRecentSearches(parsed);
+        }
+      } catch (e) {
+        console.error("Failed to parse recent searches:", e);
+      }
+    }
+  }, []);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target)
+      ) {
+        setShowRecent(false);
+      }
     };
 
-    const handleTrendingClick = (location) => {
-        router.push(`/properties?q=${encodeURIComponent(location)}`); // Changed 'search' to 'q'
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Save a search to recent searches
+  const saveRecentSearch = useCallback((query, type) => {
+    if (!query || query.trim() === "") return;
+
+    const searchItem = {
+      query: query.trim(),
+      type,
+      timestamp: Date.now(),
     };
 
-    return (
-        <div className="relative min-h-[600px] flex items-center justify-center pt-24 pb-20 overflow-hidden">
-            {/* Animated Gradient Background */}
-            <div className="absolute inset-0 live-gradient" />
+    setRecentSearches((prev) => {
+      // Remove duplicate if exists
+      const filtered = prev.filter(
+        (item) => item.query.toLowerCase() !== searchItem.query.toLowerCase(),
+      );
+      // Add new search at the beginning
+      const updated = [searchItem, ...filtered].slice(0, MAX_RECENT_SEARCHES);
+      // Save to localStorage
+      safeLocalStorage.setItem("recentSearches", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
-            {/* Floating Blobs */}
-            <div className="absolute top-20 left-10 w-64 h-64 bg-white/20 rounded-full blur-3xl animate-float" />
-            <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-300/20 rounded-full blur-3xl animate-float-delayed" />
-            <div className="absolute top-40 right-20 w-48 h-48 bg-cyan-300/20 rounded-full blur-3xl animate-pulse-slow" />
+  // Remove a recent search
+  const removeRecentSearch = useCallback((queryToRemove, e) => {
+    e.stopPropagation();
+    setRecentSearches((prev) => {
+      const updated = prev.filter((item) => item.query !== queryToRemove);
+      safeLocalStorage.setItem("recentSearches", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
-            {/* Decorative House Illustration */}
-            <div className="absolute top-10 right-0 md:right-10 w-48 h-48 md:w-80 md:h-80 opacity-30 md:opacity-60 pointer-events-none animate-float-delayed">
-                <svg viewBox="0 0 200 200" fill="none" className="w-full h-full">
-                    <circle cx="100" cy="100" r="90" fill="white" opacity="0.2" />
-                    <path d="M60 160V100L100 60L140 100V160H60Z" fill="#FCD34D" stroke="#F59E0B" strokeWidth="4" strokeLinejoin="round" />
-                    <path d="M50 100L100 50L150 100" fill="#F87171" stroke="#DC2626" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M90 160V120H110V160" fill="#93C5FD" stroke="#3B82F6" strokeWidth="4" />
-                    <circle cx="100" cy="90" r="10" fill="#E0F2FE" stroke="#60A5FA" strokeWidth="3" />
-                    <path d="M170 160 Q 170 120 185 105" stroke="#78350f" strokeWidth="3" fill="none" />
-                    <path d="M185 105 L 175 95 M 185 105 L 195 95 M 185 105 L 185 90 M 185 105 L 172 110 M 185 105 L 198 110" stroke="#16a34a" strokeWidth="2.5" />
-                    <path d="M30 160 Q 30 130 15 115" stroke="#78350f" strokeWidth="3" fill="none" />
-                    <path d="M15 115 L 5 105 M 15 115 L 25 105 M 15 115 L 15 100 M 15 115 L 2 120 M 15 115 L 28 120" stroke="#16a34a" strokeWidth="2.5" />
-                </svg>
-            </div>
+  // Clear all recent searches
+  const clearAllRecent = useCallback(() => {
+    setRecentSearches([]);
+    safeLocalStorage.setItem("recentSearches", JSON.stringify([]));
+  }, []);
 
-            <div className="relative z-10 w-full max-w-5xl mx-auto px-4 text-center">
-                <div className="animate-fade-in">
-                    {/* Sinhala Greeting */}
-                    <p className="font-sinhala text-2xl text-white/90 mb-3 font-bold drop-shadow-md">
-                        ආයුබෝවන්! (Ayubowan!)
-                    </p>
+  const handleSearch = () => {
+    const activeType = tabs.find((t) => t.id === activeTab)?.type || "sale";
+    const params = new URLSearchParams();
+    params.set("type", activeType);
+    if (searchQuery) {
+      params.set("q", searchQuery);
+      saveRecentSearch(searchQuery, activeType);
+    }
+    setShowRecent(false);
+    router.push(`/properties?${params.toString()}`);
+  };
 
-                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
-                        Find Your{' '}
-                        <span className="text-yellow-300 animate-wiggle inline-block">
-                            Dream Land
-                        </span>
-                    </h1>
-                    <p className="text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto font-medium">
-                        Sri Lanka&apos;s friendliest real estate marketplace.
-                        <br className="hidden md:block" />
-                        <span className="flex items-center justify-center gap-2 mt-2">
-                            <Sparkles className="w-5 h-5 text-yellow-300" />
-                            Powered by AI, Verified by Agents
-                            <Sparkles className="w-5 h-5 text-yellow-300" />
-                        </span>
-                    </p>
-                </div>
+  const handleRecentClick = (item) => {
+    setSearchQuery(item.query);
+    setShowRecent(false);
+    const params = new URLSearchParams();
+    params.set("type", item.type);
+    params.set("q", item.query);
+    router.push(`/properties?${params.toString()}`);
+  };
 
-                {/* Search Box */}
-                <div className="search-box-hero max-w-4xl mx-auto animate-fade-in">
-                    {/* Tab Pills */}
-                    <div className="flex gap-2 mb-3 p-1">
-                        {tabs.map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === tab.id
-                                    ? 'bg-slate-900 text-white shadow-md'
-                                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                                    }`}
-                            >
-                                <tab.icon className="w-4 h-4" />
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
+  const handleTrendingClick = (location) => {
+    saveRecentSearch(
+      location,
+      tabs.find((t) => t.id === activeTab)?.type || "sale",
+    );
+    router.push(`/properties?q=${encodeURIComponent(location)}`);
+  };
 
-                    {/* Search Input */}
-                    <div className="flex flex-col md:flex-row gap-4 p-2">
-                        <div className="search-input-wrapper flex-grow">
-                            <MapPin className="text-[#34d399] w-5 h-5 mr-2" strokeWidth={2.5} />
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                placeholder="City, Province, or Postal Code..."
-                                className="w-full py-3 bg-transparent outline-none text-slate-700 placeholder-slate-400 font-bold"
-                            />
+  return (
+    <div className="relative flex min-h-[600px] items-center justify-center overflow-hidden pt-24 pb-20">
+      {/* Animated Gradient Background */}
+      <div className="live-gradient absolute inset-0" />
+
+      {/* Floating Blobs */}
+      <div className="animate-float absolute top-20 left-10 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
+      <div className="animate-float-delayed absolute right-10 bottom-20 h-80 w-80 rounded-full bg-purple-300/20 blur-3xl" />
+      <div className="animate-pulse-slow absolute top-40 right-20 h-48 w-48 rounded-full bg-cyan-300/20 blur-3xl" />
+
+      {/* Decorative House Illustration */}
+      <div className="animate-float-delayed pointer-events-none absolute top-10 right-0 h-48 w-48 opacity-30 md:right-10 md:h-80 md:w-80 md:opacity-60">
+        <svg viewBox="0 0 200 200" fill="none" className="h-full w-full">
+          <circle cx="100" cy="100" r="90" fill="white" opacity="0.2" />
+          <path
+            d="M60 160V100L100 60L140 100V160H60Z"
+            fill="#FCD34D"
+            stroke="#F59E0B"
+            strokeWidth="4"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M50 100L100 50L150 100"
+            fill="#F87171"
+            stroke="#DC2626"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M90 160V120H110V160"
+            fill="#93C5FD"
+            stroke="#3B82F6"
+            strokeWidth="4"
+          />
+          <circle
+            cx="100"
+            cy="90"
+            r="10"
+            fill="#E0F2FE"
+            stroke="#60A5FA"
+            strokeWidth="3"
+          />
+          <path
+            d="M170 160 Q 170 120 185 105"
+            stroke="#78350f"
+            strokeWidth="3"
+            fill="none"
+          />
+          <path
+            d="M185 105 L 175 95 M 185 105 L 195 95 M 185 105 L 185 90 M 185 105 L 172 110 M 185 105 L 198 110"
+            stroke="#16a34a"
+            strokeWidth="2.5"
+          />
+          <path
+            d="M30 160 Q 30 130 15 115"
+            stroke="#78350f"
+            strokeWidth="3"
+            fill="none"
+          />
+          <path
+            d="M15 115 L 5 105 M 15 115 L 25 105 M 15 115 L 15 100 M 15 115 L 2 120 M 15 115 L 28 120"
+            stroke="#16a34a"
+            strokeWidth="2.5"
+          />
+        </svg>
+      </div>
+
+      <div className="relative z-10 mx-auto w-full max-w-5xl px-4 text-center">
+        <div className="animate-fade-in">
+          {/* Sinhala Greeting */}
+          <p className="font-sinhala mb-3 text-2xl font-bold text-white/90 drop-shadow-md">
+            ආයුබෝවන්! (Ayubowan!)
+          </p>
+
+          <h1 className="mb-6 text-4xl leading-tight font-bold text-white drop-shadow-lg md:text-6xl">
+            Find Your{" "}
+            <span className="animate-wiggle inline-block text-yellow-300">
+              Dream Land
+            </span>
+          </h1>
+          <p className="mx-auto mb-10 max-w-2xl text-lg font-medium text-white/90 md:text-xl">
+            Sri Lanka&apos;s friendliest real estate marketplace.
+            <br className="hidden md:block" />
+            <span className="mt-2 flex items-center justify-center gap-2">
+              <Sparkles className="h-5 w-5 text-yellow-300" />
+              Powered by AI, Verified by Agents
+              <Sparkles className="h-5 w-5 text-yellow-300" />
+            </span>
+          </p>
+        </div>
+
+        {/* Search Box */}
+        <div className="search-box-hero animate-fade-in mx-auto max-w-4xl">
+          {/* Tab Pills */}
+          <div className="mb-3 flex gap-2 p-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all ${
+                  activeTab === tab.id
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Search Input */}
+          <div className="flex flex-col gap-4 p-2 md:flex-row">
+            <div className="search-input-wrapper relative flex-grow">
+              <MapPin
+                className="mr-2 h-5 w-5 text-[#34d399]"
+                strokeWidth={2.5}
+              />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                onFocus={() =>
+                  mounted && recentSearches.length > 0 && setShowRecent(true)
+                }
+                placeholder="City, Province, or Postal Code..."
+                className="w-full bg-transparent py-3 font-bold text-slate-700 placeholder-slate-400 outline-none"
+                aria-label="Search properties"
+                aria-haspopup="listbox"
+                aria-expanded={showRecent}
+              />
+
+              {/* Recent Searches Dropdown */}
+              {showRecent && recentSearches.length > 0 && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-xl"
+                  role="listbox"
+                  aria-label="Recent searches"
+                >
+                  <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2">
+                    <span className="flex items-center gap-1 text-xs font-bold text-slate-500">
+                      <Clock className="h-3 w-3" />
+                      Recent Searches
+                    </span>
+                    <button
+                      onClick={clearAllRecent}
+                      className="text-xs font-semibold text-slate-400 transition-colors hover:text-red-500"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  <ul className="py-1">
+                    {recentSearches.map((item, idx) => (
+                      <li
+                        key={`${item.query}-${idx}`}
+                        role="option"
+                        className="group flex cursor-pointer items-center justify-between px-4 py-2.5 hover:bg-slate-50"
+                        onClick={() => handleRecentClick(item)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Search className="h-4 w-4 text-slate-400" />
+                          <span className="font-medium text-slate-700">
+                            {item.query}
+                          </span>
+                          <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-400">
+                            {item.type}
+                          </span>
                         </div>
                         <button
-                            onClick={handleSearch}
-                            className="btn-primary px-10 py-4 flex items-center justify-center gap-2 text-base"
+                          onClick={(e) => removeRecentSearch(item.query, e)}
+                          className="p-1 text-slate-400 opacity-0 transition-all group-hover:opacity-100 hover:text-red-500"
+                          aria-label={`Remove ${item.query} from recent searches`}
                         >
-                            <Search className="w-5 h-5" />
-                            Search
+                          <X className="h-4 w-4" />
                         </button>
-                    </div>
-
-                    {/* Trending Searches */}
-                    <div className="flex flex-wrap gap-3 p-3 text-xs border-t border-slate-100 mt-2">
-                        <span className="font-bold text-slate-900">Trending:</span>
-                        {['Colombo 7', 'Kandy Lands', 'Galle Fort', 'Negombo'].map(loc => (
-                            <button
-                                key={loc}
-                                onClick={() => handleTrendingClick(loc)}
-                                className="text-slate-500 hover:text-[#10b981] font-bold transition-colors"
-                            >
-                                {loc}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-4xl mx-auto animate-fade-in">
-                    {[
-                        { label: 'Properties', value: '15,000+' },
-                        { label: 'Trusted Agents', value: '1,200+' },
-                        { label: 'Daily Visits', value: '50k+' },
-                        { label: 'Districts', value: '25' },
-                    ].map((stat, idx) => (
-                        <div key={idx} className="glass-panel rounded-2xl p-4 text-center animate-jelly">
-                            <div className="text-2xl md:text-3xl font-bold text-white mb-1">{stat.value}</div>
-                            <div className="text-white/70 text-sm font-medium">{stat.label}</div>
-                        </div>
+                      </li>
                     ))}
+                  </ul>
                 </div>
+              )}
             </div>
+            <button
+              onClick={handleSearch}
+              className="btn-primary flex items-center justify-center gap-2 px-10 py-4 text-base"
+            >
+              <Search className="h-5 w-5" />
+              Search
+            </button>
+          </div>
+
+          {/* Trending Searches */}
+          <div className="mt-2 flex flex-wrap gap-3 border-t border-slate-100 p-3 text-xs">
+            <span className="font-bold text-slate-900">Trending:</span>
+            {["Colombo 7", "Kandy Lands", "Galle Fort", "Negombo"].map(
+              (loc) => (
+                <button
+                  key={loc}
+                  onClick={() => handleTrendingClick(loc)}
+                  className="font-bold text-slate-500 transition-colors hover:text-[#10b981]"
+                >
+                  {loc}
+                </button>
+              ),
+            )}
+          </div>
         </div>
-    );
+
+        {/* Stats */}
+        <div className="animate-fade-in mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-6 md:grid-cols-4">
+          {[
+            { label: "Properties", value: "15,000+" },
+            { label: "Trusted Agents", value: "1,200+" },
+            { label: "Daily Visits", value: "50k+" },
+            { label: "Districts", value: "25" },
+          ].map((stat, idx) => (
+            <div
+              key={idx}
+              className="glass-panel animate-jelly rounded-2xl p-4 text-center"
+            >
+              <div className="mb-1 text-2xl font-bold text-white md:text-3xl">
+                {stat.value}
+              </div>
+              <div className="text-sm font-medium text-white/70">
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }

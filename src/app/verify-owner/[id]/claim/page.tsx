@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
-import { account } from '@/lib/appwrite';
+import { account } from '@/appwrite';
 import { toast } from 'sonner';
 import { claimListing } from '@/app/actions/owner-verification';
 import { Loader2 } from 'lucide-react';

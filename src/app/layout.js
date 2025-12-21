@@ -45,6 +45,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${outfit.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
         {/* Google Fonts for Sinhala */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;700&display=swap"
           rel="stylesheet"

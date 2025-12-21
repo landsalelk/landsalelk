@@ -1,6 +1,5 @@
-import { databases, account, storage } from "./appwrite";
-import { ID, Query, Permission, Role } from "appwrite";
-import { DB_ID, COLLECTION_AGENTS } from "./constants";
+import { databases, account, storage, ID, Query, Permission, Role } from "@/appwrite";
+import { DB_ID, COLLECTION_AGENTS } from "@/appwrite/config";
 
 // ============================================================================
 // COMPLETE AGENT TRAINING ACADEMY
@@ -1294,7 +1293,7 @@ export function recordQuizAttempt(moduleId, score, timeSpent) {
  */
 export function completeModule(moduleId, score, timeSpent) {
     const progress = getTrainingProgress();
-    const module = TRAINING_MODULES.find(m => m.id === moduleId);
+    const trainingModule = TRAINING_MODULES.find(m => m.id === moduleId);
 
     if (!progress.completedModules.includes(moduleId)) {
         progress.completedModules.push(moduleId);
@@ -1317,7 +1316,7 @@ export function completeModule(moduleId, score, timeSpent) {
     }
 
     // Quick learner (under 2 minutes for timed quiz)
-    if (module?.timedQuiz && timeSpent < 120 && !progress.badges.includes('quick_learner')) {
+    if (trainingModule?.timedQuiz && timeSpent < 120 && !progress.badges.includes('quick_learner')) {
         progress.badges.push('quick_learner');
         newBadges.push(BADGES.QUICK_LEARNER);
     }
@@ -1329,7 +1328,7 @@ export function completeModule(moduleId, score, timeSpent) {
     }
 
     // Ethics champion (100% on ethics module)
-    if (module?.id === 'module-6' && score === 100 && !progress.badges.includes('ethics_champion')) {
+    if (trainingModule?.id === 'module-6' && score === 100 && !progress.badges.includes('ethics_champion')) {
         progress.badges.push('ethics_champion');
         newBadges.push(BADGES.ETHICS_CHAMPION);
     }
@@ -1491,9 +1490,9 @@ export function isModuleUnlocked(moduleIndex) {
  */
 export function getNextModule() {
     const progress = getTrainingProgress();
-    for (const module of TRAINING_MODULES) {
-        if (!progress.completedModules.includes(module.id)) {
-            return module;
+    for (const trainingModule of TRAINING_MODULES) {
+        if (!progress.completedModules.includes(trainingModule.id)) {
+            return trainingModule;
         }
     }
     return null;

@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { account, databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
+import { account, databases } from '@/appwrite';
+import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
 import { Query } from 'appwrite';
 import {
     DOCUMENT_CATEGORIES,

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { account } from '@/lib/appwrite';
+import { account } from '@/appwrite';
 import {
     TRAINING_MODULES,
     BADGES,

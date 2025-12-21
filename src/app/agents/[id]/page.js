@@ -3,11 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_AGENTS, COLLECTION_LISTINGS } from '@/lib/constants';
-import { ID } from 'appwrite';
+import { databases, ID, account } from '@/appwrite';
+import { DB_ID, COLLECTION_AGENTS, COLLECTION_LISTINGS } from '@/appwrite/config';
 import { toast } from 'sonner';
-import { account } from '@/lib/appwrite';
 import { DigitalAgentID, AgentQRBadge } from '@/components/agent/DigitalAgentID';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import {

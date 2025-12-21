@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { account, databases, storage } from '@/lib/appwrite';
+import { account, databases, storage } from '@/appwrite';
 import { ID } from 'appwrite';
 import { toast } from 'sonner';
 import {
     User, Upload, ShieldCheck, MapPin, Briefcase,
     CheckCircle, Camera, Loader2, ChevronRight, ChevronLeft
 } from 'lucide-react';
-import { DB_ID, COLLECTION_AGENTS, BUCKET_KYC } from '@/lib/constants';
+import { DB_ID, COLLECTION_AGENTS, BUCKET_KYC } from '@/appwrite/config';
 
 export default function AgentRegistrationPage() {
     const router = useRouter();
@@ -51,6 +51,11 @@ export default function AgentRegistrationPage() {
             }
 
             // 2. Create Agent Profile
+            // Convert service_areas from comma-separated string to array
+            const serviceAreasArray = formData.service_areas
+                ? formData.service_areas.split(',').map(s => s.trim()).filter(s => s)
+                : [];
+
             await databases.createDocument(
                 DB_ID,
                 COLLECTION_AGENTS,
@@ -59,14 +64,21 @@ export default function AgentRegistrationPage() {
                     user_id: user.$id,
                     name: formData.full_name,
                     phone: formData.phone,
+                    email: user.email || '',
                     experience_years: parseInt(formData.experience_years) || 0,
-                    service_areas: formData.service_areas,
+                    service_areas: serviceAreasArray,
                     license_number: formData.license_number,
                     bio: formData.bio,
                     nic_doc_id: nicUrl,
                     is_verified: false, // Pending admin review
+                    status: 'pending',
                     rating: 0,
-                    review_count: 0
+                    review_count: 0,
+                    deals_count: 0,
+                    points: 0,
+                    listings_uploaded: 0,
+                    total_earnings: 0,
+                    created_at: new Date().toISOString()
                 }
             );
 

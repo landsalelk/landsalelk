@@ -1,4 +1,4 @@
-import { databases } from "@/lib/appwrite";
+import { databases } from "@/appwrite";
 
 /**
  * Creates all required collections and indexes for the Landsale property platform.

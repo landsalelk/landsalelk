@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -14,11 +14,7 @@ export default function BlogPostPage({ params }) {
     const [relatedPosts, setRelatedPosts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadPost();
-    }, [slug]);
-
-    const loadPost = async () => {
+    const loadPost = useCallback(async () => {
         setLoading(true);
         const result = await getBlogPostBySlug(slug);
         if (!result) {
@@ -31,7 +27,11 @@ export default function BlogPostPage({ params }) {
         const related = await getBlogPosts(3);
         setRelatedPosts(related.posts.filter(p => p.$id !== result.$id).slice(0, 2));
         setLoading(false);
-    };
+    }, [slug, router]);
+
+    useEffect(() => {
+        loadPost();
+    }, [loadPost]);
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { databases } from '@/lib/appwrite';
-import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
+import { useState, useEffect, useCallback } from 'react';
+import { databases } from '@/appwrite';
+import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
 import { Query, ID } from 'appwrite';
 import { toast } from 'sonner';
 import {
@@ -25,11 +25,7 @@ export function OpenHouseScheduler({ userId }) {
         notes: ''
     });
 
-    useEffect(() => {
-        if (userId) fetchData();
-    }, [userId]);
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
             const [listingsRes, openHousesRes] = await Promise.all([
                 databases.listDocuments(
@@ -52,7 +48,11 @@ export function OpenHouseScheduler({ userId }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [userId]);
+
+    useEffect(() => {
+        if (userId) fetchData();
+    }, [userId, fetchData]);
 
     const handleCreateEvent = async (e) => {
         e.preventDefault();

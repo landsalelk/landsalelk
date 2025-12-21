@@ -1,6 +1,5 @@
-import { client, databases, account } from "./appwrite";
-import { ID, Query } from "appwrite";
-import { DB_ID, COLLECTION_MESSAGES } from "./constants";
+import { client, databases, account, ID, Query } from "@/appwrite";
+import { DB_ID, COLLECTION_MESSAGES } from "@/appwrite/config";
 
 /**
  * Send a message
