@@ -1,40 +1,49 @@
-'use client';
+'use client'
 
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import Link from 'next/link';
+import { useEffect } from 'react';
+import { logErrorToGitHub } from '@/actions/log-issue';
 
-export default function GlobalError({ error, reset }) {
-    return (
-        <html>
-            <body className="bg-slate-50">
-                <div className="min-h-screen flex items-center justify-center p-4">
-                    <div className="text-center max-w-md">
-                        <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <AlertTriangle className="w-12 h-12 text-red-500" />
-                        </div>
-                        <h1 className="text-3xl font-bold text-slate-800 mb-2">Something went wrong!</h1>
-                        <p className="text-slate-500 mb-8">
-                            We encountered an unexpected error. Our team has been notified.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                            <button
-                                onClick={() => reset()}
-                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-700 transition-colors"
-                            >
-                                <RefreshCw className="w-5 h-5" />
-                                Try Again
-                            </button>
-                            <Link
-                                href="/"
-                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors"
-                            >
-                                <Home className="w-5 h-5" />
-                                Go Home
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </body>
-        </html>
-    );
+export default function GlobalError({
+  error,
+  reset,
+}) {
+  
+  useEffect(() => {
+    // Attempt to log the error to GitHub automatically
+    const logIssue = async () => {
+      await logErrorToGitHub(
+        error.message,
+        error.stack || 'No stack trace available',
+        window.location.pathname
+      );
+    };
+    
+    if (error) {
+        logIssue();
+    }
+  }, [error]);
+
+  return (
+    <html>
+      <body>
+        <div style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
+          <h2>Something went wrong!</h2>
+          <p>Our team has been notified via GitHub Issues.</p>
+          <button
+            onClick={() => reset()}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#0070f3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            Try again
+          </button>
+        </div>
+      </body>
+    </html>
+  )
 }
