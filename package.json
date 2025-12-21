@@ -39,13 +39,8 @@
     "@playwright/test": "^1.57.0",
     "@types/node": "25.0.3",
     "@types/react": "19.2.7",
-<<<<<<< HEAD
-    "eslint": "8.57.1",
-    "eslint-config-next": "15.4.8",
-=======
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.5.9",
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
     "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14"
   },
