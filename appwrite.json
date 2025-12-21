@@ -178,7 +178,6 @@
             "entrypoint": "src/main.js",
             "commands": "npm install",
             "specification": "s-0.5vcpu-512mb",
-<<<<<<< HEAD
             "path": "functions/expire-listings"
         },
         {
@@ -198,31 +197,6 @@
             "path": "functions/send-sms"
         }
     ],
-    "sites": [
-        {
-            "$id": "6941d9280032a28b0536",
-            "name": "landsalelk-updated",
-=======
-            "path": "functions/send-notification"
-        },
-        {
-            "$id": "update-listing-status",
-            "execute": [],
-            "name": "Update Listing Status",
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
-            "enabled": true,
-            "logging": true,
-            "runtime": "node-20.0",
-            "scopes": [],
-            "events": [],
-            "schedule": "",
-            "timeout": 15,
-            "entrypoint": "src/main.js",
-            "commands": "npm install",
-            "specification": "s-0.5vcpu-512mb",
-            "path": "functions/update-listing-status"
-        }
-    ],
     "databases": [
         {
             "$id": "landsalelkdb",
@@ -237,7 +211,6 @@
             "name": "users",
             "databaseId": "landsalelkdb",
             "enabled": true,
-<<<<<<< HEAD
             "rowSecurity": false,
             "columns": [
                 {
@@ -741,10 +714,6 @@
             "enabled": true,
             "rowSecurity": false,
             "columns": [
-=======
-            "documentSecurity": true,
-            "attributes": [
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
                 {
                     "key": "name",
                     "type": "string",
@@ -774,13 +743,12 @@
                 },
                 {
                     "key": "role",
-                    "type": "enum",
+                    "type": "string",
                     "status": "available",
-<<<<<<< HEAD
-                    "columns": [
-                        "user_id"
-                    ],
-                    "orders": []
+                    "required": false,
+                    "array": false,
+                    "size": 50,
+                    "default": null
                 }
             ]
         },
@@ -2717,8 +2685,6 @@
                 {
                     "key": "type",
                     "type": "string",
-=======
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
                     "required": true,
                     "array": false,
                     "elements": [
@@ -2754,7 +2720,6 @@
                     "default": null
                 }
             ],
-<<<<<<< HEAD
             "indexes": [
                 {
                     "key": "by_user",
@@ -3669,8 +3634,6 @@
                     "default": true
                 }
             ],
-=======
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
             "indexes": []
         },
         {
@@ -3941,7 +3904,6 @@
                     "array": false,
                     "default": null
                 }
-<<<<<<< HEAD
             ]
         },
         {
@@ -4325,10 +4287,6 @@
                     "orders": []
                 }
             ]
-=======
-            ],
-            "indexes": []
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
         }
     ],
     "sites": [

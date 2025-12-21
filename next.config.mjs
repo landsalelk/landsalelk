@@ -18,8 +18,6 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'sgp.cloud.appwrite.io',
             },
-<<<<<<< HEAD
-=======
             {
                 protocol: 'http',
                 hostname: 'localhost',
@@ -28,7 +26,6 @@ const nextConfig = {
                 protocol: 'http',
                 hostname: '127.0.0.1',
             },
->>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
         ],
     },
     eslint: {
