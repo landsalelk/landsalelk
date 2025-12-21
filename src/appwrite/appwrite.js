@@ -20,12 +20,18 @@ import {
  */
 
 // Environment variables
-const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
+let endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
 // Fallback values for build time only - these should be overridden by env vars in production
+// Enforce Singapore Region Endpoint for this project
 const FALLBACK_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
 const FALLBACK_PROJECT_ID = "landsalelkproject";
+
+// Override global endpoint to sgp if it's the generic one (or missing)
+if (!endpoint || endpoint === 'https://cloud.appwrite.io/v1') {
+    endpoint = FALLBACK_ENDPOINT;
+}
 
 // Determine if we're in a browser or server environment
 const isBrowser = typeof window !== "undefined";
@@ -33,7 +39,7 @@ const isDev = process.env.NODE_ENV === "development";
 
 // Log warnings in development if env vars are missing (browser only to avoid SSR spam)
 if (isBrowser && isDev) {
-  if (!endpoint) {
+  if (!process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT) {
     console.warn(
       "[Appwrite] NEXT_PUBLIC_APPWRITE_ENDPOINT is not set. Using fallback.",
     );
@@ -47,7 +53,7 @@ if (isBrowser && isDev) {
 
 // Create client with environment variables or fallbacks
 const client = new Client()
-  .setEndpoint(endpoint || FALLBACK_ENDPOINT)
+  .setEndpoint(endpoint)
   .setProject(projectId || FALLBACK_PROJECT_ID);
 
 // Initialize Appwrite services
