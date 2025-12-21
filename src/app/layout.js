@@ -1,4 +1,4 @@
-import { Outfit, Inter } from "next/font/google";
+import { Outfit, Inter, Abhaya_Libre } from "next/font/google";
 import "./app.css";
 import { Navbar } from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -16,6 +16,13 @@ const outfit = Outfit({
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: 'swap',
+});
+
+const abhayaLibre = Abhaya_Libre({
+  weight: ['400', '700'],
+  subsets: ['sinhala', 'latin'],
+  variable: '--font-abhaya-libre',
   display: 'swap',
 });
 
@@ -42,14 +49,17 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${outfit.variable} ${inter.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${outfit.variable} ${inter.variable} ${abhayaLibre.variable}`} suppressHydrationWarning>
       <head>
+<<<<<<< HEAD
         {/* Google Fonts for Sinhala */}
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@400;700&display=swap"
           rel="stylesheet"
         />
+=======
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
       </head>
       <body className={`${outfit.className} bg-[#f0f9ff] min-h-screen`}>
         <ComparisonProvider>

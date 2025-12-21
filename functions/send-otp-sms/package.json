@@ -5,7 +5,13 @@
     "main": "src/main.js",
     "type": "module",
     "dependencies": {
+<<<<<<< HEAD
         "node-appwrite": "^11.0.0"
     },
     "devDependencies": {}
 }
+=======
+        "node-appwrite": "^21.0.0"
+    }
+}
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d

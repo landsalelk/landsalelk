@@ -1,8 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+<<<<<<< HEAD
 import { databases } from '@/appwrite';
 import { DB_ID, COLLECTION_AUDIT_LOGS } from '@/appwrite/config';
+=======
+import { databases } from '@/lib/appwrite';
+import { DB_ID, COLLECTION_AUDIT_LOGS } from '@/lib/constants';
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 import { Query } from 'appwrite';
 import { toast } from 'sonner';
 import {
@@ -49,7 +54,11 @@ export function AuditLogs() {
         } finally {
             setLoading(false);
         }
+<<<<<<< HEAD
     }, [offset]);
+=======
+    }, [offset, searchQuery]);
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
     useEffect(() => {
         fetchLogs();

@@ -49,15 +49,24 @@ export async function getConversation(otherUserId) {
     const user = await account.get();
     const conversationId = [user.$id, otherUserId].sort().join('_');
 
-    const result = await databases.listDocuments(
-        DB_ID,
-        COLLECTION_MESSAGES,
-        [
-            Query.equal('conversation_id', conversationId),
-            Query.orderAsc('$createdAt'), // Oldest first for chat log
-            Query.limit(100)
-        ]
-    );
+    try {
+        const result = await databases.listDocuments(
+            DB_ID,
+            COLLECTION_MESSAGES,
+            [
+                Query.equal('conversation_id', conversationId),
+                Query.orderAsc('$createdAt'), // Oldest first for chat log
+                Query.limit(100)
+            ]
+        );
 
-    return result.documents;
+        return result.documents;
+    } catch (error) {
+        console.error('Error fetching conversation:', error);
+        // Handle missing index error
+        if (error.message && error.message.includes('index')) {
+            console.log('Please create an index on "conversation_id" attribute in the "messages" collection in Appwrite Console');
+        }
+        return [];
+    }
 }

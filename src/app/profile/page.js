@@ -58,7 +58,12 @@ export default function ProfilePage() {
 
             } catch (error) {
                 console.error(error);
-                router.push('/auth/login'); // Redirect if not logged in
+                // Only redirect to login if it's an authentication error
+                if (error.code === 401 || error.type === 'general_unauthorized_scope' || error.message?.includes('Unauthorized')) {
+                    router.push('/auth/login');
+                } else {
+                    toast.error('Failed to load profile data. Please refresh the page.');
+                }
             } finally {
                 setLoading(false);
             }

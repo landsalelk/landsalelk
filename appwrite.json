@@ -46,7 +46,7 @@
             "name": "generate-pdf",
             "enabled": true,
             "logging": true,
-            "runtime": "node-18.0",
+            "runtime": "node-20.0",
             "scopes": [],
             "events": [],
             "schedule": "",
@@ -62,7 +62,7 @@
             "name": "Send OTP SMS",
             "enabled": true,
             "logging": true,
-            "runtime": "node-18.0",
+            "runtime": "node-20.0",
             "scopes": [],
             "events": [
                 "databases.landsalelkdb.collections.listings.documents.create"
@@ -82,7 +82,7 @@
             "name": "Verify OTP",
             "enabled": true,
             "logging": true,
-            "runtime": "node-18.0",
+            "runtime": "node-20.0",
             "scopes": [],
             "events": [],
             "schedule": "",
@@ -100,7 +100,7 @@
             "name": "Send Email",
             "enabled": true,
             "logging": true,
-            "runtime": "node-18.0",
+            "runtime": "node-20.0",
             "scopes": [],
             "events": [],
             "schedule": "",
@@ -111,71 +111,74 @@
             "path": "functions/send-email"
         },
         {
-            "$id": "check-subscription-expiry",
-            "execute": [],
-            "name": "Check Subscription Expiry",
-            "enabled": true,
-            "logging": true,
-            "runtime": "node-18.0",
-            "scopes": [],
-            "events": [],
-            "schedule": "0 6 * * *",
-            "timeout": 60,
-            "entrypoint": "src/main.js",
-            "commands": "npm install",
-            "specification": "s-0.5vcpu-512mb",
-            "path": "functions/check-subscription-expiry"
-        },
-        {
-            "$id": "generate-agent-id",
+            "$id": "create-checkout-session",
             "execute": [
                 "users"
             ],
-            "name": "Generate Agent ID",
+            "name": "Create Checkout Session",
             "enabled": true,
             "logging": true,
-            "runtime": "node-18.0",
+            "runtime": "node-20.0",
             "scopes": [],
             "events": [],
             "schedule": "",
-            "timeout": 30,
+            "timeout": 15,
             "entrypoint": "src/main.js",
             "commands": "npm install",
             "specification": "s-0.5vcpu-512mb",
-            "path": "functions/generate-agent-id"
+            "path": "functions/create-checkout-session"
         },
         {
-            "$id": "generate-certificate",
+            "$id": "webhook-handler",
+            "execute": [],
+            "name": "Webhook Handler",
+            "enabled": true,
+            "logging": true,
+            "runtime": "node-20.0",
+            "scopes": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "specification": "s-0.5vcpu-512mb",
+            "path": "functions/webhook-handler"
+        },
+        {
+            "$id": "process-payment",
             "execute": [
                 "users"
             ],
-            "name": "Generate Certificate",
+            "name": "Process Payment",
             "enabled": true,
             "logging": true,
-            "runtime": "node-18.0",
+            "runtime": "node-20.0",
             "scopes": [],
             "events": [],
             "schedule": "",
-            "timeout": 30,
+            "timeout": 15,
             "entrypoint": "src/main.js",
             "commands": "npm install",
             "specification": "s-0.5vcpu-512mb",
-            "path": "functions/generate-certificate"
+            "path": "functions/process-payment"
         },
         {
-            "$id": "expire-listings",
-            "execute": [],
-            "name": "Expire Listings",
+            "$id": "send-notification",
+            "execute": [
+                "users"
+            ],
+            "name": "Send Notification",
             "enabled": true,
             "logging": true,
-            "runtime": "node-18.0",
+            "runtime": "node-20.0",
             "scopes": [],
             "events": [],
-            "schedule": "0 1 * * *",
-            "timeout": 60,
+            "schedule": "",
+            "timeout": 15,
             "entrypoint": "src/main.js",
             "commands": "npm install",
             "specification": "s-0.5vcpu-512mb",
+<<<<<<< HEAD
             "path": "functions/expire-listings"
         },
         {
@@ -199,39 +202,42 @@
         {
             "$id": "6941d9280032a28b0536",
             "name": "landsalelk-updated",
+=======
+            "path": "functions/send-notification"
+        },
+        {
+            "$id": "update-listing-status",
+            "execute": [],
+            "name": "Update Listing Status",
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
             "enabled": true,
             "logging": true,
-            "framework": "nextjs",
-            "timeout": 30,
-            "installCommand": "npm install",
-            "buildCommand": "npm run build",
-            "outputDirectory": "./.next",
+            "runtime": "node-20.0",
+            "scopes": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
             "specification": "s-0.5vcpu-512mb",
-            "buildRuntime": "node-22",
-            "adapter": "ssr",
-            "fallbackFile": "",
-            "path": "."
+            "path": "functions/update-listing-status"
         }
     ],
-    "tablesDB": [
+    "databases": [
         {
             "$id": "landsalelkdb",
-            "name": "landsalelk databse",
-            "enabled": true
+            "name": "landsalelk database",
+            "enabled": true,
+            "documentSecurity": true
         }
     ],
-    "tables": [
+    "collections": [
         {
-            "$id": "subscribers",
-            "$permissions": [
-                "read(\"team:admins\")",
-                "create(\"any\")",
-                "update(\"team:admins\")",
-                "delete(\"team:admins\")"
-            ],
+            "$id": "users",
+            "name": "users",
             "databaseId": "landsalelkdb",
-            "name": "Subscribers",
             "enabled": true,
+<<<<<<< HEAD
             "rowSecurity": false,
             "columns": [
                 {
@@ -735,317 +741,42 @@
             "enabled": true,
             "rowSecurity": false,
             "columns": [
+=======
+            "documentSecurity": true,
+            "attributes": [
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
                 {
                     "key": "name",
                     "type": "string",
+                    "status": "available",
                     "required": true,
                     "array": false,
-                    "size": 200,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "description",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 5000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "icon",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 200,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "color",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 200,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "parent_id",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "size": 255,
                     "default": null
                 },
                 {
-                    "key": "sort_order",
-                    "type": "integer",
+                    "key": "email",
+                    "type": "email",
+                    "status": "available",
                     "required": true,
                     "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
+                    "format": "email",
                     "default": null
-                },
-                {
-                    "key": "is_active",
-                    "type": "boolean",
-                    "required": true,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "slug",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "parent_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "parent_id"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "slug_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "slug"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "is_active_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "is_active"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "users_extended",
-            "$permissions": [
-                "read(\"users\")",
-                "create(\"users\")",
-                "update(\"users\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Users Extended",
-            "enabled": true,
-            "rowSecurity": false,
-            "columns": [
-                {
-                    "key": "user_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "first_name",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "last_name",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
                 },
                 {
                     "key": "phone",
                     "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 20,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "avatar",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "country_id",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "region_id",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "city_id",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "area_id",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "address",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 500,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "postal_code",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 10,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "company_name",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "company_phone",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 20,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "company_website",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "bio",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 1000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "date_of_birth",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                },
-                {
-                    "key": "gender",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 10,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "language",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "timezone",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "is_verified",
-                    "type": "boolean",
-                    "required": true,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "is_premium",
-                    "type": "boolean",
-                    "required": true,
-                    "array": false,
-                    "default": null
-                },
-                {
-                    "key": "premium_expires_at",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "user_id_idx",
-                    "type": "key",
                     "status": "available",
+                    "required": true,
+                    "array": false,
+                    "size": 20,
+                    "default": null
+                },
+                {
+                    "key": "role",
+                    "type": "enum",
+                    "status": "available",
+<<<<<<< HEAD
                     "columns": [
                         "user_id"
                     ],
@@ -2986,801 +2717,44 @@
                 {
                     "key": "type",
                     "type": "string",
+=======
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
                     "required": true,
                     "array": false,
                     "elements": [
-                        "inquiry",
-                        "favorite",
-                        "price_drop",
-                        "new_listing",
-                        "message",
-                        "review",
-                        "system",
-                        "saved_search"
+                        "buyer",
+                        "seller",
+                        "admin"
                     ],
-                    "format": "enum",
-                    "default": null
+                    "default": "buyer",
+                    "format": "enum"
                 },
                 {
-                    "key": "title",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 200,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "message",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 1000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "link",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "metadata",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 2000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "is_read",
+                    "key": "isVerified",
                     "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": false
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "user_id_idx",
-                    "type": "key",
                     "status": "available",
-                    "columns": [
-                        "user_id"
-                    ],
-                    "orders": [
-                        "asc"
-                    ]
-                },
-                {
-                    "key": "user_type_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "user_id",
-                        "type"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "land_offices",
-            "$permissions": [
-                "read(\"any\")",
-                "create(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Land Registry Offices",
-            "enabled": true,
-            "rowSecurity": false,
-            "columns": [
-                {
-                    "key": "name_en",
-                    "type": "string",
                     "required": true,
-                    "array": false,
-                    "size": 200,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "name_si",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 200,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "name_ta",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 200,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "district_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "province_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "city_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "address",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 500,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "coordinates_lat",
-                    "type": "double",
-                    "required": true,
-                    "array": false,
-                    "min": -1.7976931348623157e+308,
-                    "max": 1.7976931348623157e+308,
-                    "default": null
-                },
-                {
-                    "key": "coordinates_lng",
-                    "type": "double",
-                    "required": true,
-                    "array": false,
-                    "min": -1.7976931348623157e+308,
-                    "max": 1.7976931348623157e+308,
-                    "default": null
-                },
-                {
-                    "key": "contact_phone",
-                    "type": "string",
-                    "required": false,
-                    "array": true,
-                    "size": 20,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "contact_email",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "contact_website",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 200,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "contact_fax",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 20,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "services",
-                    "type": "string",
-                    "required": false,
-                    "array": true,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "district_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "district_id"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "province_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "province_id"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "agent_leads",
-            "$permissions": [
-                "read(\"users\")",
-                "create(\"users\")",
-                "update(\"users\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Agent Leads",
-            "enabled": true,
-            "rowSecurity": false,
-            "columns": [
-                {
-                    "key": "agent_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "agent_user_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "property_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "property_title",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 500,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "city",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "district",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "price",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": -9223372036854775808,
-                    "max": 9223372036854775807,
-                    "default": 0
-                },
-                {
-                    "key": "seller_phone",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 20,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "status",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 30,
-                    "default": "new",
-                    "encrypt": false
-                },
-                {
-                    "key": "priority",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 10,
-                    "default": "medium",
-                    "encrypt": false
-                },
-                {
-                    "key": "notes",
-                    "type": "string",
-                    "required": false,
-                    "array": true,
-                    "size": 1000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "created_at",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "agent_user_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "agent_user_id"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "status_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "status"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "training_progress",
-            "$permissions": [
-                "read(\"any\")",
-                "create(\"users\")",
-                "update(\"users\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Training Progress",
-            "enabled": true,
-            "rowSecurity": false,
-            "columns": [
-                {
-                    "key": "user_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "completed_modules",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 5000,
-                    "default": "[]",
-                    "encrypt": false
-                },
-                {
-                    "key": "badges",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 2000,
-                    "default": "[]",
-                    "encrypt": false
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "user_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "user_id"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "certificates",
-            "$permissions": [
-                "read(\"any\")",
-                "create(\"users\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Agent Certificates",
-            "enabled": true,
-            "rowSecurity": false,
-            "columns": [
-                {
-                    "key": "user_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "agent_id",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "certificate_number",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "recipient_name",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "modules_completed",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 1000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "badges_earned",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 1000,
-                    "default": null,
-                    "encrypt": false
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "user_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "user_id"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "cert_number_idx",
-                    "type": "unique",
-                    "status": "available",
-                    "columns": [
-                        "certificate_number"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "messages",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Messages",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "sender_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "receiver_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "content",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 2000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "conversation_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "is_read",
-                    "type": "boolean",
-                    "required": false,
                     "array": false,
                     "default": false
                 },
                 {
-                    "key": "timestamp",
+                    "key": "createdAt",
                     "type": "datetime",
-                    "required": true,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "by_conversation",
-                    "type": "key",
                     "status": "available",
-                    "columns": [
-                        "conversation_id"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "kyc_requests",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "read(\"team:admins\")",
-                "update(\"team:admins\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "KYC Requests",
-            "enabled": true,
-            "rowSecurity": false,
-            "columns": [
-                {
-                    "key": "user_id",
-                    "type": "string",
                     "required": true,
                     "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "document_type",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "file_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "status",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "submitted_at",
-                    "type": "datetime",
-                    "required": true,
-                    "array": false,
-                    "format": "",
                     "default": null
                 },
                 {
-                    "key": "reviewed_at",
+                    "key": "updatedAt",
                     "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                },
-                {
-                    "key": "reviewer_notes",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 500,
-                    "default": null,
-                    "encrypt": false
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "by_user",
-                    "type": "key",
                     "status": "available",
-                    "columns": [
-                        "user_id"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "by_status",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "status"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "legal_documents",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Legal Documents",
-            "enabled": true,
-            "rowSecurity": false,
-            "columns": [
-                {
-                    "key": "user_id",
-                    "type": "string",
                     "required": true,
                     "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "listing_id",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "category",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "document_type",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "file_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "watermarked_file_id",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "original_filename",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "is_verified",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": false
-                },
-                {
-                    "key": "consent_given",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": false
-                },
-                {
-                    "key": "uploaded_at",
-                    "type": "datetime",
-                    "required": true,
-                    "array": false,
-                    "format": "",
                     "default": null
                 }
             ],
+<<<<<<< HEAD
             "indexes": [
                 {
                     "key": "by_user",
@@ -4695,538 +3669,279 @@
                     "default": true
                 }
             ],
+=======
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
             "indexes": []
         },
         {
-            "$id": "coupons",
-            "$permissions": [
-                "read(\"users\")"
-            ],
+            "$id": "listings",
+            "name": "listings",
             "databaseId": "landsalelkdb",
-            "name": "Coupons",
             "enabled": true,
-            "rowSecurity": false,
-            "columns": [
+            "documentSecurity": true,
+            "attributes": [
                 {
-                    "key": "code",
+                    "key": "title",
                     "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "discount_percent",
-                    "type": "integer",
-                    "required": true,
-                    "array": false,
-                    "min": 1,
-                    "max": 100,
-                    "default": null
-                },
-                {
-                    "key": "valid_from",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                },
-                {
-                    "key": "valid_until",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                },
-                {
-                    "key": "max_uses",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 9223372036854775807,
-                    "default": null
-                },
-                {
-                    "key": "used_count",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 9223372036854775807,
-                    "default": 0
-                },
-                {
-                    "key": "is_active",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": true
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "code_idx",
-                    "type": "unique",
                     "status": "available",
-                    "columns": [
-                        "code"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "open_houses",
-            "$permissions": [
-                "read(\"any\")",
-                "create(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Open Houses",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "property_id",
-                    "type": "string",
                     "required": true,
                     "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "agent_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "property_title",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 500,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "date",
-                    "type": "datetime",
-                    "required": true,
-                    "array": false,
-                    "format": "",
+                    "size": 255,
                     "default": null
                 },
                 {
-                    "key": "start_time",
+                    "key": "description",
                     "type": "string",
+                    "status": "available",
                     "required": true,
-                    "array": false,
-                    "size": 10,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "end_time",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 10,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "notes",
-                    "type": "string",
-                    "required": false,
                     "array": false,
                     "size": 1000,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "status",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 20,
-                    "default": "scheduled",
-                    "encrypt": false
-                },
-                {
-                    "key": "created_at",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
                     "default": null
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "agent_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "agent_id"
-                    ],
-                    "orders": []
                 },
                 {
-                    "key": "property_id_idx",
-                    "type": "key",
+                    "key": "price",
+                    "type": "double",
                     "status": "available",
-                    "columns": [
-                        "property_id"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "date_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "date"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "legal_documents",
-            "$permissions": [
-                "read(\"users\")",
-                "create(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Legal Documents",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "user_id",
-                    "type": "string",
                     "required": true,
                     "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
+                    "min": 0,
+                    "max": 999999999,
+                    "default": null
                 },
                 {
-                    "key": "listing_id",
+                    "key": "location",
                     "type": "string",
+                    "status": "available",
                     "required": true,
                     "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
+                    "size": 255,
+                    "default": null
                 },
                 {
                     "key": "category",
-                    "type": "string",
+                    "type": "enum",
+                    "status": "available",
                     "required": true,
                     "array": false,
                     "elements": [
-                        "title",
-                        "survey",
-                        "authority",
-                        "construction",
-                        "special"
+                        "house",
+                        "apartment",
+                        "land",
+                        "commercial"
                     ],
-                    "format": "enum",
-                    "default": null
-                },
-                {
-                    "key": "document_type",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 50,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "file_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "original_filename",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 255,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "consent_given",
-                    "type": "boolean",
-                    "required": false,
-                    "array": false,
-                    "default": false
-                },
-                {
-                    "key": "uploaded_at",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "listing_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "listing_id"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "user_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "user_id"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "document_purchases",
-            "$permissions": [
-                "read(\"users\")",
-                "create(\"users\")",
-                "update(\"users\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Document Purchases",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "buyer_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "listing_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "seller_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "amount",
-                    "type": "integer",
-                    "required": true,
-                    "array": false,
-                    "min": 0,
-                    "max": 9223372036854775807,
-                    "default": null
-                },
-                {
-                    "key": "agent_share",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 9223372036854775807,
-                    "default": null
-                },
-                {
-                    "key": "platform_share",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 9223372036854775807,
-                    "default": null
-                },
-                {
-                    "key": "payment_id",
-                    "type": "string",
-                    "required": false,
-                    "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "purchased_at",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                },
-                {
-                    "key": "expires_at",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                },
-                {
-                    "key": "download_count",
-                    "type": "integer",
-                    "required": false,
-                    "array": false,
-                    "min": 0,
-                    "max": 100,
-                    "default": 0
-                }
-            ],
-            "indexes": [
-                {
-                    "key": "buyer_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "buyer_id"
-                    ],
-                    "orders": []
-                },
-                {
-                    "key": "listing_id_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "listing_id"
-                    ],
-                    "orders": []
-                }
-            ]
-        },
-        {
-            "$id": "agent_subscriptions",
-            "$permissions": [
-                "read(\"users\")",
-                "create(\"users\")",
-                "update(\"team:admins\")"
-            ],
-            "databaseId": "landsalelkdb",
-            "name": "Agent Subscriptions",
-            "enabled": true,
-            "rowSecurity": true,
-            "columns": [
-                {
-                    "key": "agent_id",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "size": 36,
-                    "default": null,
-                    "encrypt": false
-                },
-                {
-                    "key": "package",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "elements": [
-                        "free",
-                        "silver",
-                        "gold",
-                        "platinum"
-                    ],
-                    "format": "enum",
-                    "default": null
+                    "default": "house",
+                    "format": "enum"
                 },
                 {
                     "key": "status",
-                    "type": "string",
+                    "type": "enum",
+                    "status": "available",
                     "required": true,
                     "array": false,
                     "elements": [
                         "active",
-                        "expired",
-                        "cancelled"
+                        "pending",
+                        "sold",
+                        "expired"
                     ],
-                    "format": "enum",
-                    "default": null
+                    "default": "active",
+                    "format": "enum"
                 },
                 {
-                    "key": "started_at",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                },
-                {
-                    "key": "expires_at",
-                    "type": "datetime",
-                    "required": false,
-                    "array": false,
-                    "format": "",
-                    "default": null
-                },
-                {
-                    "key": "payment_id",
+                    "key": "sellerId",
                     "type": "string",
-                    "required": false,
+                    "status": "available",
+                    "required": true,
                     "array": false,
-                    "size": 100,
-                    "default": null,
-                    "encrypt": false
+                    "size": 255,
+                    "default": null
+                },
+                {
+                    "key": "images",
+                    "type": "string",
+                    "status": "available",
+                    "required": false,
+                    "array": true,
+                    "size": 1000,
+                    "default": null
+                },
+                {
+                    "key": "createdAt",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "updatedAt",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "default": null
                 }
             ],
-            "indexes": [
+            "indexes": []
+        },
+        {
+            "$id": "transactions",
+            "name": "transactions",
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "documentSecurity": true,
+            "attributes": [
                 {
-                    "key": "agent_id_idx",
-                    "type": "key",
+                    "key": "listingId",
+                    "type": "string",
                     "status": "available",
-                    "columns": [
-                        "agent_id"
-                    ],
-                    "orders": []
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null
                 },
                 {
-                    "key": "status_idx",
-                    "type": "key",
+                    "key": "buyerId",
+                    "type": "string",
                     "status": "available",
-                    "columns": [
-                        "status"
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null
+                },
+                {
+                    "key": "sellerId",
+                    "type": "string",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null
+                },
+                {
+                    "key": "amount",
+                    "type": "double",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "min": 0,
+                    "max": 999999999,
+                    "default": null
+                },
+                {
+                    "key": "status",
+                    "type": "enum",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "elements": [
+                        "pending",
+                        "completed",
+                        "failed",
+                        "cancelled"
                     ],
-                    "orders": []
+                    "default": "pending",
+                    "format": "enum"
+                },
+                {
+                    "key": "paymentMethod",
+                    "type": "enum",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "elements": [
+                        "stripe",
+                        "paypal",
+                        "bank_transfer"
+                    ],
+                    "default": "stripe",
+                    "format": "enum"
+                },
+                {
+                    "key": "createdAt",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "updatedAt",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "default": null
                 }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "notifications",
+            "name": "notifications",
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "documentSecurity": true,
+            "attributes": [
+                {
+                    "key": "userId",
+                    "type": "string",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null
+                },
+                {
+                    "key": "type",
+                    "type": "enum",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "elements": [
+                        "listing_created",
+                        "listing_sold",
+                        "payment_received",
+                        "message_received"
+                    ],
+                    "default": "listing_created",
+                    "format": "enum"
+                },
+                {
+                    "key": "title",
+                    "type": "string",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null
+                },
+                {
+                    "key": "message",
+                    "type": "string",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "size": 1000,
+                    "default": null
+                },
+                {
+                    "key": "isRead",
+                    "type": "boolean",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "default": false
+                },
+                {
+                    "key": "createdAt",
+                    "type": "datetime",
+                    "status": "available",
+                    "required": true,
+                    "array": false,
+                    "default": null
+                }
+<<<<<<< HEAD
             ]
         },
         {
@@ -5610,160 +4325,26 @@
                     "orders": []
                 }
             ]
+=======
+            ],
+            "indexes": []
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
         }
     ],
-    "buckets": [
+    "sites": [
         {
-            "$id": "listing_images",
-            "$permissions": [
-                "read(\"any\")",
-                "create(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "fileSecurity": true,
-            "name": "Listing Images",
+            "$id": "landsalelk-updated",
+            "name": "landsalelk-updated",
             "enabled": true,
-            "maximumFileSize": 10485760,
-            "allowedFileExtensions": [
-                "jpg",
-                "jpeg",
-                "png",
-                "webp",
-                "gif"
-            ],
-            "compression": "none",
-            "encryption": true,
-            "antivirus": true
-        },
-        {
-            "$id": "kyc_documents",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"team:admins\")",
-                "update(\"team:admins\")",
-                "delete(\"team:admins\")"
-            ],
-            "fileSecurity": true,
-            "name": "KYC Documents",
-            "enabled": true,
-            "maximumFileSize": 10485760,
-            "allowedFileExtensions": [
-                "jpg",
-                "jpeg",
-                "png",
-                "pdf"
-            ],
-            "compression": "none",
-            "encryption": true,
-            "antivirus": true
-        },
-        {
-            "$id": "certificates",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"any\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "fileSecurity": true,
-            "name": "Agent Certificates",
-            "enabled": true,
-            "maximumFileSize": 5242880,
-            "allowedFileExtensions": [
-                "pdf",
-                "png"
-            ],
-            "compression": "none",
-            "encryption": true,
-            "antivirus": true
-        },
-        {
-            "$id": "agent-ids",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"any\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "fileSecurity": true,
-            "name": "Digital Agent IDs",
-            "enabled": true,
-            "maximumFileSize": 5242880,
-            "allowedFileExtensions": [
-                "png",
-                "jpg",
-                "jpeg"
-            ],
-            "compression": "none",
-            "encryption": true,
-            "antivirus": true
-        },
-        {
-            "$id": "legal_vault",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"team:admins\")",
-                "update(\"team:admins\")",
-                "delete(\"team:admins\")"
-            ],
-            "fileSecurity": true,
-            "name": "Legal Vault (Originals)",
-            "enabled": true,
-            "maximumFileSize": 20971520,
-            "allowedFileExtensions": [
-                "pdf",
-                "jpg",
-                "jpeg",
-                "png"
-            ],
-            "compression": "none",
-            "encryption": true,
-            "antivirus": true
-        },
-        {
-            "$id": "watermarked_docs",
-            "$permissions": [
-                "create(\"users\")",
-                "read(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "fileSecurity": true,
-            "name": "Watermarked Documents",
-            "enabled": true,
-            "maximumFileSize": 20971520,
-            "allowedFileExtensions": [
-                "pdf",
-                "jpg",
-                "jpeg",
-                "png"
-            ],
-            "compression": "none",
-            "encryption": true,
-            "antivirus": true
-        },
-        {
-            "$id": "avatars",
-            "$permissions": [
-                "read(\"any\")",
-                "create(\"users\")",
-                "update(\"users\")",
-                "delete(\"users\")"
-            ],
-            "fileSecurity": true,
-            "name": "User Avatars",
-            "enabled": true,
-            "maximumFileSize": 2097152,
-            "allowedFileExtensions": [
-                "jpg",
-                "jpeg",
-                "png",
-                "webp"
-            ],
-            "compression": "gzip",
-            "encryption": true,
-            "antivirus": true
+            "buildRuntime": "node-22",
+            "buildCommand": "npm run build",
+            "outputDirectory": ".next",
+            "fallbackDirectory": "public",
+            "buildEntrypoint": "",
+            "buildPath": ".",
+            "framework": "next.js",
+            "adapter": "ssr",
+            "variables": {}
         }
     ]
 }

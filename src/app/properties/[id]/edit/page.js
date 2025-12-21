@@ -10,7 +10,12 @@ import {
     BedDouble, Bath, Ruler, ArrowLeft, Trash2, ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
+<<<<<<< HEAD
 import { DB_ID, COLLECTION_LISTINGS, BUCKET_LISTING_IMAGES } from '@/appwrite/config';
+=======
+import Image from 'next/image';
+import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
 export default function EditPropertyPage() {
     const { id } = useParams();
@@ -42,6 +47,7 @@ export default function EditPropertyPage() {
         has_payment_plan: false
     });
 
+<<<<<<< HEAD
     const loadProperty = useCallback(async () => {
         try {
             const user = await account.get();
@@ -90,8 +96,59 @@ export default function EditPropertyPage() {
                     }
                 } catch {
                     setImages([]);
+=======
+    useEffect(() => {
+        setMounted(true);
+        const loadProperty = async () => {
+            try {
+                const user = await account.get();
+                const property = await getPropertyById(id);
+
+                // Check ownership
+                if (property.user_id !== user.$id) {
+                    toast.error("You don't have permission to edit this property");
+                    router.push('/dashboard');
+                    return;
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
                 }
+
+                setFormData({
+                    title: property.title || '',
+                    description: property.description || '',
+                    price: property.price?.toString() || '',
+                    location: property.location || '',
+                    beds: property.beds?.toString() || '',
+                    baths: property.baths?.toString() || '',
+                    size_sqft: property.size_sqft?.toString() || '',
+                    perch_size: property.perch_size?.toString() || '',
+                    category_id: property.category_id || 'house',
+                    listing_type: property.listing_type || 'sale',
+                    deed_type: property.deed_type || '',
+                    approval_nbro: property.approval_nbro || false,
+                    approval_coc: property.approval_coc || false,
+                    approval_uda: property.approval_uda || false,
+                    infrastructure_distance: property.infrastructure_distance || '',
+                    is_foreign_eligible: property.is_foreign_eligible || false,
+                    has_payment_plan: property.has_payment_plan || false
+                });
+
+                // Parse existing images
+                if (property.images) {
+                    try {
+                        const parsed = JSON.parse(property.images);
+                        setImages(Array.isArray(parsed) ? parsed : []);
+                    } catch {
+                        setImages([]);
+                    }
+                }
+            } catch (error) {
+                console.error(error);
+                toast.error("Failed to load property");
+                router.push('/dashboard');
+            } finally {
+                setLoading(false);
             }
+<<<<<<< HEAD
         } catch (error) {
             console.error(error);
             toast.error("Failed to load property");
@@ -105,6 +162,11 @@ export default function EditPropertyPage() {
         setMounted(true);
         loadProperty();
     }, [loadProperty]);
+=======
+        };
+        loadProperty();
+    }, [id, router]); // Removed unnecessary dependencies
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
@@ -435,6 +497,7 @@ export default function EditPropertyPage() {
                             <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
                                 {/* Existing Images */}
                                 {images.map((img, i) => (
+<<<<<<< HEAD
                                     <div key={`existing-${i}`} className="relative aspect-square rounded-2xl overflow-hidden group">
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={img} alt={`Existing property image ${i + 1}`} className="w-full h-full object-cover" />
@@ -446,13 +509,64 @@ export default function EditPropertyPage() {
                                             <X className="w-4 h-4" />
                                         </button>
                                     </div>
+=======
+                                    img ? (
+                                        <div key={`existing-${i}`} className="relative aspect-square rounded-2xl overflow-hidden group">
+                                            {img && typeof img === 'string' && img.trim() !== '' ? (
+                                                <Image 
+                                                    src={img} 
+                                                    alt="" 
+                                                    width={200} 
+                                                    height={200} 
+                                                    className="w-full h-full object-cover" 
+                                                    unoptimized 
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.parentNode.style.backgroundColor = '#f3f4f6'; // Light gray fallback
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                                    <span className="text-gray-500">No Image</span>
+                                                </div>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => removeExistingImage(i)}
+                                                className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    ) : null
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
                                 ))}
 
                                 {/* New Images */}
                                 {newImages.map((img, i) => (
                                     <div key={`new-${i}`} className="relative aspect-square rounded-2xl overflow-hidden group border-2 border-[#10b981]">
+<<<<<<< HEAD
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={URL.createObjectURL(img)} alt={`New property image ${i + 1}`} className="w-full h-full object-cover" />
+=======
+                                        {img ? (
+                                            <Image 
+                                                src={URL.createObjectURL(img)} 
+                                                alt="" 
+                                                fill
+                                                className="object-cover" 
+                                                unoptimized
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.style.backgroundColor = '#f3f4f6'; // Light gray fallback
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                                <span className="text-gray-500">Invalid Image</span>
+                                            </div>
+                                        )}
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
                                         <div className="absolute top-0 left-0 bg-[#10b981] text-white text-xs px-2 py-1">New</div>
                                         <button
                                             type="button"

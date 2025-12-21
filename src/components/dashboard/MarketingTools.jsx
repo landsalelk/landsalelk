@@ -1,8 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+<<<<<<< HEAD
 import { databases } from '@/appwrite';
 import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
+=======
+import { databases } from '@/lib/appwrite';
+import { DB_ID, COLLECTION_LISTINGS } from '@/lib/constants';
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 import { Query } from 'appwrite';
 import { toast } from 'sonner';
 import {
@@ -12,6 +17,7 @@ import {
 import { QRCodeCanvas } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import Image from 'next/image';
 
 export function MarketingTools({ userId }) {
     const [listings, setListings] = useState([]);
@@ -154,12 +160,34 @@ export function MarketingTools({ userId }) {
                             <div className="w-full h-[400px] relative">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 {selectedListing.images && selectedListing.images[0] ? (
+<<<<<<< HEAD
                                     <img
                                         src={selectedListing.images[0]}
                                         alt={selectedListing.title || 'Property image'}
                                         className="w-full h-full object-cover"
                                         crossOrigin="anonymous"
                                     />
+=======
+                                    <div className="w-full h-full relative">
+                                        {selectedListing.images[0] && typeof selectedListing.images[0] === 'string' && selectedListing.images[0].trim() !== '' ? (
+                                            <Image
+                                                src={selectedListing.images[0]}
+                                                alt="Property"
+                                                fill
+                                                className="object-cover"
+                                                crossOrigin="anonymous"
+                                                unoptimized
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.style.display = 'none';
+                                                    e.target.parentNode.innerHTML += '<div class="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 absolute inset-0">Invalid Image</div>';
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 absolute inset-0">No Valid Image</div>
+                                        )}
+                                    </div>
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
                                 ) : (
                                     <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400">No Image</div>
                                 )}

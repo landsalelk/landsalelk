@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { account, databases, storage } from '@/appwrite';
 import { ID } from 'appwrite';
@@ -15,6 +15,7 @@ export default function AgentRegistrationPage() {
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [submitting, setSubmitting] = useState(false);
+    const [checking, setChecking] = useState(true); // New loading state
     const [nicFile, setNicFile] = useState(null);
     const [formData, setFormData] = useState({
         full_name: '',
@@ -24,6 +25,34 @@ export default function AgentRegistrationPage() {
         license_number: '',
         bio: ''
     });
+
+    useEffect(() => {
+        const checkExistingProfile = async () => {
+            try {
+                const user = await account.get();
+                const { Query } = await import('appwrite'); // Dynamic import to avoid top-level issues if any
+
+                const agentList = await databases.listDocuments(
+                    DB_ID,
+                    COLLECTION_AGENTS,
+                    [Query.equal('user_id', user.$id)]
+                );
+
+                if (agentList.documents.length > 0) {
+                    toast.info("You have already submitted an agent application.");
+                    router.push('/dashboard');
+                }
+            } catch (error) {
+                console.error("Profile check failed:", error);
+                // Don't block registration on check failure, unless it's a critical auth error
+                if (error.code === 401) router.push('/auth/login');
+            } finally {
+                setChecking(false);
+            }
+        };
+
+        checkExistingProfile();
+    }, [router]); // Removed unnecessary dependencies
 
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -37,6 +66,15 @@ export default function AgentRegistrationPage() {
 
         try {
             const user = await account.get();
+
+            // Double check before submit (in case they bypassed client check)
+            const { Query } = await import('appwrite');
+            const existing = await databases.listDocuments(DB_ID, COLLECTION_AGENTS, [Query.equal('user_id', user.$id)]);
+            if (existing.total > 0) {
+                toast.error("Application already exists.");
+                router.push('/dashboard');
+                return;
+            }
 
             // 1. Upload NIC
             let nicUrl = '';
@@ -98,6 +136,14 @@ export default function AgentRegistrationPage() {
             setSubmitting(false);
         }
     };
+
+    if (checking) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 py-12 px-4 pt-24 animate-fade-in">

@@ -39,7 +39,7 @@ export const TRAINING_MODULES = [
         title: 'Welcome to LandSale.lk',
         type: MODULE_TYPES.VIDEO,
         description: 'A comprehensive introduction to our platform, company mission, and your role as a certified property agent in Sri Lanka.',
-        videoUrl: '', // TODO: Add actual LandSale.lk training video URL from company YouTube channel
+        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Placeholder until training video is ready
         duration: '12 mins',
         estimatedTime: 20,
         category: 'onboarding',

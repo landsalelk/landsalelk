@@ -1,12 +1,21 @@
+<<<<<<< HEAD
 "use client";
 
 import { useState, useEffect } from "react";
+=======
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 import { Hero } from "@/components/home/Hero";
 import { PropertyCard } from "@/components/property/PropertyCard";
+import { NewsletterForm } from "@/components/home/NewsletterForm";
 import { getFeaturedProperties } from "@/lib/properties";
+<<<<<<< HEAD
 import { databases } from "@/appwrite";
 import { DB_ID, COLLECTION_LISTINGS } from "@/appwrite/config";
 import { subscribeToNewsletter } from "@/app/actions/newsletter";
+=======
+import { databases } from "@/lib/appwrite";
+import { DB_ID, COLLECTION_LISTINGS } from "@/lib/constants";
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 import { Query } from "appwrite";
 import {
   ArrowRight,
@@ -24,8 +33,8 @@ import {
   Mail,
 } from "lucide-react";
 import Link from "next/link";
-import { toast } from "sonner";
 
+<<<<<<< HEAD
 export default function HomePage() {
   const [featuredProperties, setFeaturedProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,13 +48,24 @@ export default function HomePage() {
     houses: 0,
     apartments: 0,
   });
+=======
+// Server Component
+export default async function HomePage() {
+  // Fetch data in parallel
+  const propertiesPromise = getFeaturedProperties(8);
+  const landsPromise = databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'land'), Query.limit(1)]).catch(() => ({ total: 0 }));
+  const housesPromise = databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'house'), Query.limit(1)]).catch(() => ({ total: 0 }));
+  const apartmentsPromise = databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'apartment'), Query.limit(1)]).catch(() => ({ total: 0 }));
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
-  useEffect(() => {
-    setMounted(true);
-    loadFeaturedProperties();
-    loadCategoryCounts();
-  }, []);
+  const [featuredProperties, landsRes, housesRes, apartmentsRes] = await Promise.all([
+    propertiesPromise,
+    landsPromise,
+    housesPromise,
+    apartmentsPromise
+  ]);
 
+<<<<<<< HEAD
   const loadFeaturedProperties = async () => {
     try {
       const properties = await getFeaturedProperties(8);
@@ -81,6 +101,12 @@ export default function HomePage() {
     } catch (e) {
       // Silent fail - keep default 0
     }
+=======
+  const categoryCounts = {
+    lands: landsRes.total,
+    houses: housesRes.total,
+    apartments: apartmentsRes.total
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
   };
 
   const categories = [
@@ -128,6 +154,7 @@ export default function HomePage() {
     },
   ];
 
+<<<<<<< HEAD
   // Show skeleton while mounting to prevent content flash
   if (!mounted) {
     return (
@@ -186,6 +213,8 @@ export default function HomePage() {
     );
   }
 
+=======
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
   return (
     <div className="animate-fade-in min-h-screen">
       <Hero />
@@ -241,6 +270,7 @@ export default function HomePage() {
             </Link>
           </div>
 
+<<<<<<< HEAD
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
@@ -248,6 +278,11 @@ export default function HomePage() {
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               {featuredProperties.map((property, idx) => (
+=======
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProperties.length > 0 ? (
+              featuredProperties.map((property, idx) => (
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
                 <div
                   key={property.$id || idx}
                   className="animate-fade-in"
@@ -255,9 +290,14 @@ export default function HomePage() {
                 >
                   <PropertyCard property={property} />
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            ) : (
+                // Empty state or skeleton could go here, but for SSR usually we just show nothing or a message
+                <div className="col-span-4 text-center py-12 text-slate-500">
+                    No featured properties found at the moment.
+                </div>
+            )}
+          </div>
         </div>
       </section>
 
@@ -366,6 +406,7 @@ export default function HomePage() {
             Subscribe to receive notifications about new listings and price
             drops
           </p>
+<<<<<<< HEAD
 
           {newsletterSuccess ? (
             <div className="animate-fade-in mx-auto max-w-md rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
@@ -480,6 +521,9 @@ export default function HomePage() {
               </p>
             </form>
           )}
+=======
+          <NewsletterForm />
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
         </div>
       </section>
     </div>

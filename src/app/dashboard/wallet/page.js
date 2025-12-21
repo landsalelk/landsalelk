@@ -1,5 +1,6 @@
 "use client";
 
+<<<<<<< HEAD
 import { useState, useEffect, useCallback } from "react";
 import { account, databases } from "@/appwrite";
 import {
@@ -20,6 +21,15 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+=======
+import { useState, useEffect, useCallback } from 'react';
+import { account, databases } from '@/lib/appwrite';
+import { DB_ID, COLLECTION_USER_WALLETS, COLLECTION_TRANSACTIONS } from '@/lib/constants';
+import { Query, ID } from 'appwrite';
+import { Loader2, Wallet, ArrowUpRight, ArrowDownLeft, Clock, Search, Filter, X } from 'lucide-react';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
 export default function WalletPage() {
   const router = useRouter();
@@ -33,6 +43,7 @@ export default function WalletPage() {
   const [user, setUser] = useState(null);
   const [processing, setProcessing] = useState(false);
 
+<<<<<<< HEAD
   const loadWalletData = useCallback(async () => {
     try {
       const userData = await account.get();
@@ -45,6 +56,12 @@ export default function WalletPage() {
         COLLECTION_USER_WALLETS,
         [Query.equal("user_id", userData.$id)],
       );
+=======
+    const loadWalletData = useCallback(async () => {
+        try {
+            const userData = await account.get();
+            setUser(userData);
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
       if (walletRes.documents.length > 0) {
         const wallet = walletRes.documents[0];
@@ -55,6 +72,7 @@ export default function WalletPage() {
         setBalance(0);
       }
 
+<<<<<<< HEAD
       // 2. Fetch Transactions
       const txRes = await databases.listDocuments(
         DB_ID,
@@ -68,6 +86,117 @@ export default function WalletPage() {
       router.push("/auth/login");
     } finally {
       setLoading(false);
+=======
+            if (walletRes.documents.length > 0) {
+                const wallet = walletRes.documents[0];
+                setBalance(wallet.balance);
+                setCurrency(wallet.currency_code);
+            } else {
+                // Determine if we should create a wallet? For now, assume 0.
+                setBalance(0);
+            }
+
+            // 2. Fetch Transactions
+            const txRes = await databases.listDocuments(
+                DB_ID,
+                COLLECTION_TRANSACTIONS,
+                [
+                    Query.equal('user_id', userData.$id),
+                    Query.orderDesc('created_at')
+                ]
+            );
+            setTransactions(txRes.documents);
+
+        } catch (error) {
+            console.error('Wallet Error:', error);
+            // Only redirect to login if it's an authentication error
+            if (error.code === 401 || error.type === 'general_unauthorized_scope' || error.message?.includes('Unauthorized')) {
+                router.push('/auth/login');
+            } else {
+                toast.error("Failed to load wallet information");
+            }
+        } finally {
+            setLoading(false);
+        }
+    }, [router]);
+
+    useEffect(() => {
+        loadWalletData();
+    }, [loadWalletData]);
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-LK', {
+            style: 'currency',
+            currency: currency,
+            minimumFractionDigits: 2
+        }).format(amount);
+    };
+
+    const handleDeposit = async () => {
+        if (!amount || parseFloat(amount) <= 0) {
+            toast.error('Please enter a valid amount');
+            return;
+        }
+        setProcessing(true);
+        try {
+            // Create pending deposit transaction
+            await databases.createDocument(DB_ID, COLLECTION_TRANSACTIONS, ID.unique(), {
+                user_id: user.$id,
+                type: 'deposit',
+                amount: parseFloat(amount),
+                status: 'pending',
+                description: 'Wallet deposit',
+                created_at: new Date().toISOString()
+            });
+            toast.success('Deposit initiated! Pay via your preferred method. Balance updates after verification.');
+            setShowDepositModal(false);
+            setAmount('');
+            loadWalletData();
+        } catch (e) {
+            toast.error('Failed to initiate deposit');
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    const handleWithdraw = async () => {
+        const withdrawAmount = parseFloat(amount);
+        if (!amount || withdrawAmount <= 0) {
+            toast.error('Please enter a valid amount');
+            return;
+        }
+        if (withdrawAmount > balance) {
+            toast.error('Insufficient balance');
+            return;
+        }
+        setProcessing(true);
+        try {
+            await databases.createDocument(DB_ID, COLLECTION_TRANSACTIONS, ID.unique(), {
+                user_id: user.$id,
+                type: 'withdrawal',
+                amount: -withdrawAmount,
+                status: 'pending',
+                description: 'Withdrawal request',
+                created_at: new Date().toISOString()
+            });
+            toast.success('Withdrawal requested! Processing in 2-3 business days.');
+            setShowWithdrawModal(false);
+            setAmount('');
+            loadWalletData();
+        } catch (e) {
+            toast.error('Failed to request withdrawal');
+        } finally {
+            setProcessing(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+            </div>
+        );
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
     }
   }, [router]);
 

@@ -1,4 +1,7 @@
-export const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || process.env.EXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelkdb';
+export const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelkdb';
+
+// Enforce Singapore Region Endpoint for this project
+export const APPWRITE_ENDPOINT = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
 
 // ================================
 // CORE BUSINESS COLLECTIONS
@@ -87,4 +90,3 @@ export const BUCKET_CERTIFICATES = 'certificates';
 export const BUCKET_AGENT_IDS = 'agent-ids';
 export const BUCKET_LEGAL_VAULT = 'legal_vault';
 export const BUCKET_WATERMARKED = 'watermarked_docs';
-

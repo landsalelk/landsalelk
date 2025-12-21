@@ -158,6 +158,7 @@ export async function createProperty(data) {
     try {
         const user = await account.get();
 
+<<<<<<< HEAD
         // Ensure required "slug" exists and is URL-safe.
         const slugify = (str = '') => str
             .toString()
@@ -195,12 +196,32 @@ export async function createProperty(data) {
             status: data.status || 'active',
             user_id: user.$id
         };
+=======
+        // Generate verification code if owner_phone is provided
+        let verification_code = null;
+        let status = 'active';
+        if (data.owner_phone && data.owner_phone.trim().length > 0) {
+            // Generate a secure 6-character alphanumeric code
+            verification_code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            status = 'pending_owner'; // Requires owner verification
+        }
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
         const doc = await databases.createDocument(
             DB_ID,
             COLLECTION_LISTINGS,
             ID.unique(),
+<<<<<<< HEAD
             payload
+=======
+            {
+                ...data,
+                user_id: user.$id,
+                created_at: new Date().toISOString(),
+                status: status,
+                verification_code: verification_code
+            }
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
         );
 
         // Phase 1 Gamification: Award 10 points for new listing

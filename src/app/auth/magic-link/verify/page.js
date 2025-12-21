@@ -11,6 +11,7 @@ function VerifyMagicLink() {
   const [status, setStatus] = useState("verifying"); // verifying, success, error
   const [error, setError] = useState("");
 
+<<<<<<< HEAD
   const verifyMagicLink = useCallback(async () => {
     try {
       const userId = searchParams.get("userId");
@@ -56,6 +57,39 @@ function VerifyMagicLink() {
             <p className="text-gray-600">Please wait while we sign you in.</p>
           </>
         )}
+=======
+    useEffect(() => {
+        const verifyMagicLink = async () => {
+            try {
+                const userId = searchParams.get('userId');
+                const secret = searchParams.get('secret');
+
+                if (!userId || !secret) {
+                    setStatus('error');
+                    setError('Invalid magic link. Please request a new one.');
+                    return;
+                }
+
+                // Create session from magic URL
+                await account.createSession(userId, secret);
+
+                setStatus('success');
+
+                // Redirect to dashboard after short delay
+                setTimeout(() => {
+                    router.push('/dashboard');
+                }, 2000);
+
+            } catch (err) {
+                console.error('Magic link verification error:', err);
+                setStatus('error');
+                setError(err.message || 'Failed to verify magic link. It may have expired.');
+            }
+        };
+
+        verifyMagicLink();
+    }, [searchParams, router]);
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
         {status === "success" && (
           <>

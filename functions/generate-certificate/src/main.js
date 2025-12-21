@@ -11,7 +11,7 @@ const COLLECTION_AGENTS = process.env.COLLECTION_AGENTS || 'agents';
 export default async ({ req, res, log, error }) => {
     // Setup Appwrite client
     const client = new Client()
-        .setEndpoint(process.env.APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
+        .setEndpoint(process.env.APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1')
         .setProject(PROJECT_ID)
         .setKey(process.env.APPWRITE_API_KEY);
 
@@ -63,7 +63,7 @@ export default async ({ req, res, log, error }) => {
         );
 
         // Get download URL
-        const fileUrl = `${process.env.APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1'}/storage/buckets/${BUCKET_CERTIFICATES}/files/${fileId}/view?project=${PROJECT_ID}`;
+        const fileUrl = `${process.env.APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1'}/storage/buckets/${BUCKET_CERTIFICATES}/files/${fileId}/view?project=${PROJECT_ID}`;
 
         // Update agent record with certificate info
         try {

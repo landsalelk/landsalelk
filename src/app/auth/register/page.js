@@ -1,5 +1,6 @@
 "use client";
 
+<<<<<<< HEAD
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -48,6 +49,13 @@ function calculatePasswordStrength(password) {
 
   return { score, strength, color, checks };
 }
+=======
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Mail, Lock, Eye, EyeOff, Loader2, MapPin, ArrowRight, User } from 'lucide-react';
+import Link from 'next/link';
+import { toast } from 'sonner';
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -66,11 +74,29 @@ export default function RegisterPage() {
     general: "",
   });
 
+<<<<<<< HEAD
   // Calculate password strength
   const passwordStrength = useMemo(
     () => calculatePasswordStrength(password),
     [password],
   );
+=======
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const { account } = await import('@/lib/appwrite');
+                await account.get();
+                router.replace('/dashboard');
+            } catch (error) {
+                // Not logged in
+            }
+        };
+        checkSession();
+    }, [router]);
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
   // Validate email format
   const validateEmail = (email) => {
@@ -104,6 +130,7 @@ export default function RegisterPage() {
     }
   };
 
+<<<<<<< HEAD
   const handleConfirmPasswordChange = (e) => {
     setConfirmPassword(e.target.value);
     if (errors.confirmPassword) {
@@ -124,6 +151,35 @@ export default function RegisterPage() {
       password: "",
       confirmPassword: "",
       general: "",
+=======
+            try {
+                // Try creating account
+                await account.create(ID.unique(), email, password, name);
+            } catch (createError) {
+                // If user presumably already exists, we tried to create it. 
+                // Note: creating session for existing user is a different flow (Login).
+                // Let's just bubble up unless specific error we want to handle.
+                throw createError;
+            }
+
+            // Login immediately
+            await account.createEmailPasswordSession(email, password);
+            toast.success("Account created successfully!");
+
+            // Force redirect
+            window.location.href = '/dashboard';
+        } catch (error) {
+            console.error(error);
+            if (error?.code === 409) {
+                toast.error("User with this email already exists. Please login.");
+                router.push('/auth/login');
+            } else {
+                toast.error(error.message || "Registration failed");
+            }
+        } finally {
+            setLoading(false);
+        }
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
     };
     let isValid = true;
 
@@ -157,6 +213,7 @@ export default function RegisterPage() {
       isValid = false;
     }
 
+<<<<<<< HEAD
     // Confirm password validation
     if (!formConfirmPassword) {
       newErrors.confirmPassword = "Please confirm your password";
@@ -165,6 +222,25 @@ export default function RegisterPage() {
       newErrors.confirmPassword = "Passwords do not match";
       isValid = false;
     }
+=======
+                    <form onSubmit={handleRegister} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
+                            <div className="relative">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                <input
+                                    type="text"
+                                    name="name"
+                                    data-testid="register-name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="John Doe"
+                                    required
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-[#6ee7b7] focus:bg-white outline-none font-bold text-slate-700 transition-all"
+                                />
+                            </div>
+                        </div>
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
     setErrors(newErrors);
     return isValid;

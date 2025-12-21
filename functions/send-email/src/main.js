@@ -214,11 +214,18 @@ function textToHtml(text) {
  * Main function handler
  */
 export default async ({ req, res, log, error }) => {
+<<<<<<< HEAD
   // Initialize Appwrite client
   const client = new Client()
     .setEndpoint(ENDPOINT)
     .setProject(PROJECT_ID)
     .setKey(API_KEY);
+=======
+    const client = new Client()
+        .setEndpoint(process.env.APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1')
+        .setProject(PROJECT_ID)
+        .setKey(API_KEY);
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
   const messaging = new Messaging(client);
   const users = new Users(client);

@@ -1,5 +1,6 @@
 "use client";
 
+<<<<<<< HEAD
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -14,6 +15,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+=======
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Mail, Lock, Eye, EyeOff, Loader2, MapPin, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { toast } from 'sonner';
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,11 +35,30 @@ export default function LoginPage() {
     general: "",
   });
 
+<<<<<<< HEAD
   // Validate email format
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+=======
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const { account } = await import('@/lib/appwrite');
+                await account.get();
+                router.replace('/dashboard');
+            } catch (error) {
+                // Not logged in
+            }
+        };
+        checkSession();
+    }, [router]);
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
   // Clear specific error when user starts typing
   const handleEmailChange = (e) => {
@@ -41,6 +68,7 @@ export default function LoginPage() {
     }
   };
 
+<<<<<<< HEAD
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     if (errors.password) {
@@ -52,6 +80,11 @@ export default function LoginPage() {
   const validateForm = (formEmail, formPassword) => {
     const newErrors = { email: "", password: "", general: "" };
     let isValid = true;
+=======
+            // Proceed with login
+            const session = await account.createEmailPasswordSession(email, password);
+            const user = await account.get();
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
     if (!formEmail) {
       newErrors.email = "Email address is required";
@@ -82,6 +115,7 @@ export default function LoginPage() {
     const formEmail = String(fd.get("email") || email || "").trim();
     const formPassword = String(fd.get("password") || password || "");
 
+<<<<<<< HEAD
     // Validate form
     if (!validateForm(formEmail, formPassword)) {
       return;
@@ -89,6 +123,47 @@ export default function LoginPage() {
 
     setLoading(true);
     setErrors({ email: "", password: "", general: "" });
+=======
+                    <form onSubmit={handleLogin} className="space-y-5">
+                        <div>
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Email Address</label>
+                            <div className="relative">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                <input
+                                    type="email"
+                                    data-testid="login-email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="you@example.com"
+                                    required
+                                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-[#6ee7b7] focus:bg-white outline-none font-bold text-slate-700 transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Password</label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    required
+                                    className="w-full pl-12 pr-12 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-[#6ee7b7] focus:bg-white outline-none font-bold text-slate-700 transition-all"
+                                />
+                                <button
+                                    type="button"
+                                    data-testid="password-toggle"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
+                            </div>
+                        </div>
+>>>>>>> ced6621fe59b1161996e305a12e4cb3821b4ac5d
 
     try {
       const { account } = await import("@/appwrite");

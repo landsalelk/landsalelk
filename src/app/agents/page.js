@@ -90,7 +90,6 @@ export default function AgentsPage() {
                                                         alt={agent.name}
                                                         fill
                                                         className="object-cover"
-                                                        unoptimized
                                                     />
                                                 ) : (
                                                     <svg viewBox="0 0 100 100" fill="none" className="w-16 h-16">
