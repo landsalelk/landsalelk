@@ -60,7 +60,7 @@ This project follows the [Appwrite Next.js starter kit](https://github.com/appwr
    npm run dev
    ```
    
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+   Open [https://landsale.lk](https://landsale.lk) in your browser (or http://localhost:3000 for local dev).
 
 ## 📁 Project Structure
 

@@ -8,11 +8,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "appwrite deploy site",
+    "deploy": "appwrite push site --site-id 6941d9280032a28b0536 --force",
     "deploy:functions": "appwrite deploy function --all"
   },
+  "engines": {
+    "node": ">=18.17.0"
+  },
   "dependencies": {
-    "@appwrite.io/pink-icons": "^1.0.0",
     "@tailwindcss/postcss": "^4.1.11",
     "appwrite": "^18.1.1",
     "clsx": "^2.1.1",
@@ -21,6 +23,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.4",
     "leaflet": "^1.9.4",
+    "lightningcss": "^1.22.1",
     "lucide-react": "^0.468.0",
     "next": "^15.4.8",
     "node-appwrite": "^21.0.0",
@@ -34,6 +37,10 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.11",
     "tesseract.js": "^7.0.0"
+  },
+  "optionalDependencies": {
+    "lightningcss-linux-x64-gnu": "^1.22.1",
+    "lightningcss-linux-x64-musl": "^1.22.1"
   },
   "devDependencies": {
     "@types/node": "25.0.3",

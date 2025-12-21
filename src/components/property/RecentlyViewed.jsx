@@ -6,6 +6,25 @@ import Image from 'next/image';
 import { Clock, ArrowRight } from 'lucide-react';
 import { BUCKET_LISTING_IMAGES } from '@/appwrite/config';
 
+// Helper to parse localized strings (JSON)
+const parseLocalized = (val) => {
+    if (!val) return '';
+    if (typeof val === 'object') {
+        return val.en || Object.values(val)[0] || '';
+    }
+    try {
+        const str = String(val).trim();
+        // If it's a simple string, return it
+        if (!str.startsWith('{')) return val;
+        
+        const parsed = JSON.parse(str);
+        // Prefer English, then any available value
+        return parsed.en || Object.values(parsed)[0] || val;
+    } catch (e) {
+        return val;
+    }
+};
+
 export function RecentlyViewed({ currentId }) {
     const [recent, setRecent] = useState([]);
 
@@ -25,9 +44,11 @@ export function RecentlyViewed({ currentId }) {
             const stored = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
             // Filter out current property to avoid duplicate if we are on the page
             const filtered = stored.filter(item => item.id !== currentId);
-            // Resolve any legacy raw IDs to view URLs
+            // Resolve any legacy raw IDs to view URLs and clean up localized strings
             const normalized = filtered.map(item => ({
                 ...item,
+                title: parseLocalized(item.title),
+                location: parseLocalized(item.location),
                 image: resolveUrl(item.image) || '/placeholder.jpg'
             }));
             setRecent(normalized.slice(0, 4)); // Show max 4
@@ -111,9 +132,9 @@ export const addToHistory = (property) => {
 
         const newItem = {
             id: property.$id,
-            title: property.title,
+            title: parseLocalized(property.title),
             price: property.price,
-            location: property.location,
+            location: parseLocalized(property.location),
             image: resolveUrl(firstImage) || null
         };
 

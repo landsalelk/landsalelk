@@ -75,7 +75,7 @@ export async function subscribeToNewsletter(email) {
 
     // Trigger Email Function
     // We assume the function 'send-email' exists and takes this payload
-    const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/newsletter/verify?token=${verificationToken}`;
+    const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://landsale.lk'}/newsletter/verify?token=${verificationToken}`;
 
     try {
         await functions.createExecution(

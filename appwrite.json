@@ -228,18 +228,24 @@
     ],
     "sites": [
         {
-            "$id": "landsalelk-updated",
+            "$id": "6941d9280032a28b0536",
             "name": "landsalelk-updated",
             "enabled": true,
-            "buildRuntime": "node-22",
+            "buildRuntime": "node-20.0",
             "buildCommand": "npm run build",
             "outputDirectory": ".next",
             "fallbackDirectory": "public",
             "buildEntrypoint": "",
             "buildPath": ".",
-            "framework": "next.js",
+            "framework": "nextjs",
             "adapter": "ssr",
-            "variables": {}
+            "variables": {},
+            "logging": true,
+            "timeout": 30,
+            "installCommand": "npm install",
+            "specification": "s-0.5vcpu-512mb",
+            "fallbackFile": "",
+            "path": "."
         }
     ],
     "collections": [

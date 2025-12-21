@@ -7,7 +7,7 @@ export async function POST(request) {
 
     // Use OPENROUTER_API_KEY as discovered in environment
     const apiKey = process.env.OPENROUTER_API_KEY;
-    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://landsale.lk";
     const siteName = "LandSale.lk";
 
     if (!apiKey) {
