@@ -26,6 +26,7 @@ const endpoint = APPWRITE_ENDPOINT;
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
 // Fallback values for build time only - these should be overridden by env vars in production
+// Enforcing Singapore region endpoint for this project as per requirements
 const FALLBACK_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
 const FALLBACK_PROJECT_ID = "landsalelkproject";
 
@@ -47,9 +48,17 @@ if (isBrowser && isDev) {
   }
 }
 
+// Logic to ensure we use the correct endpoint
+let effectiveEndpoint = endpoint || FALLBACK_ENDPOINT;
+
+// Override global endpoint to sgp if it's the generic one, because we know this project is in SGP.
+if (effectiveEndpoint === 'https://cloud.appwrite.io/v1') {
+    effectiveEndpoint = 'https://sgp.cloud.appwrite.io/v1';
+}
+
 // Create client with environment variables or fallbacks
 const client = new Client()
-  .setEndpoint(endpoint || FALLBACK_ENDPOINT)
+  .setEndpoint(effectiveEndpoint)
   .setProject(projectId || FALLBACK_PROJECT_ID);
 
 // Initialize Appwrite services

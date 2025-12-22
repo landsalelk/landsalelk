@@ -19,7 +19,7 @@ if (!projectId && typeof window !== 'undefined') {
 
 const client = new Client()
   .setEndpoint(endpoint)
-  .setProject(projectId || '');
+  .setProject(projectId || 'landsalelkproject');
 
 const account = new Account(client);
 const databases = new Databases(client);
