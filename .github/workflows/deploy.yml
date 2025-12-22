@@ -41,15 +41,33 @@ jobs:
           # Activate latest ready deployments
           FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[].$id')
           for FUNC_ID in $FUNCTIONS; do
+            echo "Processing function: $FUNC_ID"
             LATEST_DEPLOYMENT=$(appwrite functions listDeployments --functionId $FUNC_ID --json | jq -r '.deployments[0].$id // ""')
+            
             if [ ! -z "$LATEST_DEPLOYMENT" ]; then
-              DEPLOYMENT_STATUS=$(appwrite functions getDeployment --functionId $FUNC_ID --deploymentId $LATEST_DEPLOYMENT --json | jq -r '.status')
-              if [ "$DEPLOYMENT_STATUS" = "ready" ]; then
-                appwrite functions updateDeployment --functionId $FUNC_ID --deploymentId $LATEST_DEPLOYMENT
-                echo "Activated latest deployment $LATEST_DEPLOYMENT for function $FUNC_ID"
-              else
-                echo "Latest deployment for $FUNC_ID is not ready (status: $DEPLOYMENT_STATUS)"
-              fi
+              echo "Found latest deployment: $LATEST_DEPLOYMENT"
+              
+              # Poll for build completion (max 5 minutes)
+              for i in {1..30}; do
+                DEPLOYMENT_STATUS=$(appwrite functions getDeployment --functionId $FUNC_ID --deploymentId $LATEST_DEPLOYMENT --json | jq -r '.status')
+                echo "Deployment status: $DEPLOYMENT_STATUS"
+                
+                if [ "$DEPLOYMENT_STATUS" = "ready" ]; then
+                  appwrite functions updateDeployment --functionId $FUNC_ID --deploymentId $LATEST_DEPLOYMENT
+                  echo "✅ Activated deployment $LATEST_DEPLOYMENT"
+                  break
+                elif [ "$DEPLOYMENT_STATUS" = "failed" ]; then
+                  echo "❌ Deployment $LATEST_DEPLOYMENT failed"
+                  exit 1
+                fi
+                
+                if [ $i -eq 30 ]; then
+                  echo "⚠️ Timeout waiting for deployment $LATEST_DEPLOYMENT"
+                else
+                  echo "Waiting for build to complete..."
+                  sleep 10
+                fi
+              done
             else
               echo "No deployments found for function $FUNC_ID"
             fi
