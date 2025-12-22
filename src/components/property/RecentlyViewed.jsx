@@ -45,7 +45,9 @@ const parseLocalized = (val) => {
 export function RecentlyViewed({ currentId }) {
     const [recent, setRecent] = useState([]);
 
-    const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+    const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT && process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT !== 'https://cloud.appwrite.io/v1'
+        ? process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT
+        : 'https://sgp.cloud.appwrite.io/v1';
     const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
     const resolveUrl = useMemo(() => (val) => {
         if (!val) return null;

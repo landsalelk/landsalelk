@@ -19,8 +19,10 @@ import {
  * for build time (SSR/SSG) to prevent build failures.
  */
 
+import { APPWRITE_ENDPOINT } from "./config";
+
 // Environment variables
-const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
+const endpoint = APPWRITE_ENDPOINT;
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
 // Fallback values for build time only - these should be overridden by env vars in production
