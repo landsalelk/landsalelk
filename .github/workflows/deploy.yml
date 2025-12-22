@@ -34,7 +34,8 @@ jobs:
           appwrite client --endpoint "$APPWRITE_ENDPOINT" --projectId "$APPWRITE_PROJECT_ID" --key "$APPWRITE_API_KEY"
           
           # Deploy all resources (Functions, Sites, Collections, Buckets, etc.)
-          appwrite push all --force
+          appwrite deploy function --all --yes
+          appwrite deploy site --site-id 6941d9280032a28b0536 --force
           
           # Activate latest ready deployments
           FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[].$id')
