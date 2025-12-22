@@ -62,8 +62,8 @@ jobs:
           done
           
           # Deploy all resources (Functions, Sites, Collections, Buckets, etc.)
-          appwrite deploy function --all --yes
-          appwrite deploy site --site-id 6941d9280032a28b0536 --force
+          appwrite push function --with-variables
+          appwrite push site --site-id 6941d9280032a28b0536
           
           # Activate latest ready deployments
           FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[]."$id"')
