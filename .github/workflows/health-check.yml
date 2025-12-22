@@ -19,6 +19,7 @@ jobs:
 
       - name: Alert on Failure
         if: failure()
+        continue-on-error: true
         uses: Ilshidur/action-discord@master
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}

@@ -253,6 +253,23 @@
                 "GITHUB_REPO_OWNER": "landsalelk",
                 "GITHUB_REPO_NAME": "landsalelk"
             }
+        },
+        {
+            "$id": "place-bid",
+            "name": "Place Bid",
+            "runtime": "node-18.0",
+            "path": "functions/place-bid",
+            "entrypoint": "src/main.js",
+            "ignore": [
+                "node_modules",
+                ".gitignore"
+            ],
+            "execute": [
+                "users"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15
         }
     ],
     "databases": [
@@ -423,7 +440,8 @@
                     "elements": [
                         "sale",
                         "rent",
-                        "wanted"
+                        "wanted",
+                        "auction"
                     ],
                     "format": "enum",
                     "default": null
@@ -675,6 +693,14 @@
                     "required": false,
                     "array": false,
                     "default": false
+                },
+                {
+                    "key": "auction_end_time",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "format": "",
+                    "default": null
                 }
             ],
             "indexes": [
@@ -4180,6 +4206,62 @@
                 "read(\"any\")"
             ],
             "indexes": []
+        },
+        {
+            "$id": "bids",
+            "name": "Bids",
+            "columns": [
+                {
+                    "key": "property_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "user_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "amount",
+                    "type": "double",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": true,
+                    "size": 20,
+                    "array": false,
+                    "default": "active"
+                },
+                {
+                    "key": "timestamp",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false
+                }
+            ],
+            "databaseId": "landsalelkdb",
+            "enabled": true,
+            "rowSecurity": false,
+            "$permissions": [
+                "read(\"any\")",
+                "create(\"users\")"
+            ],
+            "indexes": [
+                {
+                    "key": "idx_property_bids",
+                    "type": "key",
+                    "attributes": [
+                        "property_id"
+                    ]
+                }
+            ]
         }
     ]
 }

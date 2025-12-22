@@ -15,6 +15,7 @@ import EasyPaymentCalculator from '@/components/tools/EasyPaymentCalculator';
 import ROICalculator from '@/components/property/ROICalculator';
 import { StickyGallery } from '@/components/property/StickyGallery';
 import { ScrollMap } from '@/components/property/ScrollMap';
+import AuctionCard from '@/components/property/AuctionCard';
 import { FadeIn, FadeInItem } from '@/components/animations/FadeIn';
 import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2, Train, Globe, Banknote, ChevronLeft, ChevronRight, X, HandCoins } from 'lucide-react';
 import Link from 'next/link';
@@ -50,25 +51,25 @@ export default function PropertyDetailsPage() {
         if (property?.price) setOfferAmount(property.price);
     }, [property]);
 
-     const contactPhone = property?.contact_phone || property?.phone || null;
+    const contactPhone = property?.contact_phone || property?.phone || null;
 
-     const handleWhatsApp = () => {
-         track('cta_contact_clicked', { listing_id: id, channel: 'whatsapp' });
+    const handleWhatsApp = () => {
+        track('cta_contact_clicked', { listing_id: id, channel: 'whatsapp' });
 
-         const number = contactPhone ? String(contactPhone).replace(/\s+/g, '') : '';
-         const title = parseSafe(property?.title, 'Property');
+        const number = contactPhone ? String(contactPhone).replace(/\s+/g, '') : '';
+        const title = parseSafe(property?.title, 'Property');
 
-         if (!number) {
-             toast.error('Phone number not available');
-             return;
-         }
+        if (!number) {
+            toast.error('Phone number not available');
+            return;
+        }
 
-         const text = encodeURIComponent(`Hi, I'm interested in: ${title} (ID: ${id})`);
-         const waUrl = `https://wa.me/${number.replace(/^\+/, '')}?text=${text}`;
-         window.open(waUrl, '_blank', 'noopener,noreferrer');
-     };
+        const text = encodeURIComponent(`Hi, I'm interested in: ${title} (ID: ${id})`);
+        const waUrl = `https://wa.me/${number.replace(/^\+/, '')}?text=${text}`;
+        window.open(waUrl, '_blank', 'noopener,noreferrer');
+    };
 
-     const getCleanedPhoneNumber = () => {
+    const getCleanedPhoneNumber = () => {
         return contactPhone ? String(contactPhone).replace(/\s+/g, '') : '';
     };
 
@@ -146,15 +147,15 @@ export default function PropertyDetailsPage() {
                     }).catch(err => console.error("View tracking failed", err));
                 }
 
-                 // Client-side analytics event (safe no-op if no provider configured)
-                 if (!sessionStorage.getItem(`${storageKey}_analytics`)) {
-                     track('listing_viewed', {
-                         listing_id: id,
-                         listing_type: data?.listing_type,
-                         price: data?.price,
-                     });
-                     sessionStorage.setItem(`${storageKey}_analytics`, 'true');
-                 }
+                // Client-side analytics event (safe no-op if no provider configured)
+                if (!sessionStorage.getItem(`${storageKey}_analytics`)) {
+                    track('listing_viewed', {
+                        listing_id: id,
+                        listing_type: data?.listing_type,
+                        price: data?.price,
+                    });
+                    sessionStorage.setItem(`${storageKey}_analytics`, 'true');
+                }
 
                 // Check Agent Verification
                 if (data.user_id) {
@@ -502,6 +503,15 @@ export default function PropertyDetailsPage() {
                                 />
                             </div>
 
+                            {/* Auction Card (Only for Auctions) */}
+                            {property.listing_type === 'auction' && (
+                                <AuctionCard
+                                    propertyId={id}
+                                    initialPrice={property.price}
+                                    endTime={property.auction_end_time} // Ensure this field exists in DB
+                                />
+                            )}
+
                             {/* Agent Card */}
                             <div className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100">
                                 <div className="flex items-center gap-4 mb-6">
@@ -599,46 +609,46 @@ export default function PropertyDetailsPage() {
             {/* Chat Widget */}
             <ChatWidget agentId={property.user_id} agentName={property.contact_name || "Agent"} />
 
-             {/* Mobile Sticky Contact Bar */}
-             <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
-                 <div className="bg-white/95 backdrop-blur border-t border-slate-200 px-4 py-3">
-                     <div className="grid grid-cols-2 gap-3">
-                         <button
-                             onClick={handleCall}
-                             className="py-3 rounded-xl font-bold bg-white text-slate-800 border border-slate-200 flex items-center justify-center gap-2"
-                         >
-                             <Phone className="w-5 h-5" /> Call
-                         </button>
-                         <button
-                             onClick={handleWhatsApp}
-                             className="py-3 rounded-xl font-bold bg-emerald-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
-                         >
-                             <MessageCircle className="w-5 h-5" /> WhatsApp
-                         </button>
-                     </div>
-                     <button
-                         onClick={() => {
-                             if (!showNumber) {
-                                 track('cta_contact_clicked', { listing_id: id, channel: 'show_number' });
-                             }
-                             setShowNumber(!showNumber);
-                         }}
-                         className={`mt-3 w-full py-2 text-sm font-bold ${showNumber ? 'text-emerald-600' : 'text-slate-600'}`}
-                     >
-                         {showNumber ? (
-                             <a href={`tel:${getCleanedPhoneNumber()}`} className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                 <Phone className="w-4 h-4" />
-                                 {getFormattedPhoneNumber()}
-                             </a>
-                         ) : (
-                             'Show number'
-                         )}
-                     </button>
-                     <p className="mt-2 text-[11px] text-slate-400 text-center">
-                         Never transfer money before viewing the property.
-                     </p>
-                 </div>
-             </div>
+            {/* Mobile Sticky Contact Bar */}
+            <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
+                <div className="bg-white/95 backdrop-blur border-t border-slate-200 px-4 py-3">
+                    <div className="grid grid-cols-2 gap-3">
+                        <button
+                            onClick={handleCall}
+                            className="py-3 rounded-xl font-bold bg-white text-slate-800 border border-slate-200 flex items-center justify-center gap-2"
+                        >
+                            <Phone className="w-5 h-5" /> Call
+                        </button>
+                        <button
+                            onClick={handleWhatsApp}
+                            className="py-3 rounded-xl font-bold bg-emerald-600 text-white flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+                        >
+                            <MessageCircle className="w-5 h-5" /> WhatsApp
+                        </button>
+                    </div>
+                    <button
+                        onClick={() => {
+                            if (!showNumber) {
+                                track('cta_contact_clicked', { listing_id: id, channel: 'show_number' });
+                            }
+                            setShowNumber(!showNumber);
+                        }}
+                        className={`mt-3 w-full py-2 text-sm font-bold ${showNumber ? 'text-emerald-600' : 'text-slate-600'}`}
+                    >
+                        {showNumber ? (
+                            <a href={`tel:${getCleanedPhoneNumber()}`} className="flex items-center justify-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                <Phone className="w-4 h-4" />
+                                {getFormattedPhoneNumber()}
+                            </a>
+                        ) : (
+                            'Show number'
+                        )}
+                    </button>
+                    <p className="mt-2 text-[11px] text-slate-400 text-center">
+                        Never transfer money before viewing the property.
+                    </p>
+                </div>
+            </div>
 
             {/* Make Offer Modal */}
             {isOfferOpen && (

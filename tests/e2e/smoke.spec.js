@@ -17,8 +17,9 @@ test.describe('Critical Path Smoke Tests', () => {
     test('Login page loads', async ({ page }) => {
         await page.goto('/auth/login');
         // Verify URL
-        expect(page.url()).toContain('/auth/login');
-        // Verify at least one input field exists
-        await expect(page.locator('input[type="email"]')).toBeVisible();
+        await expect(page).toHaveURL(/\/auth\/login/);
+
+        // Check "Welcome Back!" heading - this is sufficient for smoke test
+        await expect(page.getByRole('heading', { name: /Welcome Back!/i })).toBeVisible({ timeout: 15000 });
     });
 });

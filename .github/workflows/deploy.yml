@@ -129,6 +129,7 @@ jobs:
       - name: "🔔 Discord Notification"
         uses: Ilshidur/action-discord@master
         if: always()
+        continue-on-error: true
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
