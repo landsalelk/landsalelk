@@ -6,6 +6,9 @@ import { Toaster } from 'sonner';
 import AIChatWindow from '@/components/chat/AIChatWindow';
 import CookieConsent from '@/components/ui/CookieConsent';
 import { ComparisonProvider } from '@/context/ComparisonContext';
+import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google';
+import FacebookPixel from '@/components/analytics/FacebookPixel';
+import { Suspense } from 'react';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -75,6 +78,17 @@ export default function RootLayout({ children }) {
           <CookieConsent />
           <Toaster position="top-center" richColors />
         </ComparisonProvider>
+
+        {/* Analytics Integrations */}
+        {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
+        )}
+        {process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID && (
+          <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID} />
+        )}
+        <Suspense fallback={null}>
+          <FacebookPixel />
+        </Suspense>
       </body>
     </html>
   );
