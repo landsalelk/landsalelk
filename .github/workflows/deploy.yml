@@ -52,9 +52,9 @@ jobs:
           
           # Cancel any currently processing builds to save resources
           echo "Checking for ongoing builds..."
-          FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[].$id')
+          FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[]."$id"')
           for FUNC_ID in $FUNCTIONS; do
-            ONGOING_DEPLOYMENT=$(appwrite functions list-deployments --function-id $FUNC_ID --json | jq -r '.deployments[] | select(.status == "processing" or .status == "building") | .$id' | head -n 1)
+            ONGOING_DEPLOYMENT=$(appwrite functions list-deployments --function-id $FUNC_ID --json | jq -r '.deployments[] | select(.status == "processing" or .status == "building") | ."$id"' | head -n 1)
             if [ ! -z "$ONGOING_DEPLOYMENT" ]; then
               echo "Cancelling ongoing build $ONGOING_DEPLOYMENT for function $FUNC_ID"
               appwrite functions update-deployment-status --function-id $FUNC_ID --deployment-id $ONGOING_DEPLOYMENT || true
@@ -66,10 +66,10 @@ jobs:
           appwrite deploy site --site-id 6941d9280032a28b0536 --force
           
           # Activate latest ready deployments
-          FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[].$id')
+          FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[]."$id"')
           for FUNC_ID in $FUNCTIONS; do
             echo "Processing function: $FUNC_ID"
-            LATEST_DEPLOYMENT=$(appwrite functions list-deployments --function-id $FUNC_ID --json | jq -r '.deployments[0].$id // ""')
+            LATEST_DEPLOYMENT=$(appwrite functions list-deployments --function-id $FUNC_ID --json | jq -r '.deployments[0]."$id" // ""')
             
             if [ ! -z "$LATEST_DEPLOYMENT" ]; then
               echo "Found latest deployment: $LATEST_DEPLOYMENT"
