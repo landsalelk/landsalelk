@@ -48,7 +48,7 @@ export function PayHereButton({ amount, orderId, items, customer, onSuccess, onD
 
             // 2. Configure PayHere with fallbacks for missing data
             const payment = {
-                sandbox: true,
+                sandbox: process.env.NEXT_PUBLIC_PAYHERE_SANDBOX === 'true',
                 merchant_id: process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID,
                 return_url: window.location.origin + "/profile",
                 cancel_url: window.location.origin + "/profile",
