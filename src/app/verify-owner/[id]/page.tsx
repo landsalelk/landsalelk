@@ -39,12 +39,25 @@ export default function OwnerVerificationPage() {
         id,
       );
 
+      // 1. Handle Active Listings (Already Verified)
+      // We check this first because if it's active, the verification code might be cleared/null
+      // so strict token matching would fail. We want to show a success message instead.
+      if (doc.status === "active") {
+        setListing(doc);
+        // We will render a success view based on this status in the render method
+        return;
+      }
+
+      // 2. Validate Token
       if (doc.verification_code !== secret) {
         setError("Invalid or expired verification token.");
-      } else if (doc.status !== "pending_owner") {
-        if (doc.status === "active") {
-          setError("This listing has already been verified.");
-        } else if (doc.status === "rejected_by_owner") {
+        return;
+      }
+
+      // 3. Validate Status (Pending States)
+      // We accept both 'pending' (frontend created) and 'pending_owner' (function created)
+      if (doc.status !== "pending_owner" && doc.status !== "pending") {
+        if (doc.status === "rejected_by_owner") {
           setError("You have declined this listing.");
         } else {
           setError("Listing is not pending verification.");
@@ -189,6 +202,57 @@ export default function OwnerVerificationPage() {
 
   const firstImage = listing.images ? JSON.parse(listing.images)[0] : null;
   const serviceFee = listing.service_fee || 0;
+
+  // Render "Already Active" Success View
+  if (listing.status === "active") {
+    return (
+      <div className="min-h-screen bg-slate-50 px-4 py-8">
+        <div className="mx-auto max-w-2xl">
+          <div className="mb-8 overflow-hidden rounded-3xl bg-white shadow-xl">
+            <div className="p-8 text-center">
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-[#10b981]">
+                <Check className="h-10 w-10" />
+              </div>
+              <h1 className="mb-2 text-2xl font-bold text-slate-900">
+                Listing is Live!
+              </h1>
+              <p className="mb-6 text-slate-500">
+                This property has already been verified and is active on the
+                market.
+              </p>
+
+              {firstImage && (
+                <div className="relative mx-auto mb-8 h-48 w-full max-w-sm overflow-hidden rounded-xl">
+                  <Image
+                    src={firstImage}
+                    alt="Property"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              )}
+
+              <div className="grid gap-3">
+                <button
+                  onClick={() => router.push(`/properties/${id}`)}
+                  className="btn-primary w-full py-3 text-lg font-bold"
+                >
+                  View Public Listing
+                </button>
+                <button
+                  onClick={() => router.push("/")}
+                  className="w-full rounded-xl py-3 font-bold text-slate-500 transition-colors hover:bg-slate-50"
+                >
+                  Back to Home
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
