@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, ArrowRight } from 'lucide-react';
-import { BUCKET_LISTING_IMAGES } from '@/appwrite/config';
+import { BUCKET_LISTING_IMAGES, APPWRITE_ENDPOINT } from '@/appwrite/config';
 
 // Helper to parse localized strings (JSON)
 const parseLocalized = (val) => {
@@ -45,7 +45,7 @@ const parseLocalized = (val) => {
 export function RecentlyViewed({ currentId }) {
     const [recent, setRecent] = useState([]);
 
-    const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+    const endpoint = APPWRITE_ENDPOINT;
     const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
     const resolveUrl = useMemo(() => (val) => {
         if (!val) return null;
@@ -113,7 +113,7 @@ export function RecentlyViewed({ currentId }) {
 export const addToHistory = (property) => {
     if (!property || !property.$id) return;
 
-    const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+    const endpoint = APPWRITE_ENDPOINT;
     const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
     const resolveUrl = (val) => {
         if (!val) return null;

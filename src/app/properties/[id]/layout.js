@@ -1,5 +1,5 @@
 import { getPropertyById } from '@/lib/properties';
-import { BUCKET_LISTING_IMAGES } from '@/appwrite/config';
+import { BUCKET_LISTING_IMAGES, APPWRITE_ENDPOINT } from '@/appwrite/config';
 
 // Helper to safely parse JSON strings (for i18n fields)
 const parseSafe = (val, fallback = '') => {
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }) {
             ? parsedDescription.slice(0, 160)
             : `${property.listing_type || 'Property'} in ${property.city || 'Sri Lanka'} - ${property.price ? `LKR ${property.price.toLocaleString()}` : 'Contact for price'}`;
 
-        const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+        const endpoint = APPWRITE_ENDPOINT;
         const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
         const resolveImg = (val) => {
             if (!val) return null;
