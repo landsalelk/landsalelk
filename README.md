@@ -1,5 +1,8 @@
 # LandSale.lk 🏠
 
+[![Deploy to Appwrite](https://github.com/landsalelk/landsalelk/actions/workflows/deploy.yml/badge.svg)](https://github.com/landsalelk/landsalelk/actions/workflows/deploy.yml)
+[![Health Check](https://github.com/landsalelk/landsalelk/actions/workflows/health-check.yml/badge.svg)](https://github.com/landsalelk/landsalelk/actions/workflows/health-check.yml)
+
 The Intelligent Real Estate Ecosystem for Sri Lanka. Built with **Next.js 15**, **Tailwind CSS v4**, and **Appwrite**.
 
 ## 🚀 Overview

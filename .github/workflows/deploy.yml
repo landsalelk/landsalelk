@@ -126,6 +126,14 @@ jobs:
           
           echo "✅ Deployment complete!"
 
+      - name: "🔔 Discord Notification"
+        uses: Ilshidur/action-discord@master
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: 'Deployment finished with status: {{ STATUS }} (Commit: {{ GITHUB_SHA }})'
+
       - name: "📋 Deployment Summary"
         if: success()
         run: |
