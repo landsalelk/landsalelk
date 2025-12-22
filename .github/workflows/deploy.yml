@@ -34,8 +34,19 @@ jobs:
           APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
           APPWRITE_API_KEY: ${{ secrets.APPWRITE_API_KEY }}
         run: |
+          # Use secrets if available, otherwise fallback to values from appwrite.json or known defaults
+          # Note: API KEY MUST be in secrets for security.
+          
+          ENDPOINT="${APPWRITE_ENDPOINT:-https://sgp.cloud.appwrite.io/v1}"
+          PROJECT_ID="${APPWRITE_PROJECT_ID:-landsalelkproject}"
+          
+          if [ -z "$APPWRITE_API_KEY" ]; then
+            echo "❌ Error: APPWRITE_API_KEY secret is missing in GitHub Settings."
+            exit 1
+          fi
+
           # Configure Appwrite CLI for CI (non-interactive)
-          appwrite client --endpoint "$APPWRITE_ENDPOINT" --projectId "$APPWRITE_PROJECT_ID" --key "$APPWRITE_API_KEY"
+          appwrite client --endpoint "$ENDPOINT" --projectId "$PROJECT_ID" --key "$APPWRITE_API_KEY"
           
           # Cancel any currently processing builds to save resources
           echo "Checking for ongoing builds..."
