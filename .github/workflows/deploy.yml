@@ -43,8 +43,6 @@ jobs:
           if [ -z "$APPWRITE_API_KEY" ]; then
             echo "❌ Error: APPWRITE_API_KEY secret is missing in GitHub Settings."
             exit 1
-          else
-            echo "✅ APPWRITE_API_KEY found (length: ${#APPWRITE_API_KEY})"
           fi
 
           # Configure Appwrite CLI for CI (non-interactive)
