@@ -1,166 +1,108 @@
-# LandSale.lk - Next.js with Appwrite
+# LandSale.lk 🏠
 
-The Intelligent Real Estate Ecosystem for Sri Lanka, built with Next.js and powered by Appwrite.
+The Intelligent Real Estate Ecosystem for Sri Lanka. Built with **Next.js 15**, **Tailwind CSS v4**, and **Appwrite**.
 
-## 🚀 Getting Started
+## 🚀 Overview
 
-This project follows the [Appwrite Next.js starter kit](https://github.com/appwrite/starter-for-nextjs) structure and best practices.
+LandSale.lk is a modern, full-stack real estate platform designed to streamline property buying, selling, and renting in Sri Lanka. It features an advanced Agent system, Owner Verification flows, AI-powered assistance, and secure document handling.
+
+### Key Features
+*   **🏢 Advanced Listings**: Buy, Rent, and "Wanted" listings with detailed attributes.
+*   **🤖 AI Assistant (Gamarala)**: Integrated AI chatbot for real estate queries and guidance.
+*   **✅ Owner Verification**: SMS-based verification loop to ensure listing authenticity.
+*   **👨‍💼 Agent Ecosystem**: Gamified agent system with training, certificates, and lead management.
+*   **📄 Legal Vault**: Secure storage for property deeds and legal documents.
+*   **💰 ROI Calculator**: Investment analysis tools tailored to Sri Lankan market rates.
+*   **📱 PWA Ready**: Installable on mobile devices with offline capabilities.
+
+## 🛠 Tech Stack
+
+*   **Frontend**: Next.js 15 (App Router), React 19, Framer Motion
+*   **Styling**: Tailwind CSS v4 (using CSS variables and `@theme`)
+*   **Backend**: Appwrite Cloud (Database, Auth, Storage, Functions)
+*   **Icons**: Lucide React
+*   **Maps**: Leaflet / React-Leaflet
+*   **Payments**: PayHere Integration
+
+## 🏁 Getting Started
 
 ### Prerequisites
-
-- Node.js 18.0 or later
-- An Appwrite Cloud account or self-hosted Appwrite instance
-- npm or yarn package manager
+*   Node.js 18.0 or later
+*   Appwrite Cloud Account (or self-hosted instance)
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd site
-   ```
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/landsalelk/landsalelk.git
+    cd landsalelk
+    ```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+2.  **Install Dependencies**
+    ```bash
+    npm install
+    ```
+    *Note: If you are on Linux, ensure `lightningcss-linux-x64-musl` is installed for Tailwind v4 compatibility.*
 
-3. **Configure Appwrite**
-   
-   Create a `.env` file in the root of the `site` directory (copy from `.env.example`):
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update the `.env` file with your Appwrite project credentials:
-   ```env
-   NEXT_PUBLIC_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
-   NEXT_PUBLIC_APPWRITE_PROJECT_ID=your_project_id_here
-   NEXT_PUBLIC_APPWRITE_DATABASE_ID=your_database_id_here
-   APPWRITE_API_KEY=your_api_key_here
-   ```
-   
-   You can find these values in your [Appwrite Console](https://cloud.appwrite.io/):
-   - **Endpoint**: Your Appwrite Cloud endpoint or self-hosted URL
-   - **Project ID**: Found in Project Settings
-   - **Database ID**: Found in your Database settings
-   - **API Key**: Generate in Settings > API Keys (for server-side operations)
+3.  **Environment Setup**
+    Copy `.env.example` to `.env` and fill in your Appwrite credentials:
+    ```bash
+    cp .env.example .env
+    ```
 
-4. **Set up Appwrite Collections**
-   
-   Run the setup script to create required collections:
-   ```bash
-   node src/scripts/setup-collections.js
-   ```
-   
-   Or manually configure your Appwrite project using the `appwrite.json` file.
+    Required variables:
+    ```env
+    NEXT_PUBLIC_APPWRITE_ENDPOINT=https://sgp.cloud.appwrite.io/v1
+    NEXT_PUBLIC_APPWRITE_PROJECT_ID=your_project_id
+    NEXT_PUBLIC_APPWRITE_DATABASE_ID=your_database_id
+    APPWRITE_API_KEY=your_server_api_key
+    ```
 
-5. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-   
-   Open [https://landsale.lk](https://landsale.lk) in your browser (or http://localhost:3000 for local dev).
+4.  **Run Development Server**
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000).
 
-## 📁 Project Structure
-
-This project follows the Appwrite Next.js starter structure:
+## 📂 Project Structure
 
 ```
-site/
-├── public/                 # Static assets
-│   ├── appwrite.svg
-│   └── manifest.json
+.
 ├── src/
-│   ├── app/               # Next.js App Router pages and routes
-│   │   ├── actions/       # Server actions
-│   │   ├── admin/         # Admin pages
-│   │   ├── agent/         # Agent pages
-│   │   ├── api/           # API routes
-│   │   ├── auth/          # Authentication pages
-│   │   ├── dashboard/     # User dashboard
-│   │   ├── properties/    # Property listing pages
-│   │   └── ...
-│   ├── components/        # React components
-│   │   ├── admin/         # Admin components
-│   │   ├── agent/         # Agent components
-│   │   ├── dashboard/     # Dashboard components
-│   │   ├── layout/        # Layout components
-│   │   ├── property/      # Property components
-│   │   └── ...
-│   ├── appwrite/          # Appwrite configuration and utilities
-│   │   ├── appwrite.js    # Appwrite client initialization
-│   │   ├── config.js      # Database/collection constants
-│   │   ├── functions.js   # Appwrite Functions utilities
-│   │   └── index.js       # Main exports
-│   ├── lib/               # Other utility libraries
-│   ├── hooks/             # Custom React hooks
-│   ├── context/           # React context providers
-│   └── scripts/           # Setup and utility scripts
-├── functions/             # Appwrite Cloud Functions
-│   ├── check-subscription-expiry/
-│   ├── expire-listings/
+│   ├── app/            # Next.js App Router (Pages & API)
+│   ├── components/     # Reusable React Components
+│   ├── lib/            # Utilities & Appwrite Config
+│   └── actions/        # Server Actions
+├── functions/          # Appwrite Cloud Functions
 │   ├── generate-agent-id/
-│   ├── generate-certificate/
-│   ├── generate-pdf/
-│   ├── send-email/
 │   ├── send-otp-sms/
-│   └── verify-otp/
-├── appwrite.json          # Appwrite project configuration
-├── next.config.mjs        # Next.js configuration
-├── package.json           # Dependencies and scripts
-└── .env.example           # Environment variables template
+│   └── ...
+├── appwrite.json       # Appwrite Project Configuration
+├── AGENTS.md           # Coding Standards & AI Instructions
+├── DEPLOYMENT.md       # Deployment Guide
+└── ROADMAP.md          # Future Plans
 ```
 
-## 🔧 Available Scripts
+## ☁️ Appwrite Integration
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+This project relies heavily on Appwrite Services:
 
-## 📚 Key Features
+*   **Database**: Stores Listings, Users, Agents, and Transactions.
+*   **Storage**: Property images and Legal Vault documents.
+*   **Functions**: Server-side logic for PDF generation, SMS notifications, and background tasks.
 
-- **Authentication**: Email/password, OAuth, Magic Link, OTP
-- **Property Management**: Listings, search, favorites, saved searches
-- **Agent System**: Agent registration, training, certificates, leads
-- **Payment Integration**: PayHere payment gateway
-- **Admin Dashboard**: User management, analytics, content management
-- **Real Estate Tools**: Mortgage calculator, ROI calculator, property valuation
-- **Legal Vault**: Secure document storage and management
-
-## 🔐 Environment Variables
-
-Required environment variables (see `.env.example`):
-
-- `NEXT_PUBLIC_APPWRITE_ENDPOINT` - Your Appwrite endpoint
-- `NEXT_PUBLIC_APPWRITE_PROJECT_ID` - Your Appwrite project ID
-- `NEXT_PUBLIC_APPWRITE_DATABASE_ID` - Your Appwrite database ID
-- `APPWRITE_API_KEY` - Server-side API key (never expose in client code)
-
-## 🏗️ Appwrite Services Used
-
-- **Databases**: Property listings, users, agents, transactions
-- **Storage**: Images, documents, certificates
-- **Authentication**: User management and authentication
-- **Functions**: PDF generation, email sending, OTP verification
-- **Avatars**: User profile images
-
-## 📖 Documentation
-
-- [Appwrite Documentation](https://appwrite.io/docs)
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Appwrite Next.js Quick Start](https://appwrite.io/docs/quick-starts/nextjs)
+**Note**: The project is configured for the **Singapore (sgp)** region. Ensure your Appwrite project is in the same region or update `NEXT_PUBLIC_APPWRITE_ENDPOINT`.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+See `ROADMAP.md` for planned features.
+
+1.  Fork the repo
+2.  Create your feature branch (`git checkout -b feature/amazing-feature`)
+3.  Commit your changes (`git commit -m 'Add some amazing feature'`)
+4.  Push to the branch (`git push origin feature/amazing-feature`)
+5.  Open a Pull Request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-Built with ❤️ using [Appwrite](https://appwrite.io) and [Next.js](https://nextjs.org)
-
+This project is licensed under the MIT License.
