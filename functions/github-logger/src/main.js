@@ -20,7 +20,7 @@ export default async ({ req, res, log, error }) => {
         return res.json({ success: false, message: "No error message provided" }, 400);
     }
 
-    const issueTitle = `🚨 Runtime Error [Verified v2]: ${errorMessage.substring(0, 50)}...`;
+    const issueTitle = `🚨 Runtime Error [Verified v3]: ${errorMessage.substring(0, 50)}...`;
     const issueBody = `
 ### Error Report
 **Message:** ${errorMessage}
