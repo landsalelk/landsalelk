@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { account } from "@/lib/appwrite";
+import { account, OAuthProvider } from "@/lib/appwrite";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -415,9 +415,8 @@ export default function LoginPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={async () => {
+              onClick={() => {
                 try {
-                  const { account, OAuthProvider } = await import("@/lib/appwrite");
                   if (typeof window !== "undefined") {
                     account.createOAuth2Session(
                       OAuthProvider.Google,
@@ -455,9 +454,8 @@ export default function LoginPage() {
             </button>
             <button
               type="button"
-              onClick={async () => {
+              onClick={() => {
                 try {
-                  const { account, OAuthProvider } = await import("@/lib/appwrite");
                   if (typeof window !== "undefined") {
                     account.createOAuth2Session(
                       OAuthProvider.Facebook,

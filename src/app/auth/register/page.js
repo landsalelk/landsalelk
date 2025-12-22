@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { account, ID } from "@/lib/appwrite";
+import { account, ID, OAuthProvider } from "@/lib/appwrite";
 
 // Password strength calculator
 function calculatePasswordStrength(password) {
@@ -704,9 +704,8 @@ export default function RegisterPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={async () => {
+              onClick={() => {
                 try {
-                  const { account, OAuthProvider } = await import("@/lib/appwrite");
                   if (typeof window !== "undefined") {
                     account.createOAuth2Session(
                       OAuthProvider.Google,
@@ -744,9 +743,8 @@ export default function RegisterPage() {
             </button>
             <button
               type="button"
-              onClick={async () => {
+              onClick={() => {
                 try {
-                  const { account, OAuthProvider } = await import("@/lib/appwrite");
                   if (typeof window !== "undefined") {
                     account.createOAuth2Session(
                       OAuthProvider.Facebook,
