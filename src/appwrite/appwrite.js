@@ -19,14 +19,11 @@ import {
  * for build time (SSR/SSG) to prevent build failures.
  */
 
-// Environment variables
-let endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
-const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+import { APPWRITE_ENDPOINT } from "./config";
 
-// Force Singapore endpoint if the global one is somehow used
-if (endpoint === "https://cloud.appwrite.io/v1") {
-  endpoint = "https://sgp.cloud.appwrite.io/v1";
-}
+// Environment variables
+const endpoint = APPWRITE_ENDPOINT;
+const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
 // Fallback values for build time only - these should be overridden by env vars in production
 const FALLBACK_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
