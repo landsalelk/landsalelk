@@ -42,18 +42,18 @@ jobs:
           FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[].$id')
           for FUNC_ID in $FUNCTIONS; do
             echo "Processing function: $FUNC_ID"
-            LATEST_DEPLOYMENT=$(appwrite functions listDeployments --functionId $FUNC_ID --json | jq -r '.deployments[0].$id // ""')
+            LATEST_DEPLOYMENT=$(appwrite functions list-deployments --function-id $FUNC_ID --json | jq -r '.deployments[0].$id // ""')
             
             if [ ! -z "$LATEST_DEPLOYMENT" ]; then
               echo "Found latest deployment: $LATEST_DEPLOYMENT"
               
               # Poll for build completion (max 5 minutes)
               for i in {1..30}; do
-                DEPLOYMENT_STATUS=$(appwrite functions getDeployment --functionId $FUNC_ID --deploymentId $LATEST_DEPLOYMENT --json | jq -r '.status')
+                DEPLOYMENT_STATUS=$(appwrite functions get-deployment --function-id $FUNC_ID --deployment-id $LATEST_DEPLOYMENT --json | jq -r '.status')
                 echo "Deployment status: $DEPLOYMENT_STATUS"
                 
                 if [ "$DEPLOYMENT_STATUS" = "ready" ]; then
-                  appwrite functions updateDeployment --functionId $FUNC_ID --deploymentId $LATEST_DEPLOYMENT
+                  appwrite functions update-function-deployment --function-id $FUNC_ID --deployment-id $LATEST_DEPLOYMENT
                   echo "✅ Activated deployment $LATEST_DEPLOYMENT"
                   break
                 elif [ "$DEPLOYMENT_STATUS" = "failed" ]; then
