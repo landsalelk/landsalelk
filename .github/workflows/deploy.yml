@@ -1,42 +1,93 @@
-name: Deploy to Appwrite
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - main
+      - staging
+  pull_request:
+    branches:
+      - main
+      - staging
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  # ============================================
+  # QUALITY GATES - Must pass before deployment
+  # ============================================
+  quality-checks:
+    name: "🔍 Quality Gates"
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: "⚙️ Setup Node.js"
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
-      - name: Install Dependencies
-        run: npm install
+      - name: "📦 Install Dependencies"
+        run: npm ci
 
-      - name: Install Appwrite CLI
+      - name: "🔎 Gate 1: Lint Check"
+        run: npm run lint
+        continue-on-error: false
+
+      - name: "🏗️ Gate 2: Build Verification"
+        run: npm run build
+        env:
+          NEXT_PUBLIC_APPWRITE_ENDPOINT: https://sgp.cloud.appwrite.io/v1
+          NEXT_PUBLIC_APPWRITE_PROJECT_ID: landsalelkproject
+          NEXT_PUBLIC_APPWRITE_DATABASE_ID: landsalelkdb
+
+      # Uncomment when tests are added
+      # - name: "🧪 Gate 3: Unit Tests"
+      #   run: npm test -- --coverage --passWithNoTests
+
+      # - name: "🎭 Gate 4: E2E Tests"
+      #   run: npx playwright test --project=chromium
+      #   env:
+      #     PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+  # ============================================
+  # DEPLOYMENT - Only runs after quality gates pass
+  # ============================================
+  deploy:
+    name: "🚀 Deploy to Appwrite"
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    # Only deploy on push to main (not PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+
+      - name: "⚙️ Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: "📦 Install Dependencies"
+        run: npm ci
+
+      - name: "🔧 Install Appwrite CLI"
         run: npm install -g appwrite-cli
 
-      - name: Deploy to Appwrite
+      - name: "🚀 Deploy to Appwrite"
         env:
           APPWRITE_ENDPOINT: ${{ secrets.APPWRITE_ENDPOINT }}
           APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
           APPWRITE_API_KEY: ${{ secrets.APPWRITE_API_KEY }}
         run: |
-          # Use secrets if available, otherwise fallback to values from appwrite.json or known defaults
-          # Note: API KEY MUST be in secrets for security.
-          
+          # Use secrets if available, otherwise fallback to known defaults
           ENDPOINT="${APPWRITE_ENDPOINT:-https://sgp.cloud.appwrite.io/v1}"
           PROJECT_ID="${APPWRITE_PROJECT_ID:-landsalelkproject}"
           
@@ -49,24 +100,47 @@ jobs:
           appwrite client --endpoint "$ENDPOINT" --project-id "$PROJECT_ID" --key "$APPWRITE_API_KEY"
           
           # Cancel any currently processing builds to save resources
-          echo "Checking for ongoing builds..."
-          FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[]."$id"')
+          echo "🔄 Checking for ongoing builds..."
+          FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[]."$id"' 2>/dev/null || echo "")
           for FUNC_ID in $FUNCTIONS; do
-            ONGOING_DEPLOYMENT=$(appwrite functions list-deployments --function-id $FUNC_ID --json | jq -r '.deployments[] | select(.status == "processing" or .status == "building") | ."$id"' | head -n 1)
+            ONGOING_DEPLOYMENT=$(appwrite functions list-deployments --function-id $FUNC_ID --json | jq -r '.deployments[] | select(.status == "processing" or .status == "building") | ."$id"' 2>/dev/null | head -n 1)
             if [ ! -z "$ONGOING_DEPLOYMENT" ]; then
-              echo "Cancelling ongoing build $ONGOING_DEPLOYMENT for function $FUNC_ID"
+              echo "⏹️ Cancelling ongoing build $ONGOING_DEPLOYMENT for function $FUNC_ID"
               appwrite functions update-deployment-status --function-id $FUNC_ID --deployment-id $ONGOING_DEPLOYMENT || true
             fi
           done
           
-          # Deploy all resources (Functions, Sites, Collections, Buckets, etc.)
-          echo "Deploying functions..."
-          # Get functions explicitly defined in appwrite.json
+          # Deploy functions
+          echo "📦 Deploying functions..."
           FUNCTIONS=$(jq -r '.functions[]."$id"' appwrite.json)
           for FUNC_ID in $FUNCTIONS; do
-            echo "Pushing function: $FUNC_ID"
+            echo "  → Pushing function: $FUNC_ID"
             appwrite push function --function-id $FUNC_ID --with-variables --force
           done
           
-          echo "Deploying site..."
+          # Deploy site
+          echo "🌐 Deploying site..."
           appwrite push site --site-id 6941d9280032a28b0536 --force
+          
+          echo "✅ Deployment complete!"
+
+      - name: "📋 Deployment Summary"
+        if: success()
+        run: |
+          echo "## 🚀 Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Author:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # STAGING DEPLOYMENT (Future Implementation)
+  # ============================================
+  # deploy-staging:
+  #   name: "🧪 Deploy to Staging"
+  #   runs-on: ubuntu-latest
+  #   needs: quality-checks
+  #   if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+  #   steps:
+  #     - name: Deploy to Staging
+  #       run: echo "Staging deployment would go here"
