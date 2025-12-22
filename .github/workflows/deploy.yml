@@ -30,5 +30,27 @@ jobs:
           APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
           APPWRITE_API_KEY: ${{ secrets.APPWRITE_API_KEY }}
         run: |
-          appwrite login --endpoint "$APPWRITE_ENDPOINT" --project "$APPWRITE_PROJECT_ID" --key "$APPWRITE_API_KEY"
+          # Configure Appwrite CLI for CI (non-interactive)
+          appwrite client --endpoint "$APPWRITE_ENDPOINT" --projectId "$APPWRITE_PROJECT_ID" --key "$APPWRITE_API_KEY"
+          
           appwrite deploy site --site-id 6941d9280032a28b0536 --force
+          
+          # Deploy all functions
+          appwrite deploy function --all --yes
+          
+          # Activate latest ready deployments
+          FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[].$id')
+          for FUNC_ID in $FUNCTIONS; do
+            LATEST_DEPLOYMENT=$(appwrite functions listDeployments --functionId $FUNC_ID --json | jq -r '.deployments[0].$id // ""')
+            if [ ! -z "$LATEST_DEPLOYMENT" ]; then
+              DEPLOYMENT_STATUS=$(appwrite functions getDeployment --functionId $FUNC_ID --deploymentId $LATEST_DEPLOYMENT --json | jq -r '.status')
+              if [ "$DEPLOYMENT_STATUS" = "ready" ]; then
+                appwrite functions updateDeployment --functionId $FUNC_ID --deploymentId $LATEST_DEPLOYMENT
+                echo "Activated latest deployment $LATEST_DEPLOYMENT for function $FUNC_ID"
+              else
+                echo "Latest deployment for $FUNC_ID is not ready (status: $DEPLOYMENT_STATUS)"
+              fi
+            else
+              echo "No deployments found for function $FUNC_ID"
+            fi
+          done
