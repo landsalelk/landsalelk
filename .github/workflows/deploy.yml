@@ -50,10 +50,12 @@ jobs:
       # - name: "🧪 Gate 3: Unit Tests"
       #   run: npm test -- --coverage --passWithNoTests
 
-      # - name: "🎭 Gate 4: E2E Tests"
-      #   run: npx playwright test --project=chromium
-      #   env:
-      #     PLAYWRIGHT_BASE_URL: http://localhost:3000
+      - name: "🎭 Gate 4: E2E Tests"
+        run: |
+          npx playwright install --with-deps
+          npm run test:e2e
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
 
   # ============================================
   # DEPLOYMENT - Only runs after quality gates pass
@@ -134,13 +136,64 @@ jobs:
           echo "**Time:** $(date -u)" >> $GITHUB_STEP_SUMMARY
 
   # ============================================
-  # STAGING DEPLOYMENT (Future Implementation)
+  # STAGING DEPLOYMENT
   # ============================================
-  # deploy-staging:
-  #   name: "🧪 Deploy to Staging"
-  #   runs-on: ubuntu-latest
-  #   needs: quality-checks
-  #   if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
-  #   steps:
-  #     - name: Deploy to Staging
-  #       run: echo "Staging deployment would go here"
+  deploy-staging:
+    name: "🧪 Deploy to Staging"
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+
+      - name: "⚙️ Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: "📦 Install Dependencies"
+        run: npm ci
+
+      - name: "🔧 Install Appwrite CLI"
+        run: npm install -g appwrite-cli
+
+      - name: "🚀 Deploy to Staging Appwrite"
+        env:
+          # Use Staging-specific secrets
+          APPWRITE_ENDPOINT: ${{ secrets.APPWRITE_ENDPOINT }}
+          APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID_STAGING }} 
+          APPWRITE_API_KEY: ${{ secrets.APPWRITE_API_KEY_STAGING }}
+        run: |
+          ENDPOINT="${APPWRITE_ENDPOINT:-https://sgp.cloud.appwrite.io/v1}"
+          
+          # Ensure Staging Project ID is set
+          if [ -z "$APPWRITE_PROJECT_ID" ]; then
+            echo "❌ Error: APPWRITE_PROJECT_ID_STAGING secret is missing."
+            exit 1
+          fi
+          
+          if [ -z "$APPWRITE_API_KEY" ]; then
+            echo "❌ Error: APPWRITE_API_KEY_STAGING secret is missing."
+            exit 1
+          fi
+
+          echo "Using Staging Project ID: $APPWRITE_PROJECT_ID"
+
+          # Configure Appwrite CLI
+          appwrite client --endpoint "$ENDPOINT" --project-id "$APPWRITE_PROJECT_ID" --key "$APPWRITE_API_KEY"
+          
+          # Deploy functions to staging
+          echo "📦 Deploying functions to staging..."
+          appwrite push function --all --force
+          
+          # Deploy site to staging
+          echo "🌐 Deploying site to staging..."
+          # Note: Staging site ID might be different or dynamic. For now using same command but it routes to staging project.
+          # If site ID is different, we need a map or env var. 
+          # Assuming 'appwrite push site' creates/updates based on project scope.
+          appwrite push site --site-id 6941d9280032a28b0536 --force
+          
+          echo "✅ Staging Deployment complete!"
