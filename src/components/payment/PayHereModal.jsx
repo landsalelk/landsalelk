@@ -40,7 +40,7 @@ export default function PayHereModal({
 
             // 2. Prepare PayHere Payment Object
             const payment = {
-                sandbox: process.env.NODE_ENV !== 'production', // Sandbox in development, live in production
+                sandbox: process.env.NEXT_PUBLIC_PAYHERE_SANDBOX === 'true', // Controlled by env var
                 merchant_id: merchantId,
                 return_url: window.location.origin + '/dashboard', // Fallback
                 cancel_url: window.location.origin + '/dashboard',

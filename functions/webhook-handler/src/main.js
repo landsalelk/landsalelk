@@ -30,7 +30,7 @@ export default async ({ req, res, log, error }) => {
         log(`Received payment webhook for order: ${order_id}`);
 
         // Verify MD5 signature (in production)
-        const merchant_secret = process.env.PAYHERE_SECRET;
+        const merchant_secret = process.env.PAYHERE_MERCHANT_SECRET || process.env.PAYHERE_SECRET;
         // const local_md5sig = md5(merchant_id + order_id + payhere_amount + payhere_currency + status_code + strtoupper(md5(merchant_secret)));
 
         // Status codes: 2 = success, 0 = pending, -1 = canceled, -2 = failed, -3 = chargeback
