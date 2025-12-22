@@ -41,6 +41,27 @@
     },
     "functions": [
         {
+            "$id": "generate-agent-id",
+            "execute": [
+                "users"
+            ],
+            "name": "Generate Agent ID",
+            "enabled": true,
+            "logging": true,
+            "runtime": "node-18.0",
+            "scopes": [
+                "files.write",
+                "files.read"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "specification": "s-0.5vcpu-512mb",
+            "path": "functions/generate-agent-id"
+        },
+        {
             "$id": "693f9fe5002d6f4a065b",
             "execute": [],
             "name": "generate-pdf",
