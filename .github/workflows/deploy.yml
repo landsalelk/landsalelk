@@ -48,7 +48,7 @@ jobs:
           fi
 
           # Configure Appwrite CLI for CI (non-interactive)
-          appwrite client --endpoint "$ENDPOINT" --projectId "$PROJECT_ID" --key "$APPWRITE_API_KEY"
+          appwrite client --endpoint "$ENDPOINT" --project-id "$PROJECT_ID" --key "$APPWRITE_API_KEY"
           
           # Cancel any currently processing builds to save resources
           echo "Checking for ongoing builds..."
