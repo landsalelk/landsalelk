@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -33,6 +37,17 @@ jobs:
           # Configure Appwrite CLI for CI (non-interactive)
           appwrite client --endpoint "$APPWRITE_ENDPOINT" --projectId "$APPWRITE_PROJECT_ID" --key "$APPWRITE_API_KEY"
           
+          # Cancel any currently processing builds to save resources
+          echo "Checking for ongoing builds..."
+          FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[].$id')
+          for FUNC_ID in $FUNCTIONS; do
+            ONGOING_DEPLOYMENT=$(appwrite functions list-deployments --function-id $FUNC_ID --json | jq -r '.deployments[] | select(.status == "processing" or .status == "building") | .$id' | head -n 1)
+            if [ ! -z "$ONGOING_DEPLOYMENT" ]; then
+              echo "Cancelling ongoing build $ONGOING_DEPLOYMENT for function $FUNC_ID"
+              appwrite functions update-deployment-status --function-id $FUNC_ID --deployment-id $ONGOING_DEPLOYMENT || true
+            fi
+          done
+          
           # Deploy all resources (Functions, Sites, Collections, Buckets, etc.)
           appwrite deploy function --all --yes
           appwrite deploy site --site-id 6941d9280032a28b0536 --force
@@ -57,6 +72,9 @@ jobs:
                   break
                 elif [ "$DEPLOYMENT_STATUS" = "failed" ]; then
                   echo "❌ Deployment $LATEST_DEPLOYMENT failed"
+                  echo "Fetching build logs..."
+                  # Attempt to fetch build logs (if supported via CLI, otherwise generic message)
+                  appwrite functions get-deployment --function-id $FUNC_ID --deployment-id $LATEST_DEPLOYMENT --json || echo "Could not fetch deployment details"
                   exit 1
                 fi
                 
