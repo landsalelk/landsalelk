@@ -61,7 +61,8 @@ jobs:
           
           # Deploy all resources (Functions, Sites, Collections, Buckets, etc.)
           echo "Deploying functions..."
-          FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[]."$id"')
+          # Get functions explicitly defined in appwrite.json
+          FUNCTIONS=$(jq -r '.functions[]."$id"' appwrite.json)
           for FUNC_ID in $FUNCTIONS; do
             echo "Pushing function: $FUNC_ID"
             appwrite push function --function-id $FUNC_ID --with-variables --force
