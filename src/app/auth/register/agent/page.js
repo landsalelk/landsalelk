@@ -131,7 +131,7 @@ export default function AgentRegistrationPage() {
 
         } catch (error) {
             console.error(error);
-            toast.error("Registration failed. Please try again.");
+            toast.error(error.message || "Registration failed. Please try again.");
         } finally {
             setSubmitting(false);
         }
