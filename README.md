@@ -93,6 +93,17 @@ This project relies heavily on Appwrite Services:
 
 **Note**: The project is configured for the **Singapore (sgp)** region. Ensure your Appwrite project is in the same region or update `NEXT_PUBLIC_APPWRITE_ENDPOINT`.
 
+## 🚀 Deployment
+
+We use **GitHub Actions** for automated CI/CD.
+
+*   **Frontend**: Deployed automatically to Appwrite Cloud.
+*   **Functions**: Deployed and updated automatically via Appwrite CLI.
+
+Simply push to the `main` branch to trigger a deployment.
+
+👉 **[Read the Full Deployment Guide](DEPLOYMENT.md)** for detailed setup instructions and secrets configuration.
+
 ## 🤝 Contributing
 
 See `ROADMAP.md` for planned features.
