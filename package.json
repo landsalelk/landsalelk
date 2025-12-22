@@ -10,7 +10,8 @@
     "lint": "next lint",
     "deploy": "appwrite push site --site-id 6941d9280032a28b0536 --force",
     "deploy:functions": "appwrite deploy function --all",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "analyze": "cross-env ANALYZE=true next build"
   },
   "engines": {
     "node": ">=18.17.0"
@@ -45,9 +46,11 @@
     "lightningcss-linux-x64-musl": "^1.22.1"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.1.0",
     "@playwright/test": "^1.57.0",
     "@types/node": "25.0.3",
     "@types/react": "19.2.7",
+    "cross-env": "^10.1.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.5.9",
     "prettier": "3.6.2",

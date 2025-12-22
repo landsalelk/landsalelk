@@ -36,5 +36,11 @@ const nextConfig = {
 };
 
 
+import withBundleAnalyzer from '@next/bundle-analyzer';
+
+const bundleAnalyzer = withBundleAnalyzer({
+    enabled: process.env.ANALYZE === 'true',
+});
+
 // Force server restart: 2025-12-22
-export default nextConfig;
+export default bundleAnalyzer(nextConfig);
