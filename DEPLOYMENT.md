@@ -1,52 +1,63 @@
 # Deployment Guide 🚀
 
-This project uses **Appwrite Git Integration** for frontend deployment and `appwrite-cli` for function deployment.
+This project uses a fully automated **CI/CD Pipeline** powered by **GitHub Actions** and the **Appwrite CLI**.
 
-## Frontend Deployment
+## 🔄 Automated Deployment (Recommended)
 
-The Next.js frontend is deployed automatically via Appwrite's App Runner.
+You don't need to deploy manually. The process is completely automated:
 
-1.  **Push to GitHub**: Changes pushed to the `main` branch trigger a new deployment.
-2.  **Configuration**:
-    *   **Root Directory**: `.`
-    *   **Build Command**: `npm run build`
-    *   **Output Directory**: `.next`
-    *   **Install Command**: `npm install`
-3.  **Environment Variables**: Ensure all variables in `.env.example` are set in the Appwrite Console under the project's settings.
+1.  **Develop**: Make your changes locally.
+2.  **Commit**: Commit your code.
+3.  **Push**: Push your changes to the `main` branch.
+    ```bash
+    git push origin main
+    ```
+4.  **Relax**: The GitHub Action will automatically:
+    *   Install dependencies.
+    *   Install the Appwrite CLI.
+    *   **Push & Build** all your Appwrite Functions (only the ones defined in `appwrite.json`).
+    *   **Deploy** the Next.js Frontend Site.
+    *   **Activate** the new deployments automatically.
 
-**Important**: The project includes `lightningcss-linux-x64-musl` as a dependency to ensure successful builds on Appwrite's Alpine-based build environments.
+### Monitoring Deployments
+You can monitor the progress of your deployment in the **[Actions](https://github.com/landsalelk/landsalelk/actions)** tab of this repository.
 
-## Appwrite Functions Deployment
+---
 
-Functions are managed via the `appwrite.json` configuration file.
+## ⚙️ Setup for Contributors
 
-### Deploying All Functions
-To deploy all functions (e.g., after a fresh clone or major update):
+If you are a new developer setting up this repo or forking it, you need to configure the following **Secrets** in your GitHub Repository settings (`Settings` -> `Secrets and variables` -> `Actions`):
 
+| Secret Name | Description |
+| :--- | :--- |
+| `APPWRITE_API_KEY` | An Appwrite API Key with enough scopes (functions.write, files.write, etc.) |
+| `APPWRITE_PROJECT_ID` | Your Appwrite Project ID (e.g., `landsalelkproject`) |
+| `APPWRITE_ENDPOINT` | The Appwrite Endpoint (default: `https://sgp.cloud.appwrite.io/v1`) |
+
+> **Note**: The `appwrite.json` file is the source of truth. Any function not listed there will be ignored during deployment.
+
+---
+
+## 🛠 Manual Deployment (Fallback)
+
+If the CI/CD pipeline fails or you need to deploy manually from your local machine, you can use the Appwrite CLI directly.
+
+### Prerequisites
+1.  Install Appwrite CLI: `npm install -g appwrite-cli`
+2.  Login: `appwrite login`
+
+### Commands
+
+**Deploy Everything (Site & Functions):**
 ```bash
-npm run deploy:functions
-# OR
-appwrite deploy function --all
+# Push all functions defined in appwrite.json
+appwrite push function --all --force
+
+# Push the website
+appwrite push site --site-id <your-site-id> --force
 ```
 
-### Deploying Specific Functions
-To deploy a single function:
-
+**Deploy Specific Function:**
 ```bash
-appwrite deploy function --functionId <function-id-or-name>
+appwrite push function --function-id <function-id> --force
 ```
-
-### Function Configuration
-*   **Runtime**: Node.js 20.0 (or 18.0 for legacy functions).
-*   **Permissions**: Ensure functions have the correct Execute permissions (e.g., `users`, `any`) as defined in `appwrite.json`.
-*   **Environment Variables**: Functions inherit project variables, but specific secrets (like `PAYHERE_MERCHANT_SECRET`) must be added manually in the Console if not managed via code.
-
-## Database Migrations
-
-Database structure is defined in `appwrite.json`. To apply changes:
-
-```bash
-appwrite deploy collection
-```
-
-**Note**: This project relies on specific Collection IDs (e.g., `listings`, `users_extended`). Do not change these IDs manually in the Console, as the codebase references them directly.
