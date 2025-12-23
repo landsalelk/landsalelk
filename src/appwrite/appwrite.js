@@ -19,19 +19,28 @@ import {
  * for build time (SSR/SSG) to prevent build failures.
  */
 
-// Environment variables
-let endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
-const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
-
-// Fallback values for build time only - these should be overridden by env vars in production
-// Enforce Singapore Region Endpoint for this project
-const FALLBACK_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
 const FALLBACK_PROJECT_ID = "landsalelkproject";
+const FALLBACK_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
 
-// Override global endpoint to sgp if it's the generic one (or missing)
-if (!endpoint || endpoint === 'https://cloud.appwrite.io/v1') {
-    endpoint = FALLBACK_ENDPOINT;
-}
+/**
+ * Determines the correct Appwrite endpoint.
+ * Enforces Singapore Region (sgp) if the generic endpoint is detected or environment variable is missing.
+ * This is critical to prevent "Project not accessible in this region" errors.
+ *
+ * @returns {string} The resolved Appwrite API Endpoint
+ */
+const getAppwriteEndpoint = () => {
+    const userDefined = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
+
+    // If user provided a specific endpoint that isn't the generic cloud one, use it.
+    // This allows for localhost or self-hosted instances.
+    if (userDefined && userDefined !== 'https://cloud.appwrite.io/v1') {
+        return userDefined;
+    }
+
+    // Otherwise, enforce Singapore Region
+    return FALLBACK_ENDPOINT;
+};
 
 let client;
 let account;
@@ -41,33 +50,28 @@ let functions;
 let avatars;
 
 try {
-  // Create client with environment variables or fallbacks
-  client = new Client()
-    .setEndpoint(endpoint)
-    .setProject(projectId || FALLBACK_PROJECT_ID);
+    const endpoint = getAppwriteEndpoint();
+    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || FALLBACK_PROJECT_ID;
 
-  // Initialize Appwrite services
-  account = new Account(client);
-  databases = new Databases(client);
-  storage = new Storage(client);
-  functions = new Functions(client);
-  avatars = new Avatars(client);
+    // Create client with resolved configuration
+    client = new Client()
+        .setEndpoint(endpoint)
+        .setProject(projectId);
+
+    // Initialize Appwrite services
+    account = new Account(client);
+    databases = new Databases(client);
+    storage = new Storage(client);
+    functions = new Functions(client);
+    avatars = new Avatars(client);
+
 } catch (error) {
-  // Critical error handling for initialization failure
-  console.error("Appwrite Initialization Failed:", error);
-  // Re-throw or handle as critical failure depending on app needs
-  // For now, we allow the app to load but subsequent calls might fail or be undefined.
-  // However, since exports are const bindings in ES modules, we can't change them later easily without 'let'.
-  // We switched to 'let' above, but ES module exports need to be live bindings or we export the object.
-  // With the current export structure (export { client... }), we need client to be defined.
-
-  // Minimal fallback to prevent crash on import
-  client = new Client();
-  account = new Account(client);
-  databases = new Databases(client);
-  storage = new Storage(client);
-  functions = new Functions(client);
-  avatars = new Avatars(client);
+    // Fail fast during initialization if something is critically wrong
+    // Note: console.error is allowed for critical system failures
+    console.error("CRITICAL: Failed to initialize Appwrite Client", error);
+    // We allow the module to export undefined services rather than crashing the entire process immediately,
+    // as some build steps might import this file but not use it.
+    // However, usage will throw runtime errors.
 }
 
 // Export all services and utilities
