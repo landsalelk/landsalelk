@@ -1,4 +1,4 @@
-export const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelkdb';
+export const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || process.env.EXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelkdb';
 
 // Enforce Singapore Region Endpoint for this project
 let endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
