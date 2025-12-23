@@ -21,7 +21,7 @@ export default function FacebookPixel() {
     if (facebookPixelId && typeof window.fbq === 'function') {
       window.fbq('track', 'PageView');
     }
-  }, [pathname, searchParams, facebookPixelId]);
+  }, [pathname, searchParams]);
 
   if (!facebookPixelId) {
     return null;
