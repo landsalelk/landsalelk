@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     checkUser();
-  }, [checkUser]);
+  }, [checkUser]); // Run checkUser on mount
 
   const logout = async () => {
     try {
