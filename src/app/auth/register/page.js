@@ -715,7 +715,7 @@ export default function RegisterPage() {
                   }
                 } catch (error) {
                   console.error("Google OAuth error:", error);
-                  toast.error("Google sign up failed. Please try again.");
+                  toast.error("Failed to initiate Google sign up: " + error.message);
                 }
               }}
               className="flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 py-3 font-medium text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50"
@@ -754,7 +754,7 @@ export default function RegisterPage() {
                   }
                 } catch (error) {
                   console.error("Facebook OAuth error:", error);
-                  toast.error("Facebook sign up failed. Please try again.");
+                  toast.error("Failed to initiate Facebook sign up: " + error.message);
                 }
               }}
               className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#1877F2] bg-[#1877F2] px-4 py-3 font-medium text-white transition-all hover:bg-[#166FE5]"
