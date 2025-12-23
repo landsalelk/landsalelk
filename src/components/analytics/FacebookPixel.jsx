@@ -5,16 +5,23 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import Image from 'next/image';
 
+/**
+ * FacebookPixel component handles the Facebook Pixel script injection and page view tracking.
+ * It dynamically loads the Facebook Pixel script and tracks page views on navigation.
+ * Includes a noscript fallback for browsers with JavaScript disabled.
+ */
 export default function FacebookPixel() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const facebookPixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
 
   useEffect(() => {
-    // This effect runs on mount and whenever pathname/searchParams change.
-    // It ensures PageView is tracked on initial load and client-side navigation.
-    if (facebookPixelId && typeof window.fbq === 'function') {
-      window.fbq('track', 'PageView');
+    try {
+      if (facebookPixelId && typeof window.fbq === 'function') {
+        window.fbq('track', 'PageView');
+      }
+    } catch (error) {
+      // Silently fail to avoid crashing the app
     }
   }, [pathname, searchParams, facebookPixelId]);
 

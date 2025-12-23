@@ -53,7 +53,6 @@ export default function OwnerVerificationPage() {
         setListing(doc);
       }
     } catch (err) {
-      console.error(err);
       setError("Failed to load listing details.");
     } finally {
       setLoading(false);
@@ -86,6 +85,10 @@ export default function OwnerVerificationPage() {
       if (!result.success) throw new Error(result.error);
 
       const params = result.paymentParams;
+
+      if (!params) {
+        throw new Error("Payment parameters were not received.");
+      }
 
       // Create and submit PayHere form
       const form = document.createElement("form");
