@@ -2,9 +2,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def validate() -> bool:
+def validate_ai_queries() -> bool:
     """
-    Placeholder function for query validation.
+    Placeholder function for AI query validation.
 
     This module was created to resolve a CI/CD pathing issue where a script
     was attempting to execute a non-existent file. The logic here is
@@ -12,19 +12,19 @@ def validate() -> bool:
     would contain the business logic for validating listing queries,
     likely involving database calls or NLP processing.
     """
-    logger.info("Validating queries...")
+    logger.info("Validating AI queries...")
     try:
         # --- Placeholder Logic ---
         # This section simulates the kind of work the module might do.
         # For example, it could connect to a database, call an NLP service,
         # or perform file I/O. These operations can raise specific errors.
-        logger.debug("Performing validation logic...")
+        logger.debug("Performing AI validation logic...")
 
         # To test error handling, uncomment one of the following lines:
         # raise ValueError("Simulated data validation error")
         # raise IOError("Simulated file access error")
 
-        logger.info("Validation complete.")
+        logger.info("AI validation complete.")
         return True
 
     # --- Specific Exception Handling ---
@@ -34,10 +34,10 @@ def validate() -> bool:
         logger.error(f"Data validation error: {e}", exc_info=True)
         return False
     except IOError as e:
-        logger.error(f"I/O error during validation: {e}", exc_info=True)
+        logger.error(f"I/O error during AI validation: {e}", exc_info=True)
         return False
     except Exception as e:
         # A general catch-all is still useful for unexpected errors.
         # This ensures the worker doesn't crash silently.
-        logger.critical(f"An unexpected error occurred during validation: {e}", exc_info=True)
+        logger.critical(f"An unexpected error occurred during AI validation: {e}", exc_info=True)
         return False
