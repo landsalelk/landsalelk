@@ -18,12 +18,20 @@ export function PropertyFilters({ filters, onChange }) {
             <button
                 onClick={() => setIsOpen(true)}
                 className="md:hidden flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg shadow-sm text-slate-700 font-medium mb-4"
+                aria-expanded={isOpen}
+                aria-controls="property-filters-modal"
+                aria-label="Open filters"
             >
                 <Filter className="w-4 h-4" /> Filters
             </button>
 
             {/* Filter Sidebar / Bottom Sheet */}
-            <div className={`
+            <div
+                id="property-filters-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="filters-title"
+                className={`
                 fixed inset-0 z-50 md:static md:bg-transparent md:z-0 transition-all duration-300
                 ${isOpen ? 'bg-black/60 backdrop-blur-sm' : 'bg-transparent pointer-events-none md:pointer-events-auto'}
             `} onClick={() => setIsOpen(false)}>
@@ -50,13 +58,14 @@ export function PropertyFilters({ filters, onChange }) {
                     <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 md:hidden" />
 
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold text-xl text-slate-800 md:text-lg">Filters</h3>
+                        <h3 id="filters-title" className="font-bold text-xl text-slate-800 md:text-lg">Filters</h3>
                         
                         <div className="flex items-center gap-2">
                              {/* Mobile Close */}
                             <button
                                 onClick={() => setIsOpen(false)}
                                 className="md:hidden p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
+                                aria-label="Close filters"
                             >
                                 <X className="w-5 h-5 text-slate-500" />
                             </button>
@@ -75,10 +84,11 @@ export function PropertyFilters({ filters, onChange }) {
 
                         {/* Search */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Keyword</label>
+                            <label htmlFor="filter-keyword" className="block text-sm font-medium text-slate-700 mb-2">Keyword</label>
                             <div className="relative">
                                 <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                                 <input
+                                    id="filter-keyword"
                                     type="text"
                                     placeholder="e.g. Colombo, Sea View"
                                     className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500/20 outline-none text-sm"
@@ -114,6 +124,7 @@ export function PropertyFilters({ filters, onChange }) {
                                 <input
                                     type="number"
                                     placeholder="Min"
+                                    aria-label="Minimum price"
                                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
                                     value={filters.minPrice || ''}
                                     onChange={(e) => handleChange('minPrice', e.target.value)}
@@ -121,6 +132,7 @@ export function PropertyFilters({ filters, onChange }) {
                                 <input
                                     type="number"
                                     placeholder="Max"
+                                    aria-label="Maximum price"
                                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
                                     value={filters.maxPrice || ''}
                                     onChange={(e) => handleChange('maxPrice', e.target.value)}
@@ -130,8 +142,9 @@ export function PropertyFilters({ filters, onChange }) {
 
                         {/* Category */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Category</label>
+                            <label htmlFor="filter-category" className="block text-sm font-medium text-slate-700 mb-2">Category</label>
                             <select
+                                id="filter-category"
                                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
                                 onChange={(e) => handleChange('category', e.target.value)}
                                 value={filters.category || 'all'}
@@ -145,8 +158,9 @@ export function PropertyFilters({ filters, onChange }) {
 
                         {/* SL Specifics: Deed Type */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Deed Type</label>
+                            <label htmlFor="filter-deed-type" className="block text-sm font-medium text-slate-700 mb-2">Deed Type</label>
                             <select
+                                id="filter-deed-type"
                                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
                                 onChange={(e) => handleChange('deedType', e.target.value)}
                                 value={filters.deedType || 'any'}
