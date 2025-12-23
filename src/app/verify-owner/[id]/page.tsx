@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { databases } from "@/lib/appwrite";
+import { Models } from "appwrite";
 import { toast } from "sonner";
 import {
   Check,
@@ -19,6 +20,12 @@ import {
   initiateAgentHiring,
 } from "@/app/actions/owner-verification";
 
+/**
+ * OwnerVerificationPage component.
+ * This page is responsible for verifying the ownership of a property listing.
+ * It fetches the listing details based on the ID and a secret token from the URL,
+ * and allows the owner to claim the listing, hire the agent, or decline the listing.
+ */
 export default function OwnerVerificationPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -26,11 +33,16 @@ export default function OwnerVerificationPage() {
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const secret = searchParams.get("secret");
 
-  const [listing, setListing] = useState(null);
+  const [listing, setListing] = useState<Models.Document | null>(null);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Fetches the property listing details from the database.
+   * It validates the listing ID and secret token, and checks the status of the listing.
+   * Sets the `listing` state if the listing is valid, otherwise sets an error message.
+   */
   const fetchListing = useCallback(async () => {
     if (!id) {
       setError("Invalid Listing ID provided.");
