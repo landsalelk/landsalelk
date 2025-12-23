@@ -92,11 +92,16 @@ export async function initiateAgentHiring(listingId, secret, amount) {
 
 /**
  * Claims the listing for the target user (Self-Service).
- * @param {string} listingId
- * @param {string} secret
- * @param {string} userId - The ID of the user claiming the listing (must be verified by caller or session)
+ * @param {string} listingId - The ID of the listing document.
+ * @param {string} secret - The verification token to validate ownership.
+ * @param {string} userId - The ID of the user claiming the listing.
+ * @returns {Promise<{success: boolean, error?: string}>}
  */
 export async function claimListing(listingId, secret, userId) {
+    if (!listingId || !secret || !userId) {
+        return { success: false, error: "Missing required parameters" };
+    }
+
     const { getDatabases } = createAdminClient();
     const databases = getDatabases();
 
@@ -105,10 +110,6 @@ export async function claimListing(listingId, secret, userId) {
 
         if (listing.verification_code !== secret) {
             throw new Error("Invalid Token");
-        }
-
-        if (!userId) {
-            throw new Error("User ID required to claim listing");
         }
 
         // Award points to agent who created the listing (DIY referral)
@@ -121,7 +122,7 @@ export async function claimListing(listingId, secret, userId) {
                     listings_uploaded: (agent.listings_uploaded || 0) + 1
                 });
             } catch (agentErr) {
-                // Ignore point update failures
+                console.warn('Failed to update agent points:', agentErr.message);
             }
         }
 
