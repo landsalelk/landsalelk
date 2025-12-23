@@ -1,14 +1,16 @@
-import os
+import logging
 from .validate_queries import validate
 
 def main():
     """
     Entry point for the AI worker.
-    This script starts the validation process.
+    This script starts the validation process and is intended to be run as a module
+    (e.g., python -m site.manager_ai).
     """
-    print(f"[manager_ai] Starting worker...")
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.info("Starting worker...")
     validate()
-    print(f"[manager_ai] Worker finished.")
+    logging.info("Worker finished.")
 
 if __name__ == "__main__":
     main()
