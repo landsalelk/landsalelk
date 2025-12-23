@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { databases, storage } from '@/lib/appwrite';
+import { Query } from 'appwrite';
 import { DB_ID, COLLECTION_AGENTS } from '@/appwrite/config';
 import { calculateProfileCompleteness } from '@/lib/profileUtils';
 import { Loader2, CheckCircle, XCircle, Search, Shield, User, MapPin, Award } from 'lucide-react';
@@ -16,13 +17,26 @@ export function AdminAgents() {
 
   useEffect(() => {
     loadAgents();
-  }, []);
+  }, [filterStatus, searchTerm]);
 
   const loadAgents = async () => {
+    setLoading(true);
     try {
-      const result = await databases.listDocuments(DB_ID, COLLECTION_AGENTS, [
-        // Query.limit(100) // Default limit is 25, verify need for pagination later
-      ]);
+      const queries = [];
+
+      if (filterStatus !== "all") {
+        queries.push(Query.equal("status", filterStatus));
+      }
+
+      if (searchTerm) {
+        queries.push(Query.search("name", searchTerm));
+      }
+
+      const result = await databases.listDocuments(
+        DB_ID,
+        COLLECTION_AGENTS,
+        queries
+      );
       setAgents(result.documents);
     } catch (error) {
       console.error("Error loading agents:", error);
@@ -50,14 +64,6 @@ export function AdminAgents() {
       toast.error("Failed to update status");
     }
   };
-
-  const filteredAgents = agents.filter((agent) => {
-    const matchSearch =
-      agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agent.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchStatus = filterStatus === "all" || agent.status === filterStatus;
-    return matchSearch && matchStatus;
-  });
 
   if (loading) {
     return (
@@ -104,7 +110,7 @@ export function AdminAgents() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-sm">
-                            {filteredAgents.map(agent => (
+                            {agents.map(agent => (
                                 <tr key={agent.$id} className="hover:bg-slate-50 transition-colors">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
@@ -181,7 +187,7 @@ export function AdminAgents() {
                                     </td>
                                 </tr>
                             ))}
-                            {filteredAgents.length === 0 && (
+                            {agents.length === 0 && (
                                 <tr>
                                     <td colSpan="5" className="px-6 py-12 text-center text-slate-500">
                                         No agents found matching your filters.
@@ -240,7 +246,7 @@ export function AdminAgents() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {filteredAgents.map((agent) => (
+              {agents.map((agent) => (
                 <tr
                   key={agent.$id}
                   className="transition-colors hover:bg-slate-50"
@@ -342,7 +348,7 @@ export function AdminAgents() {
                   </td>
                 </tr>
               ))}
-              {filteredAgents.length === 0 && (
+              {agents.length === 0 && (
                 <tr>
                   <td
                     colSpan="5"
