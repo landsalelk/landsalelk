@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
-import Image from 'next/image';
 
 /**
  * FacebookPixel component handles the integration of the Facebook Pixel script.
@@ -22,15 +21,17 @@ export default function FacebookPixel() {
     // The dependencies `pathname` and `searchParams` trigger the effect on navigation.
     if (!facebookPixelId) return;
 
-    // Ensure this code only runs on the client where the `window` object is available.
+    // Guard against execution in non-browser environments (e.g., SSR).
     if (typeof window === 'undefined') return;
 
     try {
+      // Check if the Facebook Pixel function is available before calling it.
       if (typeof window.fbq === 'function') {
         window.fbq('track', 'PageView');
       }
     } catch (error) {
-      console.error('Facebook Pixel PageView track failed:', error);
+      // Catch any runtime errors from the Facebook SDK to prevent crashing the app.
+      console.error('Facebook Pixel tracking error:', error);
     }
   }, [pathname, searchParams, facebookPixelId]);
 
@@ -57,9 +58,11 @@ export default function FacebookPixel() {
         }}
       />
       <noscript>
-        <Image
-          height={1}
-          width={1}
+        {/* Use a standard img tag for the noscript fallback as it's a 1x1 tracking pixel. */}
+        {/* next/image is unnecessary overhead for this use case. */}
+        <img
+          height="1"
+          width="1"
           style={{ display: 'none' }}
           src={`https://www.facebook.com/tr?id=${facebookPixelId}&ev=PageView&noscript=1`}
           alt="Facebook Pixel"
