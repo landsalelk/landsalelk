@@ -83,50 +83,53 @@ export default function OwnerVerificationPage() {
       const amount = listing.service_fee || 1500;
       const result = await initiateAgentHiring(id, secret, amount);
 
-      if (!result.success) throw new Error(result.error);
+      if (result?.success) {
+        const params = result.paymentParams;
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = params.sandbox
+          ? "https://sandbox.payhere.lk/pay/checkout"
+          : "https://www.payhere.lk/pay/checkout";
 
-      const params = result.paymentParams;
+        const fields = {
+          merchant_id: params.merchant_id,
+          return_url: params.return_url,
+          cancel_url: params.cancel_url,
+          notify_url: params.notify_url,
+          order_id: params.order_id,
+          items: params.items,
+          currency: params.currency,
+          amount: params.amount,
+          first_name: params.first_name,
+          last_name: params.last_name,
+          email: params.email,
+          phone: params.phone,
+          address: params.address,
+          city: params.city,
+          country: params.country,
+          hash: params.hash,
+        };
 
-      // Create and submit PayHere form
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = params.sandbox
-        ? "https://sandbox.payhere.lk/pay/checkout"
-        : "https://www.payhere.lk/pay/checkout";
+        Object.entries(fields).forEach(([key, value]) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = String(value);
+          form.appendChild(input);
+        });
 
-      // Add all payment parameters as hidden fields
-      const fields = {
-        merchant_id: params.merchant_id,
-        return_url: params.return_url,
-        cancel_url: params.cancel_url,
-        notify_url: params.notify_url,
-        order_id: params.order_id,
-        items: params.items,
-        currency: params.currency,
-        amount: params.amount,
-        first_name: params.first_name,
-        last_name: params.last_name,
-        email: params.email,
-        phone: params.phone,
-        address: params.address,
-        city: params.city,
-        country: params.country,
-        hash: params.hash,
-      };
-
-      Object.entries(fields).forEach(([key, value]) => {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = String(value);
-        form.appendChild(input);
-      });
-
-      document.body.appendChild(form);
-      toast.success("Redirecting to PayHere Gateway...");
-      form.submit();
+        document.body.appendChild(form);
+        toast.success("Redirecting to PayHere Gateway...");
+        form.submit();
+      } else {
+        // Handle the expected error case from the server action
+        toast.error(result?.error || "Payment initiation failed.");
+        setVerifying(false);
+      }
     } catch (err) {
-      toast.error(err.message || "Payment initiation failed");
+      // Catch unexpected errors (e.g., network issues)
+      console.error("Unexpected error in handleHireAgent:", err);
+      toast.error("An unexpected error occurred. Please try again.");
       setVerifying(false);
     }
   };
@@ -143,15 +146,16 @@ export default function OwnerVerificationPage() {
     try {
       const result = await declineListing(id, secret);
 
-      if (result.success) {
+      if (result?.success) {
         toast.success("Listing declined.");
         setListing((prev) => ({ ...prev, status: "rejected_by_owner" }));
         setError("You have declined this listing.");
       } else {
-        throw new Error(result.error);
+        toast.error(result?.error || "Failed to decline listing.");
       }
     } catch (err) {
-      toast.error("Error declining listing.");
+      console.error("Unexpected error in handleDecline:", err);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setVerifying(false);
     }
