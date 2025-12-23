@@ -3,7 +3,10 @@ import { DB_ID, COLLECTION_KYC, BUCKET_KYC } from "@/appwrite/config";
 
 /**
  * Submit a KYC request with files.
- * @param {Object} data - { nicFront: File, nicBack: File, type: 'agent'|'seller' }
+ * @param {Object} data
+ * @param {File} data.nicFront - The front image of the NIC
+ * @param {File} data.nicBack - The back image of the NIC
+ * @param {string} [data.type='verify_identity'] - Request type
  */
 export async function submitKYC(data) {
     try {
@@ -100,15 +103,20 @@ export async function getPendingKYCRequests() {
  * @param {string} status 'approved' | 'rejected'
  */
 export async function updateKYCStatus(docId, status) {
-    return await databases.updateDocument(
-        DB_ID,
-        COLLECTION_KYC,
-        docId,
-        {
-            status: status,
-            reviewed_at: new Date().toISOString()
-        }
-    );
+    try {
+        return await databases.updateDocument(
+            DB_ID,
+            COLLECTION_KYC,
+            docId,
+            {
+                status: status,
+                reviewed_at: new Date().toISOString()
+            }
+        );
+    } catch (error) {
+        console.error("KYC Update Error:", error);
+        throw error;
+    }
 }
 
 /**

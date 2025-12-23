@@ -54,7 +54,6 @@ export default function KYCPage() {
             setStatus('pending');
             toast.success("Verification submitted successfully!");
         } catch (err) {
-            console.error(err);
             toast.error(err.message || "Submission failed. Please try again.");
         } finally {
             setSubmitting(false);

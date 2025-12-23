@@ -4043,7 +4043,26 @@
                 "read(\"team:admins\")",
                 "update(\"team:admins\")"
             ],
-            "indexes": []
+            "indexes": [
+                {
+                    "key": "user_id_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "user_id"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "submitted_at_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "submitted_at"
+                    ],
+                    "orders": []
+                }
+            ]
         },
         {
             "$id": "land_offices",
