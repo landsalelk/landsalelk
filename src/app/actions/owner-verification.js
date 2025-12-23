@@ -121,7 +121,7 @@ export async function claimListing(listingId, secret, userId) {
                     listings_uploaded: (agent.listings_uploaded || 0) + 1
                 });
             } catch (agentErr) {
-                console.warn('Could not update agent points:', agentErr.message);
+                // Silently fail. Not critical if agent points are not updated.
             }
         }
 
