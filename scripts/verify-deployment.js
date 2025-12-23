@@ -1,26 +1,28 @@
 /**
- * Verifies that the root directory contains the required files
- * for a valid Next.js deployment.
+ * Deployment Prerequisite Verification Script
  *
- * This script checks for the existence of critical configuration files
- * in the repository root to ensure the deployment context is correct.
+ * This script verifies that the root directory contains the necessary
+ * files for a valid Appwrite Site deployment of the main Next.js application.
+ *
+ * Usage: node scripts/verify-deployment.js
  *
  * @returns {void} Exits with code 0 on success, 1 on failure.
  */
+
 const fs = require('fs');
 const path = require('path');
 
 const requiredFiles = ['package.json', 'next.config.mjs'];
 const rootDir = process.cwd();
 
-console.log('Verifying deployment prerequisites...');
+// Using console.info for CLI status updates
+console.info('Verifying deployment prerequisites...');
 
 let missingFiles = [];
 
 try {
     requiredFiles.forEach(file => {
-        const filePath = path.join(rootDir, file);
-        if (!fs.existsSync(filePath)) {
+        if (!fs.existsSync(path.join(rootDir, file))) {
             missingFiles.push(file);
         }
     });
@@ -30,9 +32,9 @@ try {
         process.exit(1);
     }
 
-    console.log('Deployment verification successful. Root directory contains valid Next.js application structure.');
+    console.info('Deployment verification successful. Root directory contains valid Next.js application structure.');
     process.exit(0);
 } catch (error) {
-    console.error(`Critical Error: Failed to verify deployment prerequisites: ${error.message}`);
+    console.error('An unexpected error occurred during verification:', error.message);
     process.exit(1);
 }
