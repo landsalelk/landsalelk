@@ -6,6 +6,7 @@ import asyncio
 import yaml
 import os
 import logging
+from typing import Dict, Any, List
 from .schemas import LogEntry
 from .ai_analyzer import analyze
 import src.core.modules.integrity.healing_actions as healing_actions
@@ -15,7 +16,13 @@ class IntegrityManager:
     Orchestrates the monitoring of system logs, analysis of anomalies,
     and execution of healing actions.
     """
-    def __init__(self, config_path='config/integrity_config.yaml'):
+    log_buffer: asyncio.Queue
+    _internal_state: Dict[str, str]
+    config: Dict[str, Any]
+    severity_threshold: int
+    allowed_actions: List[str]
+
+    def __init__(self, config_path: str = 'config/integrity_config.yaml') -> None:
         """
         Initializes the IntegrityManager.
 
@@ -29,7 +36,7 @@ class IntegrityManager:
         self.severity_threshold = self.config.get('sensitivity_thresholds', {}).get('severity', 7)
         self.allowed_actions = self.config.get('allowed_actions', ["ALERT"])
 
-    def _load_config(self, config_path):
+    def _load_config(self, config_path: str) -> Dict[str, Any]:
         """
         Loads the configuration from a YAML file.
 
@@ -45,13 +52,13 @@ class IntegrityManager:
         with open(config_path, 'r') as f:
             return yaml.safe_load(f)
 
-    async def monitor(self):
+    async def monitor(self) -> None:
         """
         Continuously monitors the log buffer, analyzes log entries, and
         triggers healing actions when an anomaly is detected.
         """
         while True:
-            log_entry = await self.log_buffer.get()
+            log_entry: LogEntry = await self.log_buffer.get()
             verdict = analyze(log_entry)
 
             if verdict.is_anomaly or verdict.severity > self.severity_threshold:
@@ -68,7 +75,7 @@ class IntegrityManager:
 
             self.log_buffer.task_done()
 
-    async def verify_system_state(self):
+    async def verify_system_state(self) -> None:
         """
         Performs a manual check of the system's internal state to ensure
         that critical data structures have not been corrupted.

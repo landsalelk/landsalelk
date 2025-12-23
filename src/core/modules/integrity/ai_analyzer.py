@@ -14,7 +14,7 @@ def analyze(log: LogEntry) -> Verdict:
     Returns:
         Verdict: The verdict of the analysis.
     """
-    message_lower = log.message.lower()
+    message_lower: str = log.message.lower()
 
     if "exception" in message_lower or log.level == "CRITICAL":
         return Verdict(

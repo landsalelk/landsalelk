@@ -5,10 +5,11 @@ taken in response to a detected system anomaly.
 from .schemas import Verdict
 import time
 import logging
+from typing import Dict
 
-LAST_RESTART_TIME = {}
+LAST_RESTART_TIME: Dict[str, float] = {}
 
-def alert_user(message: str):
+def alert_user(message: str) -> None:
     """
     Logs a warning-level alert to notify an operator of an issue.
 
@@ -17,7 +18,7 @@ def alert_user(message: str):
     """
     logging.warning(message)
 
-def restart_module(module_name: str):
+def restart_module(module_name: str) -> None:
     """
     Simulates gracefully stopping and starting a specific agent module.
 
@@ -27,15 +28,15 @@ def restart_module(module_name: str):
     Args:
         module_name (str): The name of the module to restart.
     """
-    current_time = time.time()
-    if module_name in LAST_RESTART_TIME and (current_time - LAST_RESTART_TIME.get(module_name, 0)) < 300:
+    current_time: float = time.time()
+    if module_name in LAST_RESTART_TIME and (current_time - LAST_RESTART_TIME.get(module_name, 0.0)) < 300:
         logging.warning(f"Restart of module '{module_name}' is rate-limited.")
         return
     logging.info(f"Restarting module: {module_name}...")
     LAST_RESTART_TIME[module_name] = current_time
     # In a real scenario, this would interact with a module management system.
 
-def log_incident(verdict: Verdict):
+def log_incident(verdict: Verdict) -> None:
     """
     Logs a critical-level incident for later investigation.
 

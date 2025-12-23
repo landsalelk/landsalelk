@@ -3,7 +3,7 @@ This module defines the Pydantic models used for data validation
 in the system integrity monitoring module.
 """
 from pydantic import BaseModel, Field
-from typing import Literal
+from typing import Literal, Dict, Any
 
 class LogEntry(BaseModel):
     """
@@ -13,7 +13,7 @@ class LogEntry(BaseModel):
     level: Literal["INFO", "WARNING", "ERROR", "CRITICAL"]
     source: str
     message: str
-    context: dict = Field(default_factory=dict)
+    context: Dict[str, Any] = Field(default_factory=dict)
 
 class Verdict(BaseModel):
     """

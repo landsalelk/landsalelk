@@ -6,7 +6,7 @@ import sys
 from src.core.modules.integrity.integrity_manager import IntegrityManager
 from src.core.modules.integrity.schemas import LogEntry
 
-async def log_simulator(integrity_manager):
+async def log_simulator(integrity_manager: IntegrityManager) -> None:
     """
     Simulates log entries being added to the integrity manager's buffer for demonstration.
 
@@ -32,7 +32,7 @@ async def log_simulator(integrity_manager):
         )
     )
 
-async def main():
+async def main() -> None:
     """
     Main entry point for the Jules AI System Integrity Monitor.
 
