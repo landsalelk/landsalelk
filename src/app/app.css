@@ -36,11 +36,22 @@
    ROOT VARIABLES
    ============================================ */
 :root {
+  /* LandSale Brand Colors */
+  --ls-primary: #0f172a; /* Slate 900 - Deep Blue/Black */
+  --ls-accent: #f97316;  /* Orange 500 - Vibrant Action Color */
+  --ls-surface: #ffffff;
+  --ls-bg: #f1f5f9;      /* Slate 100 */
+
   --background: #f0f9ff;
   --foreground: #0f172a;
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+/* Optional: Apply generic high z-index utility */
+.z-stack-max {
+  z-index: 9999;
 }
 
 /* ============================================

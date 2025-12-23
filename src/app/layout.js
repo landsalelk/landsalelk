@@ -3,7 +3,7 @@ import "./app.css";
 import { Navbar } from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Toaster } from 'sonner';
-import AIChatWindow from '@/components/chat/AIChatWindow';
+import AIAgentChatWidget from "@/components/ai/AIAgentChatWidget";
 import CookieConsent from '@/components/ui/CookieConsent';
 import { ComparisonProvider } from '@/context/ComparisonContext';
 import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google';
@@ -74,7 +74,7 @@ export default function RootLayout({ children }) {
             {children}
           </main>
           <Footer />
-          <AIChatWindow />
+          <AIAgentChatWidget />
           <CookieConsent />
           <Toaster position="top-center" richColors />
         </ComparisonProvider>
