@@ -1,5 +1,17 @@
+import { readFileSync } from 'fs';
+import path from 'path';
+import withBundleAnalyzer from '@next/bundle-analyzer';
+
+// Read appwrite.json to get the project ID and endpoint
+const appwriteConfigPath = path.join(process.cwd(), 'appwrite.json');
+const appwriteConfig = JSON.parse(readFileSync(appwriteConfigPath, 'utf-8'));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    env: {
+        NEXT_PUBLIC_APPWRITE_PROJECT_ID: appwriteConfig.projectId,
+        NEXT_PUBLIC_APPWRITE_ENDPOINT: appwriteConfig.endpoint,
+    },
     images: {
         remotePatterns: [
             {
@@ -34,9 +46,6 @@ const nextConfig = {
         ignoreDuringBuilds: false, // Changed to enforce linting during builds
     },
 };
-
-
-import withBundleAnalyzer from '@next/bundle-analyzer';
 
 const bundleAnalyzer = withBundleAnalyzer({
     enabled: process.env.ANALYZE === 'true',
