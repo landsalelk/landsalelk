@@ -1,5 +1,6 @@
 {
   "name": "create-checkout-session",
+  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "src/main.js",
