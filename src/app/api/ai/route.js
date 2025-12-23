@@ -108,6 +108,9 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
     let usedModel = "";
     let lastError = "";
 
+    // Truncate messages to the last 10 to prevent exceeding token limits
+    const truncatedMessages = messages.slice(-10);
+
     // Retry logic with model fallback
     for (const model of models) {
       try {
@@ -123,7 +126,7 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
             "model": model,
             "messages": [
               { "role": "system", "content": systemPrompt },
-              ...messages
+              ...truncatedMessages
             ],
             "temperature": 0.3,
             // Not sending response_format: json_object to avoid 400s on some free models
@@ -131,11 +134,12 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
         });
 
         if (response.ok) {
+          // 200 OK: The request was successful.
           const data = await response.json();
           if (data.choices && data.choices.length > 0) {
             aiContent = data.choices[0].message.content;
             usedModel = model;
-            break; // Success
+            break; // Success: Exit the loop.
           }
         } else {
           let errText = 'Could not read error body';
@@ -179,9 +183,13 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
     return NextResponse.json(parsedResponse);
 
   } catch (error) {
+    const errorMessage = process.env.NODE_ENV === 'development'
+      ? error.message
+      : "I apologize, but I'm having trouble processing your request right now. Please try again in a moment.";
+
     return NextResponse.json({
       type: "CHAT",
-      reply: "I apologize, but I'm having trouble processing your request right now. Please try again in a moment."
+      reply: errorMessage
     }, { status: 500 });
   }
 }
