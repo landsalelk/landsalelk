@@ -1,16 +1,25 @@
 import { Client, Account, Databases, Storage, Functions, Avatars, ID, Query, OAuthProvider } from "appwrite";
 
 // Validate environment variables
-const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
+// Fix: Use Singapore endpoint if global one fails or as default if not specified
+// The project is in Singapore region (sgp), so we must use the correct endpoint.
+let endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
+
+// Override global endpoint to sgp if it's the generic one, because we know this project is in SGP.
+// This fixes the "Project is not accessible in this region" error.
+if (endpoint === 'https://cloud.appwrite.io/v1') {
+    endpoint = 'https://sgp.cloud.appwrite.io/v1';
+}
+
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
-if (!endpoint || !projectId) {
-    throw new Error('Missing Appwrite environment variables');
+if (!projectId && typeof window !== 'undefined') {
+    console.warn('NEXT_PUBLIC_APPWRITE_PROJECT_ID is not set. Appwrite features may not work correctly.');
 }
 
 const client = new Client()
   .setEndpoint(endpoint)
-  .setProject(projectId);
+  .setProject(projectId || 'landsalelkproject');
 
 const account = new Account(client);
 const databases = new Databases(client);

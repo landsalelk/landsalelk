@@ -1,16 +1,5 @@
-import fs from 'fs';
-import path from 'path';
-
-// Read appwrite.json
-const appwritePath = path.resolve(process.cwd(), 'appwrite.json');
-const appwriteConfig = JSON.parse(fs.readFileSync(appwritePath, 'utf-8'));
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    env: {
-        NEXT_PUBLIC_APPWRITE_ENDPOINT: appwriteConfig.endpoint,
-        NEXT_PUBLIC_APPWRITE_PROJECT_ID: appwriteConfig.projectId,
-    },
     images: {
         remotePatterns: [
             {
