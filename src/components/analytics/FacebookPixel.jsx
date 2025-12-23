@@ -4,6 +4,17 @@ import { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 
+/**
+ * FacebookPixel component handles the injection of the Facebook Pixel tracking script.
+ * It tracks page views on initial load and client-side navigation.
+ *
+ * This component uses `dangerouslySetInnerHTML` to inject the Facebook Pixel script
+ * as provided by Facebook's official documentation. This is a standard practice
+ * for third-party scripts that require this specific implementation.
+ *
+ * The `noscript` tag with an `img` element is a fallback for browsers with
+ * JavaScript disabled, ensuring that page views can still be tracked.
+ */
 export default function FacebookPixel() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -17,7 +28,10 @@ export default function FacebookPixel() {
     }
   }, [pathname, searchParams, facebookPixelId]);
 
-  if (!facebookPixelId) return null;
+  if (!facebookPixelId) {
+    console.warn("Facebook Pixel ID is not configured. Tracking will be disabled.");
+    return null;
+  }
 
   return (
     <>

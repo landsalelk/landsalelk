@@ -83,7 +83,9 @@ export default function OwnerVerificationPage() {
       const amount = listing.service_fee || 1500;
       const result = await initiateAgentHiring(id, secret, amount);
 
-      if (!result.success) throw new Error(result.error);
+      if (!result || !result.success) {
+        throw new Error(result?.error || "Payment initiation failed.");
+      }
 
       const params = result.paymentParams;
 
