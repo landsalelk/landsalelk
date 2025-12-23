@@ -66,29 +66,40 @@ function getAppwriteServices() {
         };
     }
 
-    const endpoint = getAppwriteEndpoint();
-    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || FALLBACK_PROJECT_ID;
+    try {
+        const endpoint = getAppwriteEndpoint();
+        const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || FALLBACK_PROJECT_ID;
 
-    // Fail loudly if configuration is missing (though fallbacks prevent this usually)
-    // new Client() is synchronous and safe
-    _client = new Client()
-        .setEndpoint(endpoint)
-        .setProject(projectId);
+        // Validation: Fail fast if configuration is critically missing
+        if (!endpoint) throw new Error("Appwrite Endpoint is missing");
+        if (!projectId) throw new Error("Appwrite Project ID is missing");
 
-    _account = new Account(_client);
-    _databases = new Databases(_client);
-    _storage = new Storage(_client);
-    _functions = new Functions(_client);
-    _avatars = new Avatars(_client);
+        // Initialize Client
+        _client = new Client()
+            .setEndpoint(endpoint)
+            .setProject(projectId);
 
-    return {
-        client: _client,
-        account: _account,
-        databases: _databases,
-        storage: _storage,
-        functions: _functions,
-        avatars: _avatars
-    };
+        _account = new Account(_client);
+        _databases = new Databases(_client);
+        _storage = new Storage(_client);
+        _functions = new Functions(_client);
+        _avatars = new Avatars(_client);
+
+        return {
+            client: _client,
+            account: _account,
+            databases: _databases,
+            storage: _storage,
+            functions: _functions,
+            avatars: _avatars
+        };
+    } catch (error) {
+        // Log descriptive error and re-throw to crash fast during build/startup
+        // Note: Using console.error here is necessary for critical startup failures
+        // eslint-disable-next-line no-console
+        console.error("Appwrite Initialization Failed:", error.message);
+        throw error;
+    }
 }
 
 // Perform initialization immediately for backward compatibility with existing imports.
