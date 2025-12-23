@@ -19,6 +19,49 @@ import {
   initiateAgentHiring,
 } from "@/app/actions/owner-verification";
 
+/**
+ * Dynamically creates and submits a form to redirect the user to the PayHere gateway.
+ * @param {object} params - The payment parameters returned from the server action.
+ */
+function createPayHereForm(params) {
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = params.sandbox
+    ? "https://sandbox.payhere.lk/pay/checkout"
+    : "https://www.payhere.lk/pay/checkout";
+
+  const fields = {
+    merchant_id: params.merchant_id,
+    return_url: params.return_url,
+    cancel_url: params.cancel_url,
+    notify_url: params.notify_url,
+    order_id: params.order_id,
+    items: params.items,
+    currency: params.currency,
+    amount: params.amount,
+    first_name: params.first_name,
+    last_name: params.last_name,
+    email: params.email,
+    phone: params.phone,
+    address: params.address,
+    city: params.city,
+    country: params.country,
+    hash: params.hash,
+  };
+
+  Object.entries(fields).forEach(([key, value]) => {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = key;
+    input.value = String(value);
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  toast.success("Redirecting to PayHere Gateway...");
+  form.submit();
+}
+
 export default function OwnerVerificationPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -89,49 +132,13 @@ export default function OwnerVerificationPage() {
       const amount = listing.service_fee || 1500;
       const result = await initiateAgentHiring(id, secret, amount);
 
-      if (result?.success) {
-        const params = result.paymentParams;
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = params.sandbox
-          ? "https://sandbox.payhere.lk/pay/checkout"
-          : "https://www.payhere.lk/pay/checkout";
-
-        const fields = {
-          merchant_id: params.merchant_id,
-          return_url: params.return_url,
-          cancel_url: params.cancel_url,
-          notify_url: params.notify_url,
-          order_id: params.order_id,
-          items: params.items,
-          currency: params.currency,
-          amount: params.amount,
-          first_name: params.first_name,
-          last_name: params.last_name,
-          email: params.email,
-          phone: params.phone,
-          address: params.address,
-          city: params.city,
-          country: params.country,
-          hash: params.hash,
-        };
-
-        Object.entries(fields).forEach(([key, value]) => {
-          const input = document.createElement("input");
-          input.type = "hidden";
-          input.name = key;
-          input.value = String(value);
-          form.appendChild(input);
-        });
-
-        document.body.appendChild(form);
-        toast.success("Redirecting to PayHere Gateway...");
-        form.submit();
-      } else {
-        // Handle the expected error case from the server action
+      if (!result || !result.success) {
         toast.error(result?.error || "Payment initiation failed.");
         setVerifying(false);
+        return;
       }
+
+      createPayHereForm(result.paymentParams);
     } catch (err) {
       // Catch unexpected errors (e.g., network issues)
       toast.error("An unexpected error occurred. Please try again.");
@@ -139,6 +146,11 @@ export default function OwnerVerificationPage() {
     }
   };
 
+  /**
+   * Handles the owner's decision to decline the agent's listing proposal.
+   * It prompts for confirmation before proceeding. On confirmation, it calls a
+   * server action to update the listing's status to 'rejected_by_owner'.
+   */
   const handleDecline = async () => {
     if (
       !confirm(
@@ -151,12 +163,12 @@ export default function OwnerVerificationPage() {
     try {
       const result = await declineListing(id, secret);
 
-      if (result?.success) {
+      if (!result || !result.success) {
+        toast.error(result?.error || "Failed to decline listing.");
+      } else {
         toast.success("Listing declined.");
         setListing((prev) => ({ ...prev, status: "rejected_by_owner" }));
         setError("You have declined this listing.");
-      } else {
-        toast.error(result?.error || "Failed to decline listing.");
       }
     } catch (err) {
       toast.error("An unexpected error occurred. Please try again.");
