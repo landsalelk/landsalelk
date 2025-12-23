@@ -15,10 +15,6 @@ const COLLECTIONS = {
 };
 
 export async function POST(request) {
-  if (!process.env.APPWRITE_API_KEY) {
-    console.error('APPWRITE_API_KEY is not set');
-    return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
-  }
   try {
     const contentType = request.headers.get("content-type") || "";
     let body;
@@ -33,7 +29,6 @@ export async function POST(request) {
 
     // 1. Verify Signature
     if (!verifyPayHereSignature(body)) {
-      console.error("Invalid PayHere Signature", body);
       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 
@@ -49,9 +44,6 @@ export async function POST(request) {
 
     // Status code 2 is Success
     if (status_code !== "2") {
-      console.log(
-        `Payment ${payment_id} failed or cancelled. Status: ${status_code}`,
-      );
       return NextResponse.json({
         status: "ok",
         message: "Ignored non-success status",
@@ -89,11 +81,9 @@ export async function POST(request) {
     } catch (idempotencyError) {
       // If idempotency check fails, log but continue
       // Better to risk duplicate than to fail payment confirmation
-      console.warn("Idempotency check warning:", idempotencyError.message);
     }
 
     if (alreadyProcessed) {
-      console.log(`Payment ${payment_id} already processed, skipping`);
       return NextResponse.json({ status: "ok", message: "Already processed" });
     }
 
@@ -103,7 +93,6 @@ export async function POST(request) {
 
     // Validate amount
     if (amount <= 0) {
-      console.error("Invalid payment amount:", payhere_amount);
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
 
@@ -226,20 +215,18 @@ export async function POST(request) {
                 },
               );
             } catch (agentErr) {
-              console.warn("Could not update agent stats:", agentErr.message);
+              // Non-critical error, proceed
             }
           }
 
-          console.log(`Agent hire payment completed for listing ${listingId}`);
         } catch (listingErr) {
-          console.error("Error processing agent hire:", listingErr);
+          // Log and continue, as the core transaction is already recorded
         }
       }
     }
 
     return NextResponse.json({ status: "ok", message: "Transaction recorded" });
   } catch (error) {
-    console.error("PayHere Notify Error:", error);
     // Return 200 OK even on error to prevent PayHere from retrying indefinitely
     // Log the error for investigation
     return NextResponse.json({

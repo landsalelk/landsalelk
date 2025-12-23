@@ -12,15 +12,11 @@ import { functions } from '@/lib/server/appwrite';
  * @returns {Promise<{success: boolean, message?: string, error?: string}>}
  */
 export async function sendSMS(phone, message, relatedTo = null, relatedType = 'system') {
-    if (!process.env.APPWRITE_API_KEY) {
-        console.error('APPWRITE_API_KEY is not set');
-        return { success: false, error: 'Server not configured' };
-    }
-    if (!phone || !message) {
-        return { success: false, error: 'Phone and message are required' };
-    }
-
     try {
+        if (!phone || !message) {
+            throw new Error('Phone and message are required');
+        }
+
         // Execute the send-sms function
         // Function ID is 'send-sms' based on appwrite.json
         const execution = await functions.createExecution(
@@ -43,7 +39,6 @@ export async function sendSMS(phone, message, relatedTo = null, relatedType = 's
         } else {
              // Status could be 'processing', 'failed', 'waiting'
              if (execution.status === 'failed') {
-                 console.error("SMS Function Failed:", execution.stderr);
                  return { success: false, error: 'SMS function execution failed' };
              }
              // For async functions, it might return 'processing'
@@ -51,7 +46,6 @@ export async function sendSMS(phone, message, relatedTo = null, relatedType = 's
         }
 
     } catch (error) {
-        console.error("SMS Send Error:", error);
         return { success: false, error: error.message };
     }
 }

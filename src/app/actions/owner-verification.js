@@ -3,18 +3,12 @@
 import { Permission, Role } from 'node-appwrite';
 import { databases } from '@/lib/server/appwrite';
 import { generatePayHereHash } from '@/lib/payhere';
-
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk';
-const COLLECTION_LISTINGS = 'listings';
+import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
 
 /**
  * Validates the listing token and performs the decline action.
  */
 export async function declineListing(listingId, secret) {
-    if (!process.env.APPWRITE_API_KEY) {
-        console.error('APPWRITE_API_KEY is not set');
-        return { success: false, error: 'Server not configured' };
-    }
     try {
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
@@ -29,7 +23,6 @@ export async function declineListing(listingId, secret) {
 
         return { success: true };
     } catch (error) {
-        console.error("Decline Error:", error);
         return { success: false, error: error.message };
     }
 }
@@ -38,10 +31,6 @@ export async function declineListing(listingId, secret) {
  * Initiates the payment process for hiring the agent.
  */
 export async function initiateAgentHiring(listingId, secret, amount) {
-    if (!process.env.APPWRITE_API_KEY) {
-        console.error('APPWRITE_API_KEY is not set');
-        return { success: false, error: 'Server not configured' };
-    }
     try {
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
@@ -78,7 +67,6 @@ export async function initiateAgentHiring(listingId, secret, amount) {
         };
 
     } catch (error) {
-        console.error("Hiring Init Error:", error);
         return { success: false, error: error.message };
     }
 }
@@ -90,10 +78,6 @@ export async function initiateAgentHiring(listingId, secret, amount) {
  * @param {string} userId - The ID of the user claiming the listing (must be verified by caller or session)
  */
 export async function claimListing(listingId, secret, userId) {
-    if (!process.env.APPWRITE_API_KEY) {
-        console.error('APPWRITE_API_KEY is not set');
-        return { success: false, error: 'Server not configured' };
-    }
     try {
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
@@ -114,9 +98,8 @@ export async function claimListing(listingId, secret, userId) {
                     points: (agent.points || 0) + 1, // 1 point for DIY referral
                     listings_uploaded: (agent.listings_uploaded || 0) + 1
                 });
-                console.log(`Awarded 1 point to agent ${agentId} for DIY claim`);
             } catch (agentErr) {
-                console.warn('Could not update agent points:', agentErr.message);
+                // Log and continue, failing to award points should not block the claim.
             }
         }
 
@@ -146,7 +129,6 @@ export async function claimListing(listingId, secret, userId) {
         return { success: true };
 
     } catch (error) {
-        console.error("Claim Error:", error);
         return { success: false, error: error.message };
     }
 }

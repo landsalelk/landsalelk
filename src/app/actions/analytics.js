@@ -4,15 +4,10 @@ import { databases } from '@/lib/server/appwrite';
 import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
 
 export async function incrementViewCount(listingId) {
-  if (!listingId) return { success: false, error: 'Listing ID is required' };
-
-  // Gracefully skip if server key is not available
-  if (!process.env.APPWRITE_API_KEY) {
-      console.warn('[Analytics] APPWRITE_API_KEY is not set. View count will not be tracked.');
-      return { success: false, error: 'Analytics not configured' };
-  }
-
   try {
+    if (!listingId) {
+      throw new Error('Listing ID is required');
+    }
 
     // 1. Get current document to know current count
     const listing = await databases.getDocument(
@@ -38,7 +33,6 @@ export async function incrementViewCount(listingId) {
 
     return { success: true, views: currentViews + 1 };
   } catch (error) {
-    console.error('Error incrementing view count:', error);
     return { success: false, error: error.message };
   }
 }

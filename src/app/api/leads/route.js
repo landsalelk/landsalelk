@@ -8,19 +8,11 @@ const COLLECTION_AGENTS = 'agents';
 const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelkdb';
 
 export async function POST(request) {
-    // Gracefully fail if API key is not set
-    if (!process.env.APPWRITE_API_KEY) {
-        return NextResponse.json(
-            { error: 'Server not configured: APPWRITE_API_KEY is missing' },
-            { status: 500 }
-        );
-    }
-
     try {
         const { name, phone, message, requirements, location } = await request.json();
 
         if (!name || !phone) {
-            return NextResponse.json({ error: "Name and Phone are required" }, { status: 400 });
+            throw new Error("Name and Phone are required");
         }
 
         // 1. Find a suitable agent
@@ -44,7 +36,7 @@ export async function POST(request) {
                     assignedAgentId = agentsInLocation.documents[0].$id;
                 }
             } catch (e) {
-                console.warn("Location based agent search failed", e);
+                // Ignore error and proceed to fallback
             }
         }
 
@@ -64,7 +56,7 @@ export async function POST(request) {
                     assignedAgentId = anyAgent.documents[0].$id;
                 }
             } catch (e) {
-                console.warn("Fallback agent search failed", e);
+                // Ignore error and proceed to final check
             }
         }
 
@@ -98,7 +90,6 @@ export async function POST(request) {
         return NextResponse.json({ success: true, leadId: result.$id, assignedAgent: assignedAgentId });
 
     } catch (error) {
-        console.error("Lead Creation Error:", error);
         return NextResponse.json({ error: "Failed to create lead", details: error.message }, { status: 500 });
     }
 }

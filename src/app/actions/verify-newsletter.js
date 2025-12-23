@@ -5,15 +5,11 @@ import { databases } from '@/lib/server/appwrite';
 import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/appwrite/config';
 
 export async function verifySubscription(token) {
-  if (!process.env.APPWRITE_API_KEY) {
-    console.error('APPWRITE_API_KEY is not set');
-    return { success: false, error: 'Server not configured' };
-  }
-  if (!token) {
-    return { success: false, error: 'Token is required' };
-  }
-
   try {
+    if (!token) {
+      throw new Error('Token is required');
+    }
+
     // Find the pending subscription with this token
     const result = await databases.listDocuments(
       DB_ID,
@@ -54,7 +50,6 @@ export async function verifySubscription(token) {
 
     return { success: true };
   } catch (error) {
-    console.error('Verification error:', error);
     return { success: false, error: 'Internal server error.' };
   }
 }
