@@ -1,19 +1,8 @@
 'use server';
 
-import { Client, Databases, ID, Permission, Role } from 'node-appwrite';
+import { Permission, Role } from 'node-appwrite';
+import { databases } from '@/lib/server/appwrite';
 import { generatePayHereHash } from '@/lib/payhere';
-
-// Initialize Admin Client (Server Side Only)
-const createAdminClient = () => {
-    const client = new Client()
-        .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
-        .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
-        .setKey(process.env.APPWRITE_API_KEY); // Must have API Key with Write permissions
-
-    return {
-        getDatabases: () => new Databases(client)
-    };
-};
 
 const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk';
 const COLLECTION_LISTINGS = 'listings';
@@ -22,9 +11,10 @@ const COLLECTION_LISTINGS = 'listings';
  * Validates the listing token and performs the decline action.
  */
 export async function declineListing(listingId, secret) {
-    const { getDatabases } = createAdminClient();
-    const databases = getDatabases();
-
+    if (!process.env.APPWRITE_API_KEY) {
+        console.error('APPWRITE_API_KEY is not set');
+        return { success: false, error: 'Server not configured' };
+    }
     try {
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
@@ -48,9 +38,10 @@ export async function declineListing(listingId, secret) {
  * Initiates the payment process for hiring the agent.
  */
 export async function initiateAgentHiring(listingId, secret, amount) {
-    const { getDatabases } = createAdminClient();
-    const databases = getDatabases();
-
+    if (!process.env.APPWRITE_API_KEY) {
+        console.error('APPWRITE_API_KEY is not set');
+        return { success: false, error: 'Server not configured' };
+    }
     try {
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
@@ -99,25 +90,14 @@ export async function initiateAgentHiring(listingId, secret, amount) {
  * @param {string} userId - The ID of the user claiming the listing (must be verified by caller or session)
  */
 export async function claimListing(listingId, secret, userId) {
-    // #region agent log
-    try { const fs = require('fs'); const logPath = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs.appendFileSync(logPath, JSON.stringify({location:'owner-verification.js:101',message:'claimListing entry',data:{listingId,secret:secret?'***':'null',userId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-    // #endregion
-    const { getDatabases } = createAdminClient();
-    const databases = getDatabases();
-
+    if (!process.env.APPWRITE_API_KEY) {
+        console.error('APPWRITE_API_KEY is not set');
+        return { success: false, error: 'Server not configured' };
+    }
     try {
-        // #region agent log
-        try { const fs2 = require('fs'); const logPath2 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs2.appendFileSync(logPath2, JSON.stringify({location:'owner-verification.js:106',message:'fetching listing',data:{listingId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
-        // #region agent log
-        try { const fs3 = require('fs'); const logPath3 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs3.appendFileSync(logPath3, JSON.stringify({location:'owner-verification.js:108',message:'listing fetched',data:{listingExists:!!listing,verificationCodeMatch:listing?.verification_code===secret},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
 
         if (listing.verification_code !== secret) {
-            // #region agent log
-            try { const fs4 = require('fs'); const logPath4 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs4.appendFileSync(logPath4, JSON.stringify({location:'owner-verification.js:111',message:'verification code mismatch',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-            // #endregion
             throw new Error("Invalid Token");
         }
 
@@ -144,9 +124,6 @@ export async function claimListing(listingId, secret, userId) {
         // 1. Update document data
         // 2. Update permissions so the new owner has write access
 
-        // #region agent log
-        try { const fs5 = require('fs'); const logPath5 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs5.appendFileSync(logPath5, JSON.stringify({location:'owner-verification.js:135',message:'updating listing',data:{listingId,userId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
         await databases.updateDocument(
             DB_ID,
             COLLECTION_LISTINGS,
@@ -165,16 +142,10 @@ export async function claimListing(listingId, secret, userId) {
                 Permission.read(Role.user(userId))          // New Owner can read
             ]
         );
-        // #region agent log
-        try { const fs6 = require('fs'); const logPath6 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs6.appendFileSync(logPath6, JSON.stringify({location:'owner-verification.js:152',message:'listing updated successfully',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
 
         return { success: true };
 
     } catch (error) {
-        // #region agent log
-        try { const fs7 = require('fs'); const logPath7 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs7.appendFileSync(logPath7, JSON.stringify({location:'owner-verification.js:157',message:'claimListing error',data:{error:error?.message,stack:error?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
         console.error("Claim Error:", error);
         return { success: false, error: error.message };
     }

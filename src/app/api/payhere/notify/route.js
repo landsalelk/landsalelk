@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
 import { verifyPayHereSignature } from "@/lib/payhere";
-import { Client, Databases, Query, ID } from "node-appwrite";
+import { databases } from '@/lib/server/appwrite';
+import { Query, ID } from "node-appwrite";
 
-// Use consistent endpoint - prefer environment variable, fallback to Singapore region
-const APPWRITE_ENDPOINT =
-  process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT ||
-  "https://sgp.cloud.appwrite.io/v1";
-const APPWRITE_PROJECT_ID = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
-const APPWRITE_API_KEY = process.env.APPWRITE_API_KEY; // Must be a server-side key with database write permissions
 const DATABASE_ID = process.env.NEXT_PUBLIC_DATABASE_ID || "landsalelkdb";
 
 const COLLECTIONS = {
@@ -20,6 +15,10 @@ const COLLECTIONS = {
 };
 
 export async function POST(request) {
+  if (!process.env.APPWRITE_API_KEY) {
+    console.error('APPWRITE_API_KEY is not set');
+    return NextResponse.json({ error: 'Server not configured' }, { status: 500 });
+  }
   try {
     const contentType = request.headers.get("content-type") || "";
     let body;
@@ -58,14 +57,6 @@ export async function POST(request) {
         message: "Ignored non-success status",
       });
     }
-
-    // Initialize Appwrite
-    const client = new Client()
-      .setEndpoint(APPWRITE_ENDPOINT)
-      .setProject(APPWRITE_PROJECT_ID)
-      .setKey(APPWRITE_API_KEY);
-
-    const databases = new Databases(client);
 
     // 2. Idempotency Check - use order_id which should be unique per transaction
     // Check both by searching description and by checking digital_purchases if applicable

@@ -1,22 +1,15 @@
 'use server';
 
-import { Client, Databases, ID, Query, Functions } from 'node-appwrite';
+import { ID, Query } from 'node-appwrite';
+import { databases, functions } from '@/lib/server/appwrite';
 import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/appwrite/config';
 import { headers } from 'next/headers';
 
-const createAdminClient = () => {
-  const client = new Client()
-    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
-    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
-
-  return {
-    getDatabases: () => new Databases(client),
-    getFunctions: () => new Functions(client),
-  };
-};
-
 export async function subscribeToNewsletter(email) {
+  if (!process.env.APPWRITE_API_KEY) {
+    console.error('APPWRITE_API_KEY is not set');
+    return { success: false, error: 'Server not configured' };
+  }
   if (!email) {
     return { success: false, error: 'Email is required' };
   }
@@ -36,10 +29,6 @@ export async function subscribeToNewsletter(email) {
   // Here we'll just proceed but in a real scenario we'd check a 'rate_limits' collection.
 
   try {
-    const { getDatabases, getFunctions } = createAdminClient();
-    const databases = getDatabases();
-    const functions = getFunctions();
-
     // Check if email already exists
     const existing = await databases.listDocuments(
       DB_ID,

@@ -1,28 +1,19 @@
 'use server';
 
-import { Client, Databases, Query } from 'node-appwrite';
+import { Query } from 'node-appwrite';
+import { databases } from '@/lib/server/appwrite';
 import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/appwrite/config';
 
-const createAdminClient = () => {
-  const client = new Client()
-    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
-    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
-
-  return {
-    getDatabases: () => new Databases(client),
-  };
-};
-
 export async function verifySubscription(token) {
+  if (!process.env.APPWRITE_API_KEY) {
+    console.error('APPWRITE_API_KEY is not set');
+    return { success: false, error: 'Server not configured' };
+  }
   if (!token) {
     return { success: false, error: 'Token is required' };
   }
 
   try {
-    const { getDatabases } = createAdminClient();
-    const databases = getDatabases();
-
     // Find the pending subscription with this token
     const result = await databases.listDocuments(
       DB_ID,

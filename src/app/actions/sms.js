@@ -1,22 +1,6 @@
 'use server';
 
-import { Client, Functions } from "node-appwrite";
-
-// Note: Server Actions run on the server, so we can use node-appwrite and process.env securely.
-// But we need to initialize a new Client with API KEY to have permission to execute functions.
-
-const createAdminClient = () => {
-    const client = new Client()
-        .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1')
-        .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
-        .setKey(process.env.APPWRITE_API_KEY);
-
-    return {
-        get functions() {
-            return new Functions(client);
-        }
-    };
-};
+import { functions } from '@/lib/server/appwrite';
 
 /**
  * Send an SMS via the send-sms Appwrite Function
@@ -28,13 +12,15 @@ const createAdminClient = () => {
  * @returns {Promise<{success: boolean, message?: string, error?: string}>}
  */
 export async function sendSMS(phone, message, relatedTo = null, relatedType = 'system') {
+    if (!process.env.APPWRITE_API_KEY) {
+        console.error('APPWRITE_API_KEY is not set');
+        return { success: false, error: 'Server not configured' };
+    }
     if (!phone || !message) {
         return { success: false, error: 'Phone and message are required' };
     }
 
     try {
-        const { functions } = createAdminClient();
-
         // Execute the send-sms function
         // Function ID is 'send-sms' based on appwrite.json
         const execution = await functions.createExecution(
