@@ -52,6 +52,11 @@ export async function declineListing(listingId, secret) {
 
 /**
  * Initiates the payment process for hiring the agent.
+ *
+ * @param {string} listingId - The listing ID.
+ * @param {string} secret - The verification token.
+ * @param {number} amount - The service fee amount.
+ * @returns {Promise<{success: boolean, paymentParams?: object, error?: string}>}
  */
 export async function initiateAgentHiring(listingId, secret, amount) {
     const { getDatabases } = createAdminClient();
@@ -100,9 +105,13 @@ export async function initiateAgentHiring(listingId, secret, amount) {
 
 /**
  * Claims the listing for the target user (Self-Service).
- * @param {string} listingId
- * @param {string} secret
- * @param {string} jwt - The JWT for the user session (required for security)
+ *
+ * Verifies the listing token and the user's identity via JWT before transferring ownership.
+ *
+ * @param {string} listingId - The unique ID of the listing document.
+ * @param {string} secret - The verification token (verification_code) sent to the owner.
+ * @param {string} jwt - The Appwrite JWT for the current user session (required to verify identity).
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the claim operation.
  */
 export async function claimListing(listingId, secret, jwt) {
     const { getDatabases } = createAdminClient();
