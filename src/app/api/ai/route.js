@@ -10,6 +10,10 @@ export async function POST(request) {
   try {
     const { messages, context } = await request.json();
 
+    if (!messages || !Array.isArray(messages)) {
+      return NextResponse.json({ error: "Invalid Request" }, { status: 400 });
+    }
+
     // Use OPENROUTER_API_KEY as discovered in environment
     const apiKey = process.env.OPENROUTER_API_KEY;
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://landsale.lk";
@@ -157,7 +161,6 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
     return NextResponse.json(parsedResponse);
 
   } catch (error) {
-    console.error("AI Chat Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
