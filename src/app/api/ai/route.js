@@ -2,8 +2,8 @@
 import { NextResponse } from 'next/server';
 
 /**
- * Shuffles an array in-place using the Fisher-Yates algorithm.
- * @param {Array<any>} array The array to shuffle.
+ * Shuffles an array of strings in-place using the Fisher-Yates algorithm.
+ * @param {Array<string>} array The array to shuffle.
  */
 function shuffle(array) {
   if (!Array.isArray(array)) return; // Guard clause
@@ -13,8 +13,20 @@ function shuffle(array) {
   }
 }
 
+/**
+ * Waits for a specified duration.
+ * @param {number} ms The time to wait in milliseconds.
+ * @returns {Promise<void>}
+ */
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+/**
+ * Handles POST requests to the AI chat API.
+ * It takes user messages, queries a series of AI models with fallback logic,
+ * and returns a structured JSON response based on the AI's interpretation.
+ * @param {import('next/server').NextRequest} request The incoming Next.js request object.
+ * @returns {Promise<NextResponse>} A JSON response from the AI.
+ */
 export async function POST(request) {
   try {
     const { messages, context } = await request.json();
@@ -143,6 +155,9 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
         } else {
           const errText = await response.text();
           lastError = `Model ${model} failed: ${response.status} - ${errText}`;
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(lastError);
+          }
           // Stop retrying if we hit a rate limit error.
           if (response.status === 429) {
             break; // Exit loop immediately
@@ -151,6 +166,9 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
         }
       } catch (err) {
         lastError = `Model ${model} error: ${err.message}`;
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(lastError);
+        }
         await delay(1000); // Also wait on network errors
       }
     }
