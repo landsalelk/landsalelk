@@ -7,6 +7,9 @@ import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
 
 /**
  * Validates the listing token and performs the decline action.
+ * @param {string} listingId The ID of the listing to decline.
+ * @param {string} secret The verification secret for the listing.
+ * @returns {Promise<{success: boolean, error?: string}>}
  */
 export async function declineListing(listingId, secret) {
     try {
@@ -29,6 +32,10 @@ export async function declineListing(listingId, secret) {
 
 /**
  * Initiates the payment process for hiring the agent.
+ * @param {string} listingId The ID of the listing.
+ * @param {string} secret The verification secret for the listing.
+ * @param {number} amount The amount to be paid.
+ * @returns {Promise<{success: boolean, error?: string, paymentParams?: object}>}
  */
 export async function initiateAgentHiring(listingId, secret, amount) {
     try {
@@ -74,8 +81,9 @@ export async function initiateAgentHiring(listingId, secret, amount) {
 /**
  * Claims the listing for the target user (Self-Service).
  * @param {string} listingId
- * @param {string} secret
- * @param {string} userId - The ID of the user claiming the listing (must be verified by caller or session)
+ * @param {string} secret The verification secret for the listing.
+ * @param {string} userId The ID of the user claiming the listing.
+ * @returns {Promise<{success: boolean, error?: string}>}
  */
 export async function claimListing(listingId, secret, userId) {
     try {
