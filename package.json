@@ -8,8 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "appwrite push site --site-id 6941d9280032a28b0536 --force",
-    "deploy:functions": "appwrite deploy function --all",
+    "deploy": "node scripts/deploy.js push site --site-id 6941d9280032a28b0536 --force",
+    "deploy:functions": "node scripts/deploy.js deploy function --all",
     "test:e2e": "playwright test",
     "analyze": "cross-env ANALYZE=true next build"
   },
