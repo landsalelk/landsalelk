@@ -15,35 +15,38 @@ import {
  * Appwrite Client Configuration
  *
  * This file initializes the Appwrite client for use throughout the application.
- * Environment variables are required for production, but fallbacks are provided
- * for build time (SSR/SSG) to prevent build failures.
+ * It prioritizes environment variables, falling back to defaults strictly for local
+ * development or build-time where env vars might not be present.
  */
 
-import { APPWRITE_ENDPOINT } from "./config";
-
-// Environment variables
-const endpoint = APPWRITE_ENDPOINT;
+const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
-// Fallback values for build time only - these should be overridden by env vars in production
-// Enforcing Singapore region endpoint for this project as per requirements
 const FALLBACK_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
 const FALLBACK_PROJECT_ID = "landsalelkproject";
 
-// Unused browser/dev checks were removed for code cleanliness.
-
-// Logic to ensure we use the correct endpoint
+/**
+ * Configuration Resolution
+ * Prioritizes environment variables, falling back to defaults.
+ * Production builds should fail if critical env vars are missing.
+ */
 let effectiveEndpoint = endpoint || FALLBACK_ENDPOINT;
+const effectiveProjectId = projectId || FALLBACK_PROJECT_ID;
 
-// Override global endpoint to sgp if it's the generic one, because we know this project is in SGP.
+// Final validation to prevent client initialization with empty strings
+if (!effectiveEndpoint || !effectiveProjectId) {
+    throw new Error("Appwrite Configuration Error: Missing Endpoint or Project ID. Check your .env file or deployment variables.");
+}
+
+// Override global endpoint to sgp if it's the generic one, as this project is hosted in Singapore.
 if (effectiveEndpoint === 'https://cloud.appwrite.io/v1') {
     effectiveEndpoint = 'https://sgp.cloud.appwrite.io/v1';
 }
 
-// Create client with environment variables or fallbacks
+// Create client with the resolved configuration
 const client = new Client()
   .setEndpoint(effectiveEndpoint)
-  .setProject(projectId || FALLBACK_PROJECT_ID);
+  .setProject(effectiveProjectId);
 
 // Initialize Appwrite services
 const account = new Account(client);
