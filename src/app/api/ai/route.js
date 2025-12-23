@@ -5,7 +5,9 @@ export async function POST(request) {
   try {
     const { messages, context } = await request.json();
 
-    // Use OPENROUTER_API_KEY as discovered in environment
+    /**
+     * The API key for the OpenRouter service, read from environment variables.
+     */
     const apiKey = process.env.OPENROUTER_API_KEY;
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://landsale.lk";
     const siteName = "LandSale.lk";
