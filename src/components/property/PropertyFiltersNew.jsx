@@ -1,7 +1,8 @@
 'use client';
 
-// PropertyFilters.jsx - Accessibility Enhanced v2
-// This file includes full accessibility support (ARIA roles, labels) and mobile responsive design.
+// PropertyFiltersNew.jsx - Accessibility Enhanced v2.1
+// This file replaces PropertyFilters.jsx to resolve diff truncation issues.
+// Includes full accessibility support (ARIA roles, labels) and mobile responsive design.
 
 import { useState } from 'react';
 import { getFilterOptions } from '@/lib/properties';
@@ -14,7 +15,7 @@ export function PropertyFilters({ filters, onChange }) {
 
     const [isOpen, setIsOpen] = useState(false);
 
-    // Synchronous call - no try/catch needed
+    // Synchronous call - no try/catch needed as it returns static data
     const options = getFilterOptions();
 
     const handleChange = (key, value) => {

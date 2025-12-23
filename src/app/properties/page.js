@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { searchProperties } from "@/lib/properties";
 import { PropertyCard } from "@/components/property/PropertyCard";
-import { PropertyFilters } from "@/components/property/PropertyFilters";
+import { PropertyFilters } from "@/components/property/PropertyFiltersNew";
 import { PropertyCardSkeleton } from "@/components/property/PropertyCardSkeleton";
 import {
   Loader2,
