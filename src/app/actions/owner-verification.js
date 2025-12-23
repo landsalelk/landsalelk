@@ -2,6 +2,7 @@
 
 import { Client, Databases, ID, Permission, Role } from 'node-appwrite';
 import { generatePayHereHash } from '@/lib/payhere';
+import logger from '@/lib/logger';
 
 // Initialize Admin Client (Server Side Only)
 const createAdminClient = () => {
@@ -39,7 +40,7 @@ export async function declineListing(listingId, secret) {
 
         return { success: true };
     } catch (error) {
-        // console.error("Decline Error:", error);
+        logger.error("Decline Error:", error);
         return { success: false, error: error.message };
     }
 }
@@ -87,7 +88,7 @@ export async function initiateAgentHiring(listingId, secret, amount) {
         };
 
     } catch (error) {
-        // console.error("Hiring Init Error:", error);
+        logger.error("Hiring Init Error:", error);
         return { success: false, error: error.message };
     }
 }
@@ -124,7 +125,7 @@ export async function claimListing(listingId, secret, userId) {
                 });
                 // console.log(`Awarded 1 point to agent ${agentId} for DIY claim`);
             } catch (agentErr) {
-                // console.warn('Could not update agent points:', agentErr.message);
+                logger.warn('Could not update agent points:', agentErr.message);
             }
         }
 
@@ -154,7 +155,7 @@ export async function claimListing(listingId, secret, userId) {
         return { success: true };
 
     } catch (error) {
-        // console.error("Claim Error:", error);
+        logger.error("Claim Error:", error);
         return { success: false, error: error.message };
     }
 }

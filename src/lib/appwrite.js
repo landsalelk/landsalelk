@@ -1,4 +1,5 @@
 import { Client, Account, Databases, Storage, Functions, Avatars, ID, Query, OAuthProvider } from "appwrite";
+import logger from "./logger";
 
 // Validate environment variables
 // Fix: Use Singapore endpoint if global one fails or as default if not specified
@@ -14,7 +15,7 @@ if (endpoint === 'https://cloud.appwrite.io/v1') {
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
 if (!projectId && typeof window !== 'undefined') {
-    // console.warn('NEXT_PUBLIC_APPWRITE_PROJECT_ID is not set. Appwrite features may not work correctly.');
+    logger.warn('NEXT_PUBLIC_APPWRITE_PROJECT_ID is not set. Appwrite features may not work correctly.');
 }
 
 const client = new Client()
