@@ -16,51 +16,69 @@
  */
 const { spawn } = require('child_process');
 const path = require('path');
-const commandExists = require('command-exists');
+const util = require('util');
+const commandExists = util.promisify(require('command-exists'));
 
-// This script ensures that the appwrite command is run from the project root directory.
-const projectRoot = path.resolve(__dirname, '..');
+const CONSTANTS = {
+    ERROR_NO_ARGS: 'Error: Please provide arguments to the appwrite CLI.\nExample: node scripts/deploy.js push site --site-id <ID>',
+    ERROR_CLI_NOT_FOUND: '❌ Error: The Appwrite CLI is not installed or not in your system\'s PATH.\nPlease install it by following the instructions at: https://appwrite.io/docs/command-line',
+    ERROR_SPAWN_FAILED: '❌ Failed to start the Appwrite CLI process.',
+    SUCCESS_MESSAGE: '\n✅ Appwrite command finished successfully.',
+};
 
-// Get the arguments passed to this script, and pass them along to the appwrite CLI
-const args = process.argv.slice(2);
+/**
+ * Executes the Appwrite CLI command with the given arguments.
+ * @param {string[]} args - The arguments to pass to the Appwrite CLI.
+ * @returns {Promise<void>} A promise that resolves when the command completes successfully, and rejects on error.
+ */
+function executeAppwriteCommand(args) {
+    return new Promise((resolve, reject) => {
+        // Set the current working directory to the project root.
+        // This is crucial to ensure that the `appwrite` CLI can find the `appwrite.json` file.
+        const projectRoot = path.resolve(__dirname, '..');
 
-if (args.length === 0) {
-    console.error('Error: Please provide arguments to the appwrite CLI.');
-    console.error('Example: node scripts/deploy.js push site --site-id <ID>');
-    process.exit(1);
+        const appwriteProcess = spawn('appwrite', args, {
+            cwd: projectRoot,
+            stdio: 'inherit',
+            shell: true,
+        });
+
+        appwriteProcess.on('close', (code) => {
+            if (code !== 0) {
+                reject(new Error(`Appwrite command failed with exit code ${code}`));
+            } else {
+                resolve();
+            }
+        });
+
+        appwriteProcess.on('error', (err) => {
+            reject(new Error(`${CONSTANTS.ERROR_SPAWN_FAILED}\n${err.message}`));
+        });
+    });
 }
 
-// First, check if the `appwrite` command exists
-commandExists('appwrite', (err, commandExists) => {
-    if (err) {
-        console.error('Error checking for Appwrite CLI:', err);
+/**
+ * The main function of the script.
+ */
+async function main() {
+    try {
+        const args = process.argv.slice(2);
+        if (args.length === 0) {
+            throw new Error(CONSTANTS.ERROR_NO_ARGS);
+        }
+
+        const cliExists = await commandExists('appwrite');
+        if (!cliExists) {
+            throw new Error(CONSTANTS.ERROR_CLI_NOT_FOUND);
+        }
+
+        await executeAppwriteCommand(args);
+        console.log(CONSTANTS.SUCCESS_MESSAGE);
+
+    } catch (error) {
+        console.error(`\n❌ ${error.message}`);
         process.exit(1);
     }
+}
 
-    if (!commandExists) {
-        console.error('❌ Error: The Appwrite CLI is not installed or not in your system\'s PATH.');
-        console.error('Please install it by following the instructions at: https://appwrite.io/docs/command-line');
-        process.exit(1);
-    }
-
-    // If the command exists, proceed to execute it
-    const appwriteProcess = spawn('appwrite', args, {
-        cwd: projectRoot,
-        stdio: 'inherit', // Pipe the output (stdout, stderr) of the child process to the parent
-        shell: true      // Use shell for better cross-platform compatibility (e.g., finding `appwrite` in PATH on Windows)
-    });
-
-    appwriteProcess.on('close', (code) => {
-    if (code !== 0) {
-        console.error(`\n❌ Appwrite command failed with exit code ${code}`);
-        process.exit(code);
-    }
-    console.log('\n✅ Appwrite command finished successfully.');
-});
-
-    appwriteProcess.on('error', (err) => {
-        console.error('❌ Failed to start the Appwrite CLI process.', err);
-        console.error('This can happen even if the CLI is installed, e.g., due to permission issues.');
-        process.exit(1);
-    });
-});
+main();
