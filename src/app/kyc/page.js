@@ -32,8 +32,17 @@ export default function KYCPage() {
     }, [router]);
 
     const handleFileChange = (e, side) => {
-        if (e.target.files && e.target.files[0]) {
-            setFiles(prev => ({ ...prev, [side]: e.target.files[0] }));
+        const file = e.target.files?.[0];
+        if (file) {
+            if (file.size > 10 * 1024 * 1024) {
+                toast.error("File size must be less than 10MB");
+                return;
+            }
+            if (!['image/jpeg', 'image/png', 'application/pdf', 'image/webp'].includes(file.type)) {
+                toast.error("Only JPG, PNG, WebP and PDF files are allowed");
+                return;
+            }
+            setFiles(prev => ({ ...prev, [side]: file }));
         }
     };
 
