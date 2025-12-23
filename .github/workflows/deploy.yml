@@ -122,7 +122,7 @@ jobs:
           
           # Deploy site
           echo "🌐 Deploying site..."
-          appwrite push site --site-id 6941d9280032a28b0536 --force
+          env APPWRITE_SITE_ID=6941d9280032a28b0536 npm run deploy
           
           echo "✅ Deployment complete!"
 
@@ -203,6 +203,6 @@ jobs:
           # Note: Staging site ID might be different or dynamic. For now using same command but it routes to staging project.
           # If site ID is different, we need a map or env var. 
           # Assuming 'appwrite push site' creates/updates based on project scope.
-          appwrite push site --site-id 6941d9280032a28b0536 --force
+          env APPWRITE_SITE_ID=6941d9280032a28b0536 npm run deploy
           
           echo "✅ Staging Deployment complete!"
