@@ -50,19 +50,9 @@ export default function ClaimListingPage() {
                 // #endregion
                 
                 // 1. Check Authentication
-                let user;
                 try {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:35',message:'auth check start',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
-                    user = await account.get();
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:37',message:'auth check success',data:{userId:user?.$id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
+                    await account.get();
                 } catch (e) {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:39',message:'auth check failed',data:{error:e?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
                     // Not logged in
                     // Encode the return URL properly
                     const returnUrl = encodeURIComponent(`/verify-owner/${listingId}/claim?secret=${secretToken}`);
@@ -73,32 +63,15 @@ export default function ClaimListingPage() {
                 setStatus('claiming');
 
                 // 2. Call Server Action to Claim
-                // Pass user ID? Ideally the server action should extract it from session cookies.
-                // But as discussed, passing it as arg for now if secure session extraction is complex in mixed mode.
-                // However, since we are in a Client Component calling a Server Action,
-                // the `cookies()` in the server action WILL contain the session if it's httpOnly.
-                // If Appwrite session is local storage based (Client SDK), Server Action won't see it unless we sync.
-                // Let's rely on the Server Action receiving the User ID and validating it if possible,
-                // OR since we trust the user is logged in via Client SDK, we pass the ID.
-                // SECURITY WARNING: Passing ID from client is spoofable.
-                // But for this task scope, we assume the critical part is the SECRET token.
-                // If the secret is valid, the listing is unclaimed, so whoever has the secret can claim it.
-                // The User ID just binds it to that account.
+                // Securely pass JWT for server-side verification
+                const session = await account.createJWT();
+                const jwt = session.jwt;
 
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:59',message:'claimListing call start',data:{listingId,secretToken,userId:user.$id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
-                const result = await claimListing(listingId, secretToken, user.$id);
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:61',message:'claimListing result',data:{success:result?.success,error:result?.error},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
+                const result = await claimListing(listingId, secretToken, jwt);
 
                 if (result.success) {
                     setStatus('success');
                     toast.success("Listing claimed successfully!");
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:65',message:'redirect start',data:{target:'/dashboard/my-listings'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                    // #endregion
                     router.push('/dashboard/my-listings'); // Redirect to dashboard
                 } else {
                     throw new Error(result.error);
