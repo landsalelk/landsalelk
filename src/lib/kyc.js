@@ -50,7 +50,6 @@ export async function submitKYC(data) {
         return kycDoc;
 
     } catch (error) {
-        console.error("KYC Submission Error:", error);
         throw error;
     }
 }
@@ -114,7 +113,6 @@ export async function updateKYCStatus(docId, status) {
             }
         );
     } catch (error) {
-        console.error("KYC Update Error:", error);
         throw error;
     }
 }
