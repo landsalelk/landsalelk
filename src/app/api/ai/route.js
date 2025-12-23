@@ -47,14 +47,20 @@ import { NextResponse } from 'next/server';
  * @returns {NextResponse<AIResponse|{error: string}>} A JSON response containing the AI's completion or an error.
  */
 export async function POST(request) {
+  let body;
   try {
-    const { messages, context } = await request.json();
+    body = await request.json();
+  } catch (e) {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  try {
+    const { messages, context } = body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: "Invalid Request" }, { status: 400 });
     }
 
-    // Use OPENROUTER_API_KEY as discovered in environment
     const apiKey = process.env.OPENROUTER_API_KEY;
     const siteUrl = process.env.NEXT_PUBLIC_APP_URL;
     const siteName = process.env.NEXT_PUBLIC_SITE_NAME;
