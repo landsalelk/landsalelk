@@ -23,9 +23,13 @@ export default function FacebookPixel() {
   useEffect(() => {
     // This effect runs on mount and whenever pathname/searchParams change.
     // It ensures PageView is tracked on initial load and client-side navigation.
-    // The `facebookPixelId` check above ensures `window.fbq` will be defined.
     if (typeof window.fbq === 'function') {
-      window.fbq('track', 'PageView');
+      try {
+        window.fbq('track', 'PageView');
+      } catch (error) {
+        // Suppress errors to prevent client-side crashes if the pixel fails.
+        // A monitoring service would be a better long-term solution.
+      }
     }
   }, [pathname, searchParams]);
 

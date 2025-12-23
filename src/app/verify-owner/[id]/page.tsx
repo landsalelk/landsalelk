@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { databases } from "@/lib/appwrite";
@@ -17,8 +17,14 @@ import {
 import {
   declineListing,
   initiateAgentHiring,
-} from "@/app/actions/owner-verification";
+} from '@/app/actions/owner-verification';
 
+/**
+ * OwnerVerificationPage component handles the verification of property ownership.
+ * It allows the owner to claim their property, hire an agent, or decline the listing.
+ * The component fetches listing details based on the ID and a secret token from the URL,
+ * and handles the different user actions.
+ */
 export default function OwnerVerificationPage() {
   const params = useParams();
   const searchParams = useSearchParams();
