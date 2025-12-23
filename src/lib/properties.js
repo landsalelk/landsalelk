@@ -188,7 +188,7 @@ export async function createProperty(data) {
 
         // Generate verification code if owner_phone is provided
         status = data.status || 'active';
-        if (data.owner_phone && data.owner_phone.trim().length > 0) {
+        if (status !== 'draft' && data.owner_phone && data.owner_phone.trim().length > 0) {
             // Generate a secure 6-character alphanumeric code
             verification_code = Math.random().toString(36).substring(2, 8).toUpperCase();
             status = 'pending'; // Requires owner verification (mapped to 'pending' in schema)
