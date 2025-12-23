@@ -225,6 +225,9 @@ export default function CreateListingPage() {
    * Scans the first uploaded image using Tesseract.js OCR to automatically
    * detect and fill phone number and price fields.
    * Dynamically imports Tesseract.js to avoid large initial bundle size.
+   *
+   * @async
+   * @returns {Promise<void>} Resolves when OCR processing is complete.
    */
   const runOCR = async () => {
     if (images.length === 0) {
@@ -239,20 +242,16 @@ export default function CreateListingPage() {
       try {
         Tesseract = (await import("tesseract.js")).default;
       } catch (importErr) {
-        console.error("Failed to load Tesseract.js:", importErr);
         toast.error("Failed to load OCR engine. Please check your connection.");
-        setOcrProcessing(false);
-        return;
+        throw importErr;
       }
 
       const imageToScan = images[0];
       const {
         data: { text },
       } = await Tesseract.recognize(imageToScan, "eng", {
-        logger: (m) => console.log(m),
+        logger: () => {},
       });
-
-      console.log("OCR Result:", text);
 
       // Basic Regex to find phone numbers (Sri Lankan format roughly)
       // Look for patterns like 077 123 4567, 07x-xxxxxxx, +94...
@@ -279,8 +278,7 @@ export default function CreateListingPage() {
         toast.info("No clear details found in image. Please enter manually.");
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to scan image.");
+      toast.error("Failed to scan image. Please try again.");
     } finally {
       setOcrProcessing(false);
     }
