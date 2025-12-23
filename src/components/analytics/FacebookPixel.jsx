@@ -15,22 +15,19 @@ export default function FacebookPixel() {
   const searchParams = useSearchParams();
   const facebookPixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
 
-  useEffect(() => {
-    // This effect runs on mount and whenever pathname/searchParams change.
-    // It ensures PageView is tracked on initial load and client-side navigation.
-    // A check for `window` is included to prevent errors during server-side rendering.
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    if (facebookPixelId && typeof window.fbq === 'function') {
-      window.fbq('track', 'PageView');
-    }
-  }, [pathname, searchParams, facebookPixelId]);
-
+  // If the Facebook Pixel ID is not configured, do not render the component.
   if (!facebookPixelId) {
     return null;
   }
+
+  useEffect(() => {
+    // This effect runs on mount and whenever pathname/searchParams change.
+    // It ensures PageView is tracked on initial load and client-side navigation.
+    // The `facebookPixelId` check above ensures `window.fbq` will be defined.
+    if (typeof window.fbq === 'function') {
+      window.fbq('track', 'PageView');
+    }
+  }, [pathname, searchParams]);
 
   return (
     <>
