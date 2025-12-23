@@ -39,7 +39,6 @@ export async function declineListing(listingId, secret) {
 
         return { success: true };
     } catch (error) {
-        console.error("Decline Error:", error);
         return { success: false, error: error.message };
     }
 }
@@ -87,7 +86,6 @@ export async function initiateAgentHiring(listingId, secret, amount) {
         };
 
     } catch (error) {
-        console.error("Hiring Init Error:", error);
         return { success: false, error: error.message };
     }
 }
@@ -122,7 +120,6 @@ export async function claimListing(listingId, secret, userId) {
                     points: (agent.points || 0) + 1, // 1 point for DIY referral
                     listings_uploaded: (agent.listings_uploaded || 0) + 1
                 });
-                console.log(`Awarded 1 point to agent ${agentId} for DIY claim`);
             } catch (agentErr) {
                 console.warn('Could not update agent points:', agentErr.message);
             }
@@ -153,7 +150,6 @@ export async function claimListing(listingId, secret, userId) {
         return { success: true };
 
     } catch (error) {
-        console.error("Claim Error:", error);
         return { success: false, error: error.message };
     }
 }
