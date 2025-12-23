@@ -32,6 +32,11 @@ export default function OwnerVerificationPage() {
   const [error, setError] = useState(null);
 
   const fetchListing = useCallback(async () => {
+    if (!id) {
+      setError("Listing ID is missing from the URL.");
+      setLoading(false);
+      return;
+    }
     try {
       const doc = await databases.getDocument(
         process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "landsalelk",
