@@ -62,6 +62,18 @@ cp .env.example .env
 npm run dev
 ```
 
+### Deployment
+
+The application is deployed using Appwrite Sites. The deployment configuration is defined in `appwrite.json`.
+
+**Important:** The deployment path is set to the repository root (`.`) to deploy the main Next.js application located in `src/app`. This supersedes any legacy nested applications (e.g., in `sites/`).
+
+To verify that the deployment environment is correctly set up, you can run:
+
+```bash
+node scripts/verify-deployment.js
+```
+
 ---
 
 ## � Project Structure
