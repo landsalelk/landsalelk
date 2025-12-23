@@ -75,10 +75,13 @@ export default async ({ req, res, log, error }) => {
             }
         }
 
-        log(`Received payload: ${JSON.stringify(payload)}`);
-
         const listingId = payload.$id;
         const ownerPhone = payload.owner_phone;
+
+        // Redact phone number for logging
+        const redactedPhone = ownerPhone ? ownerPhone.replace(/.(?=.{4})/g, '*') : 'N/A';
+        log(`received request for listing: ${listingId}, phone: ${redactedPhone}`);
+
         const title = payload.title;
         const price = payload.price;
         const agentId = payload.agent_id;

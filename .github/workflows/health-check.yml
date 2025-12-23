@@ -22,6 +22,6 @@ jobs:
         continue-on-error: true
         uses: Ilshidur/action-discord@master
         env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_WEBHOOK: "${{ secrets.DISCORD_WEBHOOK }}"
         with:
           args: '🚨 URGENT: Production site (landsale.lk) is DOWN!'

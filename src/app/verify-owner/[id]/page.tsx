@@ -26,12 +26,18 @@ export default function OwnerVerificationPage() {
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const secret = searchParams.get("secret");
 
-  const [listing, setListing] = useState(null);
+  const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchListing = useCallback(async () => {
+    if (!id) {
+      setError("Invalid listing ID.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const doc = await databases.getDocument(
         process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "landsalelk",
@@ -85,33 +91,34 @@ export default function OwnerVerificationPage() {
 
       if (!result.success) throw new Error(result.error);
 
-      const params = result.paymentParams;
+      const paymentParams = result.paymentParams;
+      if (!paymentParams) throw new Error("Invalid payment parameters");
 
       // Create and submit PayHere form
       const form = document.createElement("form");
       form.method = "POST";
-      form.action = params.sandbox
+      form.action = paymentParams?.sandbox
         ? "https://sandbox.payhere.lk/pay/checkout"
         : "https://www.payhere.lk/pay/checkout";
 
       // Add all payment parameters as hidden fields
       const fields = {
-        merchant_id: params.merchant_id,
-        return_url: params.return_url,
-        cancel_url: params.cancel_url,
-        notify_url: params.notify_url,
-        order_id: params.order_id,
-        items: params.items,
-        currency: params.currency,
-        amount: params.amount,
-        first_name: params.first_name,
-        last_name: params.last_name,
-        email: params.email,
-        phone: params.phone,
-        address: params.address,
-        city: params.city,
-        country: params.country,
-        hash: params.hash,
+        merchant_id: paymentParams.merchant_id,
+        return_url: paymentParams.return_url,
+        cancel_url: paymentParams.cancel_url,
+        notify_url: paymentParams.notify_url,
+        order_id: paymentParams.order_id,
+        items: paymentParams.items,
+        currency: paymentParams.currency,
+        amount: paymentParams.amount,
+        first_name: paymentParams.first_name,
+        last_name: paymentParams.last_name,
+        email: paymentParams.email,
+        phone: paymentParams.phone,
+        address: paymentParams.address,
+        city: paymentParams.city,
+        country: paymentParams.country,
+        hash: paymentParams.hash,
       };
 
       Object.entries(fields).forEach(([key, value]) => {
@@ -126,7 +133,7 @@ export default function OwnerVerificationPage() {
       toast.success("Redirecting to PayHere Gateway...");
       form.submit();
     } catch (err) {
-      toast.error(err.message || "Payment initiation failed");
+      toast.error((err as Error).message || "Payment initiation failed");
       setVerifying(false);
     }
   };
@@ -145,7 +152,7 @@ export default function OwnerVerificationPage() {
 
       if (result.success) {
         toast.success("Listing declined.");
-        setListing((prev) => ({ ...prev, status: "rejected_by_owner" }));
+        setListing((prev: any) => ({ ...prev, status: "rejected_by_owner" }));
         setError("You have declined this listing.");
       } else {
         throw new Error(result.error);

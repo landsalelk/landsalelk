@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "deploy": "appwrite push site --site-id 6941d9280032a28b0536 --force",
-    "deploy:functions": "appwrite deploy function --all",
+    "deploy:functions": "appwrite push function --all --force",
     "test:e2e": "playwright test",
     "analyze": "cross-env ANALYZE=true next build"
   },

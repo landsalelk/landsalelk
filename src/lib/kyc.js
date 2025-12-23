@@ -36,11 +36,7 @@ export async function submitKYC(data) {
                 request_type: data.type || 'verify_identity',
                 submitted_at: new Date().toISOString()
             },
-            [
-                Permission.read(Role.user(user.$id)),
-                Permission.read(Role.team('admins')),
-                Permission.update(Role.team('admins')), // Only admins update status
-            ]
+
         );
 
         return kycDoc;

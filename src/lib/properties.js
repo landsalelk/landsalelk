@@ -188,7 +188,7 @@ export async function createProperty(data) {
 
         // Generate verification code if owner_phone is provided
         status = data.status || 'active';
-        if (data.owner_phone && data.owner_phone.trim().length > 0) {
+        if (status !== 'draft' && data.owner_phone && data.owner_phone.trim().length > 0) {
             // Generate a secure 6-character alphanumeric code
             verification_code = Math.random().toString(36).substring(2, 8).toUpperCase();
             status = 'pending'; // Requires owner verification (mapped to 'pending' in schema)
@@ -317,10 +317,7 @@ export async function updateProperty(id, data) {
             DB_ID,
             COLLECTION_LISTINGS,
             id,
-            {
-                ...data,
-                updated_at: new Date().toISOString()
-            }
+            data
         );
     } catch (error) {
         console.error("Update Listing Error:", error);
@@ -364,12 +361,15 @@ export async function deleteProperty(id) {
  */
 export async function renewProperty(id) {
     try {
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30); // Extend by 30 days
+
         return await databases.updateDocument(
             DB_ID,
             COLLECTION_LISTINGS,
             id,
             {
-                created_at: new Date().toISOString(),
+                expires_at: expiresAt.toISOString(),
                 status: 'active'
             }
         );
