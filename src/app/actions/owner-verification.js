@@ -93,10 +93,14 @@ export async function initiateAgentHiring(listingId, secret, amount) {
 }
 
 /**
- * Claims the listing for the target user (Self-Service) by verifying a secure JWT.
- * @param {string} listingId
- * @param {string} secret
- * @param {string} jwt - The secure JSON Web Token from the client.
+ * Claims a listing on behalf of the user authenticated by the provided JWT.
+ * This function validates the JWT, retrieves the user, verifies the listing secret,
+ * and transfers ownership of the listing to the authenticated user.
+ *
+ * @param {string} listingId - The ID of the listing to claim.
+ * @param {string} secret - The verification secret sent to the owner.
+ * @param {string} jwt - The secure JSON Web Token from the authenticated client.
+ * @returns {Promise<{success: boolean, error?: string}>} A promise that resolves to an object indicating success or failure.
  */
 export async function claimListing(listingId, secret, jwt) {
     const adminDatabases = createAdminClient().getDatabases();
