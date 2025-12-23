@@ -1,12 +1,18 @@
 
 import { NextResponse } from 'next/server';
 
+/**
+ * Shuffles an array in-place using the Fisher-Yates algorithm.
+ * @param {Array<any>} array The array to shuffle.
+ */
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
   }
 }
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function POST(request) {
   try {
@@ -136,15 +142,15 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
         } else {
           const errText = await response.text();
           lastError = `Model ${model} failed: ${response.status} - ${errText}`;
-          console.warn(lastError);
           // Stop retrying if we hit a rate limit error.
           if (response.status === 429) {
             break; // Exit loop immediately
           }
+          await delay(1000); // Wait 1 second before trying the next model
         }
       } catch (err) {
         lastError = `Model ${model} error: ${err.message}`;
-        console.warn(lastError);
+        await delay(1000); // Also wait on network errors
       }
     }
 
