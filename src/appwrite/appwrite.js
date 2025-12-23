@@ -33,35 +33,42 @@ if (!endpoint || endpoint === 'https://cloud.appwrite.io/v1') {
     endpoint = FALLBACK_ENDPOINT;
 }
 
-// Determine if we're in a browser or server environment
-const isBrowser = typeof window !== "undefined";
-const isDev = process.env.NODE_ENV === "development";
+let client;
+let account;
+let databases;
+let storage;
+let functions;
+let avatars;
 
-// Log warnings in development if env vars are missing (browser only to avoid SSR spam)
-if (isBrowser && isDev) {
-  if (!process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT) {
-    console.warn(
-      "[Appwrite] NEXT_PUBLIC_APPWRITE_ENDPOINT is not set. Using fallback.",
-    );
-  }
-  if (!projectId) {
-    console.warn(
-      "[Appwrite] NEXT_PUBLIC_APPWRITE_PROJECT_ID is not set. Using fallback.",
-    );
-  }
+try {
+  // Create client with environment variables or fallbacks
+  client = new Client()
+    .setEndpoint(endpoint)
+    .setProject(projectId || FALLBACK_PROJECT_ID);
+
+  // Initialize Appwrite services
+  account = new Account(client);
+  databases = new Databases(client);
+  storage = new Storage(client);
+  functions = new Functions(client);
+  avatars = new Avatars(client);
+} catch (error) {
+  // Critical error handling for initialization failure
+  console.error("Appwrite Initialization Failed:", error);
+  // Re-throw or handle as critical failure depending on app needs
+  // For now, we allow the app to load but subsequent calls might fail or be undefined.
+  // However, since exports are const bindings in ES modules, we can't change them later easily without 'let'.
+  // We switched to 'let' above, but ES module exports need to be live bindings or we export the object.
+  // With the current export structure (export { client... }), we need client to be defined.
+
+  // Minimal fallback to prevent crash on import
+  client = new Client();
+  account = new Account(client);
+  databases = new Databases(client);
+  storage = new Storage(client);
+  functions = new Functions(client);
+  avatars = new Avatars(client);
 }
-
-// Create client with environment variables or fallbacks
-const client = new Client()
-  .setEndpoint(endpoint)
-  .setProject(projectId || FALLBACK_PROJECT_ID);
-
-// Initialize Appwrite services
-const account = new Account(client);
-const databases = new Databases(client);
-const storage = new Storage(client);
-const functions = new Functions(client);
-const avatars = new Avatars(client);
 
 // Export all services and utilities
 export {
