@@ -66,7 +66,7 @@ npm run dev
 
 The application is deployed using Appwrite Sites. The deployment configuration is defined in `appwrite.json`.
 
-**Important:** The deployment path is set to the repository root (`.`) to deploy the main Next.js application located in `src/app`. This supersedes any legacy nested applications (e.g., in `sites/`).
+**Important:** The deployment path is set to the repository root (`.`) to deploy the main Next.js application located in `src/app`. This explicitly deprecates and supersedes any legacy nested applications (e.g., in `sites/landsale.lk`). The root path is now the single source of truth for the active deployment.
 
 To verify that the deployment environment is correctly set up, you can run:
 
