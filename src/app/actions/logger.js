@@ -13,21 +13,23 @@ import { Client, Functions } from 'node-appwrite';
 export async function logErrorToGitHub(title, body, labels = ['bug', 'frontend']) {
   try {
     // Appwrite configuration
-    // Use Singapore endpoint as default if not specified or if generic cloud endpoint
-    let endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
-    if (endpoint === 'https://cloud.appwrite.io/v1') {
-        endpoint = 'https://sgp.cloud.appwrite.io/v1';
-    }
-
-    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+    // Using server-side environment variables directly
+    const endpoint = process.env.APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
+    const projectId = process.env.APPWRITE_PROJECT_ID || process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+    const apiKey = process.env.APPWRITE_API_KEY;
 
     if (!projectId) {
-        throw new Error('Configuration missing: NEXT_PUBLIC_APPWRITE_PROJECT_ID');
+        throw new Error('Configuration missing: APPWRITE_PROJECT_ID');
+    }
+
+    if (!apiKey) {
+        throw new Error('Configuration missing: APPWRITE_API_KEY');
     }
 
     const client = new Client()
       .setEndpoint(endpoint)
-      .setProject(projectId);
+      .setProject(projectId)
+      .setKey(apiKey);
 
     const functions = new Functions(client);
 

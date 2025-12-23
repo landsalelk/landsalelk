@@ -210,7 +210,11 @@
             "entrypoint": "src/main.js",
             "commands": "npm install",
             "specification": "s-0.5vcpu-512mb",
-            "path": "functions/github-logger"
+            "path": "functions/github-logger",
+            "variables": {
+                "GITHUB_TOKEN": "",
+                "GITHUB_REPO": "landsalelk/landsalelk"
+            }
         }
     ],
     "databases": [
