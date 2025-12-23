@@ -30,24 +30,16 @@ export default function ClaimListingPage() {
         
         const processClaim = async () => {
             hasProcessedRef.current = true;
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:20',message:'processClaim entry',data:{idParam:params?.id,id,secret:secret||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-            // #endregion
+
             try {
                 // Type guard: ensure id and secret are strings
                 if (!id || !secret) {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:24',message:'validation failed',data:{hasId:!!id,hasSecret:!!secret},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                    // #endregion
                     throw new Error('Invalid verification link');
                 }
                 
                 // TypeScript now knows id is a string after the guard
                 const listingId: string = id;
                 const secretToken: string = secret;
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:30',message:'params extracted',data:{listingId,secretToken},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                // #endregion
                 
                 // 1. Check Authentication
                 try {
@@ -78,9 +70,6 @@ export default function ClaimListingPage() {
                 }
 
             } catch (error) {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:72',message:'error caught',data:{error:error?.message,stack:error?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'ALL'})}).catch(()=>{});
-                // #endregion
                 console.error(error);
                 toast.error(error.message || "Failed to claim listing");
                 setStatus('error');
