@@ -5,16 +5,32 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import Image from 'next/image';
 
+/**
+ * FacebookPixel component handles the integration of the Facebook Pixel script.
+ * It tracks 'PageView' events on initial load and subsequent client-side navigations.
+ * The component ensures the script and tracking calls only execute on the client-side
+ * and includes error handling to prevent application crashes.
+ * @returns {JSX.Element|null} The Facebook Pixel script and noscript tag, or null if the pixel ID is not configured.
+ */
 export default function FacebookPixel() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const facebookPixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
 
   useEffect(() => {
-    // This effect runs on mount and whenever pathname/searchParams change.
-    // It ensures PageView is tracked on initial load and client-side navigation.
-    if (facebookPixelId && typeof window.fbq === 'function') {
-      window.fbq('track', 'PageView');
+    // This effect runs on mount and on every route change to track PageView events.
+    // The dependencies `pathname` and `searchParams` trigger the effect on navigation.
+    if (!facebookPixelId) return;
+
+    // Ensure this code only runs on the client where the `window` object is available.
+    if (typeof window === 'undefined') return;
+
+    try {
+      if (typeof window.fbq === 'function') {
+        window.fbq('track', 'PageView');
+      }
+    } catch (error) {
+      console.error('Facebook Pixel PageView track failed:', error);
     }
   }, [pathname, searchParams, facebookPixelId]);
 
