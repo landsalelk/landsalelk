@@ -1,6 +1,16 @@
 
 import { NextResponse } from 'next/server';
 
+/**
+ * @description Handles POST requests to the AI chat API endpoint.
+ * This function acts as a proxy to the OpenRouter API. It includes a retry
+ * mechanism with a fallback to different models if a request fails.
+ * It specifically handles 401 Unauthorized errors to provide a clear
+ * error message when the API key is invalid or missing.
+ *
+ * @param {Request} request The incoming request object.
+ * @returns {NextResponse} A JSON response with the AI's reply or an error.
+ */
 export async function POST(request) {
   try {
     const { messages, context } = await request.json();
@@ -124,8 +134,16 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
             break; // Success
           }
         } else {
-          const errText = await response.text();
+          let errText = 'Could not read error body';
+          try {
+            errText = await response.text();
+          } catch (bodyReadError) {
+            errText = `Failed to read body: ${bodyReadError.message}`;
+          }
+
           if (response.status === 401) {
+            // 401 indicates an invalid API key. Retrying with the same key is futile.
+            // We break the loop to prevent wasting execution time and to alert the developer immediately.
             lastError = `[CRITICAL] Authentication failed for model ${model}: 401 Unauthorized. This is likely due to an invalid or missing OPENROUTER_API_KEY in your environment variables.`;
             // Break the loop immediately as all other models will fail with the same key.
             break;
@@ -133,7 +151,7 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
           lastError = `Model ${model} failed: ${response.status} - ${errText}`;
         }
       } catch (err) {
-        lastError = `Model ${model} error: ${err.message}`;
+        lastError = `Network or fetch error for model ${model}: ${err.message}`;
       }
     }
 
@@ -148,14 +166,12 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
     try {
       parsedResponse = JSON.parse(aiContent);
     } catch (e) {
-      console.warn("AI did not return valid JSON, using fallback.", aiContent);
       parsedResponse = { type: "CHAT", reply: aiContent };
     }
 
     return NextResponse.json(parsedResponse);
 
   } catch (error) {
-    console.error("AI Chat Error:", error);
     return NextResponse.json({
       type: "CHAT",
       reply: "I apologize, but I'm having trouble processing your request right now. Please try again in a moment."
