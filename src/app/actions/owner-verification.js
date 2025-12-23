@@ -142,9 +142,6 @@ export async function claimListing(listingId, secret, jwt) {
         // 1. Update document data
         // 2. Update permissions so the new owner has write access
 
-        // #region agent log
-        try { const fs5 = require('fs'); const logPath5 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs5.appendFileSync(logPath5, JSON.stringify({location:'owner-verification.js:135',message:'updating listing',data:{listingId,userId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
         await databases.updateDocument(
             DB_ID,
             COLLECTION_LISTINGS,
@@ -163,16 +160,10 @@ export async function claimListing(listingId, secret, jwt) {
                 Permission.read(Role.user(userId))          // New Owner can read
             ]
         );
-        // #region agent log
-        try { const fs6 = require('fs'); const logPath6 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs6.appendFileSync(logPath6, JSON.stringify({location:'owner-verification.js:152',message:'listing updated successfully',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
 
         return { success: true };
 
     } catch (error) {
-        // #region agent log
-        try { const fs7 = require('fs'); const logPath7 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs7.appendFileSync(logPath7, JSON.stringify({location:'owner-verification.js:157',message:'claimListing error',data:{error:error?.message,stack:error?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
         console.error("Claim Error:", error);
         return { success: false, error: error.message };
     }
