@@ -28,7 +28,7 @@ export async function declineListing(listingId, secret) {
     try {
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
-        if (listing.verification_code !== secret) {
+        if (!listing || listing.verification_code !== secret) {
             throw new Error("Invalid Token");
         }
 
@@ -53,7 +53,7 @@ export async function initiateAgentHiring(listingId, secret, amount) {
     try {
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
-        if (listing.verification_code !== secret) {
+        if (!listing || listing.verification_code !== secret) {
             throw new Error("Invalid Token");
         }
 
@@ -103,7 +103,7 @@ export async function claimListing(listingId, secret, userId) {
     try {
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
-        if (listing.verification_code !== secret) {
+        if (!listing || listing.verification_code !== secret) {
             throw new Error("Invalid Token");
         }
 
