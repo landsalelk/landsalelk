@@ -67,7 +67,7 @@ export default function ClaimListingPage() {
                 }
 
             } catch (error: any) {
-                console.error(error);
+                // Error handled by UI state
                 toast.error(error.message || "Failed to claim listing");
                 setStatus('error');
             }
