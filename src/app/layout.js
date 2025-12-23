@@ -77,8 +77,8 @@ export default function RootLayout({ children }) {
           </main>
           <Footer />
           <AIChatWindow />
-            <CookieConsent />
-            <Toaster position="top-center" richColors />
+          <CookieConsent />
+          <Toaster position="top-center" richColors />
           </ComparisonProvider>
         </AuthProvider>
 

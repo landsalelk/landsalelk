@@ -13,7 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /**
- * NotificationBell component
+ * NotificationBell component.
  * Displays a bell icon with unread count and a dropdown of notifications.
  */
 export default function NotificationBell() {
