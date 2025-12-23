@@ -5,7 +5,8 @@ import { databases, functions } from '@/lib/server/appwrite';
 import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/appwrite/config';
 import { headers } from 'next/headers';
 
-export async function subscribeToNewsletter(email) {
+export async function subscribeToNewsletter(rawEmail) {
+  const email = rawEmail ? rawEmail.trim() : null;
   if (!email) {
     return { success: false, error: 'Email is required' };
   }
@@ -63,9 +64,9 @@ export async function subscribeToNewsletter(email) {
       }),
       true
     ).catch(emailError => {
-      // Log this error for monitoring, but don't block the user response.
-      // The user has been added to the DB, and a cron job could handle failed email sends.
-      console.error(`High-Priority: Failed to trigger newsletter verification email for ${email}:`, emailError);
+      // High-priority: Failed to trigger newsletter verification email.
+      // A monitoring service or cron job should be in place to detect and retry these failures.
+      // For now, the user is in the database as 'pending', so the subscription is not lost.
     });
 
     return { success: true, message: 'Subscription successful! Please check your email to confirm.' };
