@@ -124,6 +124,13 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
             break; // Success
           }
         } else {
+          if (response.status === 401) {
+            const errText = await response.text();
+            lastError = `[CRITICAL] Authentication failed for model ${model}: 401 Unauthorized. This is likely due to an invalid or missing OPENROUTER_API_KEY in your environment variables.`;
+            console.error(lastError);
+            // Break the loop immediately as all other models will fail with the same key.
+            break;
+          }
           const errText = await response.text();
           lastError = `Model ${model} failed: ${response.status} - ${errText}`;
           console.warn(lastError);
