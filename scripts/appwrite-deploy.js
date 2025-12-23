@@ -1,3 +1,12 @@
+/**
+ * Appwrite Site Deployment Script
+ *
+ * Usage:
+ *   APPWRITE_SITE_ID=<your-id> node scripts/appwrite-deploy.js
+ *
+ * This script ensures the Appwrite CLI is available and the required
+ * environment variables are present before executing the push command.
+ */
 const util = require('util');
 const { exec: execCallback } = require('child_process');
 const path = require('path');
@@ -21,25 +30,26 @@ const siteId = process.env.APPWRITE_SITE_ID;
 const main = async () => {
     try {
         // Check if the Appwrite CLI is installed and accessible.
-        await exec('appwrite --version');
+        try {
+            await exec('appwrite --version');
+        } catch (error) {
+            throw new Error('Appwrite CLI not found. Please install it globally.');
+        }
 
         // Check if the site ID is provided via environment variables.
         if (!siteId) {
-            console.error('Error: APPWRITE_SITE_ID environment variable is not set.');
-            process.exit(1);
+            throw new Error('APPWRITE_SITE_ID environment variable is not set.');
         }
 
         const deployCommand = `appwrite push site --site-id ${siteId} --force`;
 
         // Execute the deployment command.
-        // We will not log stdout on success to keep CI logs clean.
         await exec(deployCommand, { cwd: projectRoot });
 
     } catch (error) {
         // If any command fails, the promise will reject and be caught here.
-        console.error('Deployment script failed.');
         const output = error.stderr || error.stdout || error.message;
-        console.error(output);
+        console.error(`Deployment script failed:\n${output}`);
         process.exit(1);
     }
 };
