@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 const AuthContext = createContext();
 
+// Context for global authentication state
 /**
  * AuthProvider component
  * Manages global authentication state.

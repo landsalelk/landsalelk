@@ -23,6 +23,7 @@ export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
+  // Ref to track fetching state and prevent concurrency
   const isFetching = useRef(false);
 
   /**
