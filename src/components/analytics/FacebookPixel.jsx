@@ -4,6 +4,12 @@ import { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 
+/**
+ * FacebookPixel component injects the Facebook Pixel script into the application.
+ * It tracks page views on initial load and subsequent client-side navigations.
+ * The component will return null and not render the script if the
+ * NEXT_PUBLIC_FACEBOOK_PIXEL_ID environment variable is not set.
+ */
 export default function FacebookPixel() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -17,7 +23,12 @@ export default function FacebookPixel() {
     }
   }, [pathname, searchParams, facebookPixelId]);
 
-  if (!facebookPixelId) return null;
+  if (!facebookPixelId) {
+    console.warn(
+      'Facebook Pixel ID (NEXT_PUBLIC_FACEBOOK_PIXEL_ID) is missing. The pixel will not be loaded.',
+    );
+    return null;
+  }
 
   return (
     <>
