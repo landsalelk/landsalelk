@@ -30,11 +30,7 @@ const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 const FALLBACK_ENDPOINT = "https://sgp.cloud.appwrite.io/v1";
 const FALLBACK_PROJECT_ID = "landsalelkproject";
 
-// Determine if we're in a browser or server environment
-const isBrowser = typeof window !== "undefined";
-const isDev = process.env.NODE_ENV === "development";
-
-// Warnings for missing env vars were removed as per code review feedback.
+// Unused browser/dev checks were removed for code cleanliness.
 
 // Logic to ensure we use the correct endpoint
 let effectiveEndpoint = endpoint || FALLBACK_ENDPOINT;
