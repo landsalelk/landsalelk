@@ -94,9 +94,13 @@ export async function initiateAgentHiring(listingId, secret, amount) {
 
 /**
  * Claims the listing for the target user (Self-Service).
- * @param {string} listingId
- * @param {string} secret
- * @param {string} userId - The ID of the user claiming the listing (must be verified by caller or session)
+ *
+ * Securely verifies the user's identity via JWT before transferring ownership.
+ *
+ * @param {string} listingId - The ID of the listing to claim.
+ * @param {string} secret - The verification code sent to the owner.
+ * @param {string} jwt - The JSON Web Token of the authenticated user.
+ * @returns {Promise<{success: boolean, error?: string}>} Result of the operation.
  */
 export async function claimListing(listingId, secret, jwt) {
     const { getDatabases } = createAdminClient();
@@ -114,10 +118,19 @@ export async function claimListing(listingId, secret, jwt) {
             .setJWT(jwt);
 
         const sessionAccount = new Account(sessionClient);
-        const user = await sessionAccount.get();
-        const userId = user.$id;
+
+        let userId;
+        try {
+            const user = await sessionAccount.get();
+            userId = user.$id;
+        } catch (authError) {
+            console.error("JWT Verification Failed:", authError);
+            throw new Error("Invalid or expired session");
+        }
 
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
+
+        // Note: Ensure 'verification_code' is indexed for performance if used in queries (currently direct fetch by ID)
 
         if (listing.verification_code !== secret) {
             throw new Error("Invalid Token");
