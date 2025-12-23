@@ -20,6 +20,7 @@ import { useComparison } from "@/context/ComparisonContext";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  // user state: undefined = loading, null = logged out, object = logged in
   const [user, setUser] = useState(undefined);
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -109,6 +110,7 @@ export function Navbar() {
               {/* Right Side Actions */}
               <div className="hidden items-center gap-3 md:flex">
                 {user === undefined ? (
+                  /* Loading state - show skeletons to prevent "Sign In" flicker */
                   <div className="flex items-center gap-3">
                     <Skeleton className="h-9 w-9 rounded-full" />
                     <Skeleton className="h-9 w-9 rounded-xl" />

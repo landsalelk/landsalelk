@@ -13,6 +13,13 @@ import { account } from "@/appwrite";
 import { useNotificationRealtime } from "@/hooks/useRealtime";
 import { Skeleton } from "@/components/ui/Skeleton";
 
+/**
+ * NotificationBell component
+ * Displays a bell icon with unread count and a dropdown of notifications.
+ *
+ * @param {Object} props
+ * @param {Object} [props.user] - Optional initial user object to avoid redundant fetching.
+ */
 export default function NotificationBell({ user: initialUser }) {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -20,9 +27,22 @@ export default function NotificationBell({ user: initialUser }) {
   const [user, setUser] = useState(initialUser || null);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
+  const isFetching = useRef(false);
 
-  // Define loadNotifications first since checkUser depends on it
+  /**
+   * Load notifications for a user.
+   * Prevents concurrent fetches using a ref.
+   */
   const loadNotifications = useCallback(async (userId) => {
+    if (!userId) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
+    // Prevent concurrent fetches
+    if (isFetching.current) return;
+
+    isFetching.current = true;
     setLoading(true);
     try {
       const [notifs, count] = await Promise.all([
@@ -35,16 +55,23 @@ export default function NotificationBell({ user: initialUser }) {
       console.error("Failed to load notifications:", err);
     } finally {
       setLoading(false);
+      isFetching.current = false;
     }
   }, []);
 
-  // Define checkUser after loadNotifications since it depends on it
+  /**
+   * Check for user session.
+   * Uses initialUser if provided to skip API call.
+   */
   const checkUser = useCallback(async () => {
+    // If we have an initial user, use it and load notifications
     if (initialUser) {
       setUser(initialUser);
       loadNotifications(initialUser.$id);
       return;
     }
+
+    // Otherwise fetch user from Appwrite
     try {
       const userData = await account.get();
       setUser(userData);
@@ -54,10 +81,10 @@ export default function NotificationBell({ user: initialUser }) {
     }
   }, [loadNotifications, initialUser]);
 
-  // Now use checkUser in useEffect after it's defined
+  // Initial load and refresh on open
   useEffect(() => {
     checkUser();
-  }, [checkUser]);
+  }, [checkUser, isOpen]);
 
   useEffect(() => {
     // Close on outside click
