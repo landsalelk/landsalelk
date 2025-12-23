@@ -4,9 +4,7 @@
   "description": "Appwrite Function to log errors as GitHub Issues",
   "main": "src/main.js",
   "type": "module",
-  "dependencies": {
-    "node-appwrite": "^14.0.0"
-  },
+  "dependencies": {},
   "engines": {
     "node": ">=18.0.0"
   }
