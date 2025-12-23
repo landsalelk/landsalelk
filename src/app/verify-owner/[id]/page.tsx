@@ -19,6 +19,13 @@ import {
   initiateAgentHiring,
 } from "@/app/actions/owner-verification";
 
+/**
+ * Owner Verification Page
+ *
+ * Handles the flow where a property owner verifies a listing created by an agent.
+ * Checks for a valid secret token and listing status.
+ * If the listing is already active, it redirects the owner to the public view.
+ */
 export default function OwnerVerificationPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -31,7 +38,15 @@ export default function OwnerVerificationPage() {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState(null);
 
+  /**
+   * Fetches the listing details and validates the verification token.
+   * Prioritizes checking for 'active' status to improve UX for already verified listings.
+   */
   const fetchListing = useCallback(async () => {
+    // Reset states to ensure clean slate for retries
+    setError(null);
+    setListing(null);
+
     try {
       // Robust error handling for document fetch
       // We wrap the getDocument call in a try/catch to ensure we handle network or permission errors gracefully
