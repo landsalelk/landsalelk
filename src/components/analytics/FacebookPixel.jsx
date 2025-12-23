@@ -9,8 +9,8 @@ import Script from 'next/script';
  * It tracks page views on initial load and client-side navigation.
  *
  * This component uses `dangerouslySetInnerHTML` to inject the Facebook Pixel script
- * as provided by Facebook's official documentation. This is a standard practice
- * for third-party scripts that require this specific implementation.
+ * as provided by Facebook's official documentation. This is a required and standard
+ * practice for this specific third-party script to function correctly.
  *
  * The `noscript` tag with an `img` element is a fallback for browsers with
  * JavaScript disabled, ensuring that page views can still be tracked.
@@ -20,9 +20,8 @@ export default function FacebookPixel() {
   const searchParams = useSearchParams();
   const facebookPixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
 
+  // This effect tracks page views on initial load and whenever the route changes.
   useEffect(() => {
-    // This effect runs on mount and whenever pathname/searchParams change.
-    // It ensures PageView is tracked on initial load and client-side navigation.
     if (facebookPixelId && typeof window.fbq === 'function') {
       window.fbq('track', 'PageView');
     }
