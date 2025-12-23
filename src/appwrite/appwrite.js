@@ -34,19 +34,7 @@ const FALLBACK_PROJECT_ID = "landsalelkproject";
 const isBrowser = typeof window !== "undefined";
 const isDev = process.env.NODE_ENV === "development";
 
-// Log warnings in development if env vars are missing (browser only to avoid SSR spam)
-if (isBrowser && isDev) {
-  if (!endpoint) {
-    console.warn(
-      "[Appwrite] NEXT_PUBLIC_APPWRITE_ENDPOINT is not set. Using fallback.",
-    );
-  }
-  if (!projectId) {
-    console.warn(
-      "[Appwrite] NEXT_PUBLIC_APPWRITE_PROJECT_ID is not set. Using fallback.",
-    );
-  }
-}
+// Warnings for missing env vars were removed as per code review feedback.
 
 // Logic to ensure we use the correct endpoint
 let effectiveEndpoint = endpoint || FALLBACK_ENDPOINT;
