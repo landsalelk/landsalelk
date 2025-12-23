@@ -32,6 +32,10 @@ const COLLECTION_LISTINGS = 'listings';
  * @returns {Promise<{success: boolean, error?: string}>}
  */
 export async function declineListing(listingId, secret) {
+    if (!listingId || !secret) {
+        return { success: false, error: "Missing required parameters" };
+    }
+
     try {
         const { getDatabases } = createAdminClient();
         const databases = getDatabases();
@@ -49,7 +53,6 @@ export async function declineListing(listingId, secret) {
 
         return { success: true };
     } catch (error) {
-        console.error("Decline Error:", error);
         return { success: false, error: error.message || "Failed to decline" };
     }
 }
@@ -63,6 +66,10 @@ export async function declineListing(listingId, secret) {
  * @returns {Promise<{success: boolean, paymentParams?: object, error?: string}>}
  */
 export async function initiateAgentHiring(listingId, secret, amount) {
+    if (!listingId || !secret || !amount) {
+        return { success: false, error: "Missing required parameters" };
+    }
+
     try {
         const { getDatabases } = createAdminClient();
         const databases = getDatabases();
@@ -108,7 +115,6 @@ export async function initiateAgentHiring(listingId, secret, amount) {
         };
 
     } catch (error) {
-        console.error("Hiring Init Error:", error);
         return { success: false, error: error.message || "Failed to initiate hiring" };
     }
 }
@@ -124,6 +130,10 @@ export async function initiateAgentHiring(listingId, secret, amount) {
  * @returns {Promise<{success: boolean, error?: string}>} Result of the claim operation.
  */
 export async function claimListing(listingId, secret, jwt) {
+    if (!listingId || !secret) {
+        return { success: false, error: "Missing required parameters" };
+    }
+
     try {
         const { getDatabases } = createAdminClient();
         const databases = getDatabases();
@@ -162,9 +172,8 @@ export async function claimListing(listingId, secret, jwt) {
                     points: (agent.points || 0) + 1, // 1 point for DIY referral
                     listings_uploaded: (agent.listings_uploaded || 0) + 1
                 });
-                // console.log removed
             } catch (agentErr) {
-                console.warn('Could not update agent points:', agentErr.message);
+                // Silently fail for gamification updates to avoid blocking the main flow
             }
         }
 
@@ -174,7 +183,7 @@ export async function claimListing(listingId, secret, jwt) {
             COLLECTION_LISTINGS,
             listingId,
             {
-                user_id: userId,          // Set new owner ID
+                user_id: userId,          // Set new owner ID (Schema requires user_id)
                 agent_id: null,           // Remove agent (already awarded points)
                 status: 'active',         // Activate
                 verification_code: null,  // Clear token
@@ -191,7 +200,6 @@ export async function claimListing(listingId, secret, jwt) {
         return { success: true };
 
     } catch (error) {
-        console.error("Claim Error:", error);
         // Handle Appwrite Errors explicitly
         if (error.code === 404) return { success: false, error: "Listing not found" };
         if (error.code === 401) return { success: false, error: "Unauthorized" };
