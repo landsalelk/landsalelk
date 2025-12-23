@@ -83,6 +83,10 @@ export default function OwnerVerificationPage() {
       const amount = listing.service_fee || 1500;
       const result = await initiateAgentHiring(id, secret, amount);
 
+      // Defensively check the API response.
+      // The `initiateAgentHiring` function should return a `success` flag
+      // and the `paymentParams` object. If either is missing, we cannot
+      // proceed to the PayHere gateway.
       if (!result || !result.success) {
         throw new Error(result?.error || 'An unknown error occurred.');
       }
