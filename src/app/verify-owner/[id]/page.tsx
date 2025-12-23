@@ -87,6 +87,12 @@ export default function OwnerVerificationPage() {
 
       const params = result.paymentParams;
 
+      if (!params) {
+        toast.error("Could not retrieve payment details. Please try again.");
+        setVerifying(false);
+        return;
+      }
+
       // Create and submit PayHere form
       const form = document.createElement("form");
       form.method = "POST";
