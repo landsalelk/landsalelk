@@ -2,9 +2,18 @@
 
 import { ID, Query } from 'node-appwrite';
 import { databases, functions } from '@/lib/server/appwrite';
-import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/appwrite/config';
+import { DB_ID, COLLECTION_USERS_EXTENDED } from '@/appwrite/config';
 import { headers } from 'next/headers';
 
+
+/**
+ * Subscribes a user to the newsletter.
+ * This function handles email validation, checks for existing subscribers,
+ * creates a new subscriber record in a 'pending' state, and triggers a verification email.
+ *
+ * @param {string | null} rawEmail The email address to subscribe. It will be trimmed.
+ * @returns {Promise<{success: boolean, message?: string, error?: string}>} An object indicating success or failure.
+ */
 export async function subscribeToNewsletter(rawEmail) {
   const email = rawEmail ? rawEmail.trim() : null;
   if (!email) {
@@ -23,26 +32,21 @@ export async function subscribeToNewsletter(rawEmail) {
   try {
     const existing = await databases.listDocuments(
       DB_ID,
-      COLLECTION_SUBSCRIBERS,
+      COLLECTION_USERS_EXTENDED,
       [Query.equal('email', email)]
     );
 
     if (existing.total > 0) {
-      const doc = existing.documents[0];
-      if (doc.status === 'active') {
-        return { success: true, message: 'You are already subscribed.' };
-      } else {
-        // To prevent user enumeration, we don't reveal if the email is in a pending state.
-        // We can re-trigger the verification email here if desired, but for now, we'll return a generic message.
-        return { success: true, message: 'Please check your email to confirm your subscription.' };
-      }
+        // To prevent user enumeration and for a consistent UX, always return the same message.
+        // This handles cases where the user is already subscribed or pending verification.
+        return { success: true, message: 'Thank you for subscribing! Please check your email to confirm.' };
     }
 
     const verificationToken = ID.unique() + ID.unique();
 
     await databases.createDocument(
       DB_ID,
-      COLLECTION_SUBSCRIBERS,
+      COLLECTION_USERS_EXTENDED,
       ID.unique(),
       {
         email,
@@ -69,10 +73,9 @@ export async function subscribeToNewsletter(rawEmail) {
       // For now, the user is in the database as 'pending', so the subscription is not lost.
     });
 
-    return { success: true, message: 'Subscription successful! Please check your email to confirm.' };
+    return { success: true, message: 'Thank you for subscribing! Please check your email to confirm.' };
   } catch (error) {
-    // Generic error to avoid leaking implementation details
-    // console.error('Newsletter subscription error:', error);
+    // Generic error to avoid leaking implementation details.
     return { success: false, error: 'An unexpected error occurred. Please try again.' };
   }
 }
