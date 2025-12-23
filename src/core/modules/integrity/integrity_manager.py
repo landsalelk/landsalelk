@@ -6,7 +6,7 @@ import asyncio
 import yaml
 import os
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from .schemas import LogEntry
 from .ai_analyzer import analyze
 import src.core.modules.integrity.healing_actions as healing_actions
@@ -21,6 +21,7 @@ class IntegrityManager:
     config: Dict[str, Any]
     severity_threshold: int
     allowed_actions: List[str]
+    monitor_task: Optional[asyncio.Task]
 
     def __init__(self, config_path: str = 'config/integrity_config.yaml') -> None:
         """
@@ -35,6 +36,7 @@ class IntegrityManager:
         self.config = self._load_config(config_path)
         self.severity_threshold = self.config.get('sensitivity_thresholds', {}).get('severity', 7)
         self.allowed_actions = self.config.get('allowed_actions', ["ALERT"])
+        self.monitor_task = None
 
     def _load_config(self, config_path: str) -> Dict[str, Any]:
         """
@@ -58,22 +60,28 @@ class IntegrityManager:
         triggers healing actions when an anomaly is detected.
         """
         while True:
-            log_entry: LogEntry = await self.log_buffer.get()
-            verdict = analyze(log_entry)
+            try:
+                log_entry: LogEntry = await self.log_buffer.get()
+                verdict = analyze(log_entry)
 
-            if verdict.is_anomaly or verdict.severity > self.severity_threshold:
-                healing_actions.log_incident(verdict)
-                action = verdict.recommended_action
+                if verdict.is_anomaly or verdict.severity > self.severity_threshold:
+                    healing_actions.log_incident(verdict)
+                    action = verdict.recommended_action
 
-                if action in self.allowed_actions:
-                    if action == "RESTART_SERVICE":
-                        healing_actions.restart_module(log_entry.source)
-                    elif action == "ALERT":
-                        healing_actions.alert_user(f"Anomaly detected in {log_entry.source}: {verdict.diagnosis}")
-                else:
-                    healing_actions.alert_user(f"Recommended action '{action}' not allowed. Defaulting to ALERT.")
+                    if action in self.allowed_actions:
+                        if action == "RESTART_SERVICE":
+                            healing_actions.restart_module(log_entry.source)
+                        elif action == "ALERT":
+                            healing_actions.alert_user(f"Anomaly detected in {log_entry.source}: {verdict.diagnosis}")
+                    else:
+                        healing_actions.alert_user(f"Recommended action '{action}' not allowed. Defaulting to ALERT.")
 
-            self.log_buffer.task_done()
+                self.log_buffer.task_done()
+            except asyncio.CancelledError:
+                logging.info("Monitor task is shutting down.")
+                break
+            except Exception as e:
+                logging.error(f"An error occurred in the monitor loop: {e}", exc_info=True)
 
     async def verify_system_state(self) -> None:
         """
@@ -86,3 +94,16 @@ class IntegrityManager:
         else:
             logging.error("Issues Detected: Internal state has been corrupted.")
             healing_actions.alert_user("Internal state corruption detected!")
+
+    async def shutdown(self) -> None:
+        """
+        Gracefully shuts down the IntegrityManager by cancelling the
+        monitoring task.
+        """
+        if self.monitor_task:
+            self.monitor_task.cancel()
+            try:
+                await self.monitor_task
+            except asyncio.CancelledError:
+                pass  # This is expected
+        logging.info("IntegrityManager has been shut down.")

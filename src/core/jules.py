@@ -57,43 +57,38 @@ async def main() -> None:
     )
     args, _ = parser.parse_known_args()
 
+    integrity_manager = None
     try:
         integrity_manager = IntegrityManager()
+        integrity_manager.monitor_task = asyncio.create_task(integrity_manager.monitor())
+
+        if args.check_integrity:
+            await integrity_manager.verify_system_state()
+            return
+
+        logging.info("Jules Integrity Monitor is running. Press Ctrl+C to stop.")
+
+        if args.simulate_logs:
+            logging.info("Running with log simulator.")
+            simulator_task = asyncio.create_task(log_simulator(integrity_manager))
+            await simulator_task
+            await integrity_manager.log_buffer.join()
+        else:
+            # This loop keeps the service alive.
+            while integrity_manager.monitor_task and not integrity_manager.monitor_task.done():
+                await asyncio.sleep(1)
+
+    except (KeyboardInterrupt, asyncio.CancelledError):
+        logging.info("Shutdown signal received.")
     except Exception as e:
-        logging.critical(f"Failed to initialize IntegrityManager: {e}", exc_info=True)
-        sys.exit(1)
-
-    monitor_task = asyncio.create_task(integrity_manager.monitor())
-
-    if args.check_integrity:
-        await integrity_manager.verify_system_state()
-        monitor_task.cancel()
-        return
-
-    logging.info("Jules Integrity Monitor is running. Press Ctrl+C to stop.")
-
-    if args.simulate_logs:
-        logging.info("Running with log simulator.")
-        simulator_task = asyncio.create_task(log_simulator(integrity_manager))
-        await simulator_task
-        await integrity_manager.log_buffer.join()
-    else:
-        # In a real application, logs would be fed into the buffer from other sources.
-        # This loop keeps the service alive.
-        while not monitor_task.done():
-            await asyncio.sleep(1)
-
-    monitor_task.cancel()
-    try:
-        await monitor_task
-    except asyncio.CancelledError:
-        logging.info("Integrity monitor shut down gracefully.")
+        logging.critical(f"A critical error occurred: {e}", exc_info=True)
+    finally:
+        if integrity_manager:
+            await integrity_manager.shutdown()
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logging.info("Shutting down Jules.")
-    except Exception as e:
-        logging.critical(f"An unhandled exception occurred: {e}", exc_info=True)
+        pass # The main function now handles this.
