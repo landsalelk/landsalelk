@@ -1,5 +1,8 @@
 'use client';
 
+// PropertyFilters.jsx - Accessibility Enhanced v2
+// This file includes full accessibility support (ARIA roles, labels) and mobile responsive design.
+
 import { useState } from 'react';
 import { getFilterOptions } from '@/lib/properties';
 import { Search, Filter, X } from 'lucide-react';
@@ -10,6 +13,8 @@ export function PropertyFilters({ filters, onChange }) {
     // Accessibility: Toggle buttons indicate expansion state
 
     const [isOpen, setIsOpen] = useState(false);
+
+    // Synchronous call - no try/catch needed
     const options = getFilterOptions();
 
     const handleChange = (key, value) => {
