@@ -34,26 +34,30 @@ const CONSTANTS = {
 function executeAppwriteCommand(args) {
     return new Promise((resolve, reject) => {
         // Set the current working directory to the project root.
-        // This is crucial to ensure that the `appwrite` CLI can find the `appwrite.json` file.
         const projectRoot = path.resolve(__dirname, '..');
 
-        const appwriteProcess = spawn('appwrite', args, {
-            cwd: projectRoot,
-            stdio: 'inherit',
-            shell: true,
-        });
+        try {
+            const appwriteProcess = spawn('appwrite', args, {
+                cwd: projectRoot,
+                stdio: 'inherit',
+                shell: true,
+            });
 
-        appwriteProcess.on('close', (code) => {
-            if (code !== 0) {
-                reject(new Error(`Appwrite command failed with exit code ${code}`));
-            } else {
-                resolve();
-            }
-        });
+            appwriteProcess.on('close', (code) => {
+                if (code !== 0) {
+                    reject(new Error(`Appwrite command failed with exit code ${code}`));
+                } else {
+                    resolve();
+                }
+            });
 
-        appwriteProcess.on('error', (err) => {
+            appwriteProcess.on('error', (err) => {
+                reject(new Error(`${CONSTANTS.ERROR_SPAWN_FAILED}\n${err.message}`));
+            });
+        } catch (err) {
+            // Catch synchronous errors (e.g., executable not found)
             reject(new Error(`${CONSTANTS.ERROR_SPAWN_FAILED}\n${err.message}`));
-        });
+        }
     });
 }
 
