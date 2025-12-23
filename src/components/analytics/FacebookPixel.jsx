@@ -31,7 +31,7 @@ export default function FacebookPixel() {
       }
     } catch (error) {
       // Catch runtime errors from the Facebook SDK to prevent app crashes.
-      // Errors are silently ignored to avoid polluting the console.
+      // Errors are silently ignored for page view tracking.
     }
   }, [pathname, searchParams, facebookPixelId, isScriptLoaded]);
 
@@ -44,15 +44,19 @@ export default function FacebookPixel() {
         src="https://connect.facebook.net/en_US/fbevents.js"
         strategy="afterInteractive"
         onLoad={() => {
-          // The script has loaded, now we can initialize the pixel.
-          if (typeof window.fbq === 'function') {
-            window.fbq('init', facebookPixelId);
-            setIsScriptLoaded(true);
+          try {
+            if (typeof window.fbq === 'function') {
+              window.fbq('init', facebookPixelId);
+              setIsScriptLoaded(true);
+            } else {
+              throw new Error('fbq function not found on window');
+            }
+          } catch (error) {
+            console.error('Facebook Pixel initialization failed:', error);
           }
         }}
-        onError={() => {
-          // Silently fail if the script fails to load.
-          // This prevents errors from ad-blockers from crashing the app.
+        onError={(e) => {
+          console.error('Failed to load Facebook Pixel script:', e);
         }}
       />
       <noscript>
