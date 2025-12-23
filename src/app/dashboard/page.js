@@ -45,6 +45,12 @@ export default function DashboardPage() {
     const [inquiriesStats, setInquiriesStats] = useState({ total: 0, change: 0 });
     const [totalViews, setTotalViews] = useState(0);
 
+    /**
+     * Fetches all necessary data for the user dashboard.
+     * This includes user details, agent status, listings, KYC status,
+     * favorites, inquiries, and offers. It orchestrates multiple parallel
+     * requests and sets the component state accordingly.
+     */
     const loadDashboardData = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -76,7 +82,7 @@ export default function DashboardPage() {
                 const favDocs = await getUserFavorites();
                 setFavorites(favDocs);
             } catch (e) {
-                // Silent fail
+                console.error("Failed to fetch user favorites:", e);
             }
 
             // Fetch Inquiries (Messages) Stats
