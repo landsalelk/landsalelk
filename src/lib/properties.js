@@ -317,10 +317,7 @@ export async function updateProperty(id, data) {
             DB_ID,
             COLLECTION_LISTINGS,
             id,
-            {
-                ...data,
-                updated_at: new Date().toISOString()
-            }
+            data
         );
     } catch (error) {
         console.error("Update Listing Error:", error);
@@ -364,12 +361,15 @@ export async function deleteProperty(id) {
  */
 export async function renewProperty(id) {
     try {
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30); // Extend by 30 days
+
         return await databases.updateDocument(
             DB_ID,
             COLLECTION_LISTINGS,
             id,
             {
-                created_at: new Date().toISOString(),
+                expires_at: expiresAt.toISOString(),
                 status: 'active'
             }
         );
