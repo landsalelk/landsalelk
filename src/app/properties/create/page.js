@@ -221,7 +221,11 @@ export default function CreateListingPage() {
     [formData],
   );
 
-  // AI OCR Feature: Extract phone and price from image
+  /**
+   * Scans the first uploaded image using Tesseract.js OCR to automatically
+   * detect and fill phone number and price fields.
+   * Dynamically imports Tesseract.js to avoid large initial bundle size.
+   */
   const runOCR = async () => {
     if (images.length === 0) {
       toast.error("Please upload an image first.");
@@ -231,7 +235,15 @@ export default function CreateListingPage() {
     setOcrProcessing(true);
     try {
       // ⚡ Bolt: Dynamically import Tesseract.js to reduce initial bundle size
-      const Tesseract = (await import("tesseract.js")).default;
+      let Tesseract;
+      try {
+        Tesseract = (await import("tesseract.js")).default;
+      } catch (importErr) {
+        console.error("Failed to load Tesseract.js:", importErr);
+        toast.error("Failed to load OCR engine. Please check your connection.");
+        setOcrProcessing(false);
+        return;
+      }
 
       const imageToScan = images[0];
       const {
