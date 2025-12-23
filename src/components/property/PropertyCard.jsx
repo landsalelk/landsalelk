@@ -48,8 +48,19 @@ export function PropertyCard({ property }) {
       const str = String(val).trim();
       if (!str) return null;
       if (str.startsWith("http")) return str; // Already a URL
-      // Assume it's a File ID
-      return `${endpoint}/storage/buckets/${bucketId}/files/${str}/view?project=${projectId}&width=400&quality=80`;
+
+      // Use URL API for safer construction
+      try {
+        const url = new URL(`${endpoint}/storage/buckets/${bucketId}/files/${str}/view`);
+        if (projectId) {
+          url.searchParams.set('project', projectId);
+        }
+        url.searchParams.set('width', '400');
+        url.searchParams.set('quality', '80');
+        return url.toString();
+      } catch (e) {
+        return fallback;
+      }
     };
 
     // Try primary_image first
