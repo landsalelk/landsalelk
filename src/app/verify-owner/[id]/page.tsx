@@ -19,6 +19,14 @@ import {
   initiateAgentHiring,
 } from "@/app/actions/owner-verification";
 
+/**
+ * OwnerVerificationPage component handles the owner verification process for a property listing.
+ * It allows the property owner to approve or decline a listing created by an agent.
+ * The owner can choose to hire the agent (and pay a service fee) or claim the listing
+ * to sell it themselves for free.
+ *
+ * The page is accessed via a unique URL with a secret token sent to the owner's phone number.
+ */
 export default function OwnerVerificationPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -31,6 +39,10 @@ export default function OwnerVerificationPage() {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState(null);
 
+  /**
+   * Fetches the listing details from the database and verifies the secret token.
+   * It sets the component's state based on the fetched data or any errors encountered.
+   */
   const fetchListing = useCallback(async () => {
     try {
       const doc = await databases.getDocument(
@@ -77,6 +89,11 @@ export default function OwnerVerificationPage() {
     router.push(`/verify-owner/${id}/claim?secret=${secret}`);
   };
 
+  /**
+   * Handles the "Hire Agent" action.
+   * It initiates the agent hiring process, which involves a service fee payment.
+   * On success, it redirects the user to the PayHere payment gateway.
+   */
   const handleHireAgent = async () => {
     setVerifying(true);
     try {
@@ -84,7 +101,9 @@ export default function OwnerVerificationPage() {
       const result = await initiateAgentHiring(id, secret, amount);
 
       if (!result || !result.success) {
-        throw new Error(result?.error || "Payment initiation failed.");
+        toast.error(result?.error || "Payment initiation failed.");
+        setVerifying(false);
+        return;
       }
 
       const params = result.paymentParams;
@@ -139,6 +158,11 @@ export default function OwnerVerificationPage() {
     }
   };
 
+  /**
+   * Handles the "Decline" action.
+   * It prompts the user for confirmation and then declines the listing,
+   * updating its status in the database.
+   */
   const handleDecline = async () => {
     if (
       !confirm(
