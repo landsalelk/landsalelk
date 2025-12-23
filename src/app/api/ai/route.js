@@ -108,7 +108,7 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
     let usedModel = "";
     let lastError = "";
 
-    // Truncate messages to the last 10 to prevent exceeding token limits
+    // Truncate to prevent exceeding model token limits
     const truncatedMessages = messages.slice(-10);
 
     // Retry logic with model fallback
@@ -150,8 +150,7 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
           }
 
           if (response.status === 401) {
-            // 401 indicates an invalid API key. Retrying with the same key is futile.
-            // We break the loop to prevent wasting execution time and to alert the developer immediately.
+            // Break loop immediately as subsequent retries with the same invalid key are futile
             lastError = `[CRITICAL] Authentication failed for model ${model}: 401 Unauthorized. This is likely due to an invalid or missing OPENROUTER_API_KEY in your environment variables.`;
             // Break the loop immediately as all other models will fail with the same key.
             break;
