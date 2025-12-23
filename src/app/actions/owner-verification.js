@@ -1,7 +1,8 @@
 'use server';
 
-import { Client, Databases, ID, Permission, Role } from 'node-appwrite';
+import { Client, Databases, ID, Permission, Role, Account } from 'node-appwrite';
 import { generatePayHereHash } from '@/lib/payhere';
+import { cookies } from 'next/headers';
 
 // Initialize Admin Client (Server-Side Only)
 const createAdminClient = () => {
@@ -12,6 +13,23 @@ const createAdminClient = () => {
 
     return {
         getDatabases: () => new Databases(client)
+    };
+};
+
+const createSessionClient = async () => {
+    const client = new Client()
+        .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
+        .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID);
+
+    const session = (await cookies()).get('a_session_' + process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID.toLowerCase());
+    if (!session || !session.value) {
+        throw new Error("No session");
+    }
+
+    client.setSession(session.value);
+
+    return {
+        getAccount: () => new Account(client)
     };
 };
 
@@ -109,12 +127,22 @@ export async function initiateAgentHiring(listingId, secret, amount) {
  * Claims the listing for the target user (Self-Service).
  * @param {string} listingId - The ID of the listing document.
  * @param {string} secret - The verification token to validate ownership.
- * @param {string} userId - The ID of the user claiming the listing.
  * @returns {Promise<{success: boolean, error?: string}>}
  */
-export async function claimListing(listingId, secret, userId) {
-    if (!listingId || !secret || !userId) {
+export async function claimListing(listingId, secret) {
+    if (!listingId || !secret) {
         return { success: false, error: "Missing required parameters" };
+    }
+
+    // Verify Session and get userId
+    let userId;
+    try {
+        const { getAccount } = await createSessionClient();
+        const account = getAccount();
+        const user = await account.get();
+        userId = user.$id;
+    } catch (e) {
+        return { success: false, error: "Unauthorized: Please login to claim this listing" };
     }
 
     const { getDatabases } = createAdminClient();
