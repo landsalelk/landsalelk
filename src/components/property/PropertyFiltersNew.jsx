@@ -8,6 +8,16 @@ import { useState } from 'react';
 import { getFilterOptions } from '@/lib/properties';
 import { Search, Filter, X } from 'lucide-react';
 
+/**
+ * PropertyFilters Component
+ *
+ * Renders a filter sidebar (desktop) or modal (mobile) for property search.
+ *
+ * @param {Object} props
+ * @param {Object} props.filters - Current filter state object (search, minPrice, etc.)
+ * @param {Function} props.onChange - Handler function for filter updates
+ * @returns {JSX.Element} The filter UI component
+ */
 export function PropertyFilters({ filters, onChange }) {
     // Accessibility: Mobile modal uses dialog role with aria-modal="true"
     // Accessibility: All form inputs have associated labels or aria-labels
