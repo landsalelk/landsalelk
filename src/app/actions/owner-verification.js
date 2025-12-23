@@ -124,7 +124,6 @@ export async function claimListing(listingId, secret, jwt) {
             const user = await sessionAccount.get();
             userId = user.$id;
         } catch (authError) {
-            console.error("JWT Verification Failed:", authError);
             throw new Error("Invalid or expired session");
         }
 
@@ -145,9 +144,8 @@ export async function claimListing(listingId, secret, jwt) {
                     points: (agent.points || 0) + 1, // 1 point for DIY referral
                     listings_uploaded: (agent.listings_uploaded || 0) + 1
                 });
-                console.log(`Awarded 1 point to agent ${agentId} for DIY claim`);
             } catch (agentErr) {
-                console.warn('Could not update agent points:', agentErr.message);
+                // Silently fail for non-critical gamification updates
             }
         }
 
@@ -176,7 +174,6 @@ export async function claimListing(listingId, secret, jwt) {
         return { success: true };
 
     } catch (error) {
-        console.error("Claim Error:", error);
         return { success: false, error: error.message };
     }
 }
