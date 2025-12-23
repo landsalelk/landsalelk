@@ -4,6 +4,14 @@ import { useState } from 'react';
 import { getFilterOptions } from '@/lib/properties';
 import { Search, Filter, X } from 'lucide-react';
 
+/**
+ * PropertyFilters Component
+ *
+ * Accessibility features:
+ * - Mobile modal uses dialog role with aria-modal="true"
+ * - All form inputs have associated labels or aria-labels
+ * - Toggle buttons indicate expansion state
+ */
 export function PropertyFilters({ filters, onChange }) {
     const [isOpen, setIsOpen] = useState(false);
     const options = getFilterOptions();
