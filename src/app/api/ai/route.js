@@ -10,17 +10,22 @@ export async function POST(request) {
   try {
     const { messages, context } = await request.json();
 
-    if (!messages || !Array.isArray(messages)) {
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: "Invalid Request" }, { status: 400 });
     }
 
     // Use OPENROUTER_API_KEY as discovered in environment
     const apiKey = process.env.OPENROUTER_API_KEY;
-    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://landsale.lk";
-    const siteName = "LandSale.lk";
+    const siteUrl = process.env.NEXT_PUBLIC_APP_URL;
+    const siteName = process.env.NEXT_PUBLIC_SITE_NAME;
 
     if (!apiKey) {
       return NextResponse.json({ error: "OpenRouter API Key not configured" }, { status: 500 });
+    }
+
+    if (!siteUrl || !siteName) {
+      console.error("Missing required environment variables: NEXT_PUBLIC_APP_URL or NEXT_PUBLIC_SITE_NAME");
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
     const systemPrompt = `
@@ -109,7 +114,7 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            "Authorization": `Bearer ${apiKey}`,
             "HTTP-Referer": siteUrl,
             "X-Title": siteName,
             "Content-Type": "application/json"
