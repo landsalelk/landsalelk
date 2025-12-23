@@ -33,8 +33,8 @@ const getAppwriteEndpoint = () => {
     const userDefined = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
 
     // If user provided a specific endpoint that isn't the generic cloud one, use it.
-    // This allows for localhost or self-hosted instances.
-    if (userDefined && userDefined !== 'https://cloud.appwrite.io/v1') {
+    // Use flexible check to catch http/https or trailing slashes
+    if (userDefined && !userDefined.includes('cloud.appwrite.io/v1')) {
         return userDefined;
     }
 
@@ -42,21 +42,64 @@ const getAppwriteEndpoint = () => {
     return FALLBACK_ENDPOINT;
 };
 
-const endpoint = getAppwriteEndpoint();
-const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || FALLBACK_PROJECT_ID;
+// Singleton storage
+let _client;
+let _account;
+let _databases;
+let _storage;
+let _functions;
+let _avatars;
 
-// Create client with resolved configuration
-// We allow this to throw if invalid configuration is provided (fail fast)
-const client = new Client()
-    .setEndpoint(endpoint)
-    .setProject(projectId);
+/**
+ * Initialize and return Appwrite services.
+ * This function handles initialization safety.
+ */
+function getAppwriteServices() {
+    if (_client) {
+        return {
+            client: _client,
+            account: _account,
+            databases: _databases,
+            storage: _storage,
+            functions: _functions,
+            avatars: _avatars
+        };
+    }
 
-// Initialize Appwrite services
-const account = new Account(client);
-const databases = new Databases(client);
-const storage = new Storage(client);
-const functions = new Functions(client);
-const avatars = new Avatars(client);
+    const endpoint = getAppwriteEndpoint();
+    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || FALLBACK_PROJECT_ID;
+
+    // Fail loudly if configuration is missing (though fallbacks prevent this usually)
+    // new Client() is synchronous and safe
+    _client = new Client()
+        .setEndpoint(endpoint)
+        .setProject(projectId);
+
+    _account = new Account(_client);
+    _databases = new Databases(_client);
+    _storage = new Storage(_client);
+    _functions = new Functions(_client);
+    _avatars = new Avatars(_client);
+
+    return {
+        client: _client,
+        account: _account,
+        databases: _databases,
+        storage: _storage,
+        functions: _functions,
+        avatars: _avatars
+    };
+}
+
+// Perform initialization immediately for backward compatibility with existing imports.
+// This preserves the "fail fast" behavior for build time but centralizes logic in the factory.
+const services = getAppwriteServices();
+const client = services.client;
+const account = services.account;
+const databases = services.databases;
+const storage = services.storage;
+const functions = services.functions;
+const avatars = services.avatars;
 
 // Export all services and utilities
 export {
@@ -70,4 +113,5 @@ export {
   Query,
   Permission,
   Role,
+  getAppwriteServices, // Export factory for future use
 };
