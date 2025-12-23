@@ -2,13 +2,49 @@
 import { NextResponse } from 'next/server';
 
 /**
+ * @typedef {object} Message
+ * @property {'system' | 'user' | 'assistant'} role
+ * @property {string} content
+ */
+
+/**
+ * @typedef {object} AISearchResponse
+ * @property {'SEARCH'} type
+ * @property {{type: 'sale' | 'rent' | 'land', location: string, maxPrice?: number, category?: string}} filters
+ * @property {string} reply
+ */
+
+/**
+ * @typedef {object} AIPostResponse
+ * @property {'POST'} type
+ * @property {string} reply
+ */
+
+/**
+ * @typedef {object} AILeadResponse
+ * @property {'LEAD_DATA'} type
+ * @property {{name: string, phone: string, requirements: string, location: string}} data
+ * @property {string} reply
+ */
+
+/**
+ * @typedef {object} AIChatResponse
+ * @property {'CHAT'} type
+ * @property {string} reply
+ */
+
+/**
+ * @typedef {AISearchResponse | AIPostResponse | AILeadResponse | AIChatResponse} AIResponse
+ */
+
+/**
  * Handles POST requests to interact with the OpenRouter AI API.
  * Expects a JSON body with an array of message objects.
  * @param {Request} request The incoming Next.js request object containing the JSON payload.
  * @param {object} request.body The request body.
- * @param {Array<object>} request.body.messages An array of message objects for the AI.
+ * @param {Array<Message>} request.body.messages An array of message objects for the AI.
  * @param {string} [request.body.context] Optional context for the AI.
- * @returns {NextResponse} A JSON response containing the AI's completion or an error.
+ * @returns {NextResponse<AIResponse|{error: string}>} A JSON response containing the AI's completion or an error.
  */
 export async function POST(request) {
   try {
@@ -155,15 +191,18 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
       throw new Error(`All AI models failed. Last error: ${lastError}`);
     }
 
-    // Clean up markdown if present
-    aiContent = aiContent.replace(/```json/g, '').replace(/```/g, '').trim();
+    // Strategy: The AI may wrap the JSON response in markdown code blocks.
+    // To handle this, we remove the markdown wrappers before parsing.
+    const cleanedContent = aiContent.replace(/```json/g, '').replace(/```/g, '').trim();
 
     let parsedResponse;
     try {
-      parsedResponse = JSON.parse(aiContent);
+      // Attempt to parse the cleaned content.
+      parsedResponse = JSON.parse(cleanedContent);
     } catch (e) {
-      console.warn("AI did not return valid JSON, using fallback.", aiContent);
-      parsedResponse = { type: "CHAT", reply: aiContent };
+      // If parsing fails, the AI has returned a malformed response.
+      // We'll treat this as an upstream error and return a 502 Bad Gateway.
+      throw new Error(`AI returned malformed JSON: ${cleanedContent}`);
     }
 
     return NextResponse.json(parsedResponse);
