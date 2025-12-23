@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { databases } from "@/lib/appwrite";
-import { Models } from "appwrite";
+import { AppwriteException } from "appwrite";
 import { toast } from "sonner";
 import {
   Check,
@@ -20,12 +20,6 @@ import {
   initiateAgentHiring,
 } from "@/app/actions/owner-verification";
 
-/**
- * OwnerVerificationPage component.
- * This page is responsible for verifying the ownership of a property listing.
- * It fetches the listing details based on the ID and a secret token from the URL,
- * and allows the owner to claim the listing, hire the agent, or decline the listing.
- */
 export default function OwnerVerificationPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -33,25 +27,25 @@ export default function OwnerVerificationPage() {
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const secret = searchParams.get("secret");
 
-  const [listing, setListing] = useState<Models.Document | null>(null);
+  const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Fetches the property listing details from the database.
-   * It validates the listing ID and secret token, and checks the status of the listing.
-   * Sets the `listing` state if the listing is valid, otherwise sets an error message.
-   */
   const fetchListing = useCallback(async () => {
-    if (!id) {
-      setError("Invalid Listing ID provided.");
+    if (!id || !/^[a-zA-Z0-9]{20}$/.test(id)) {
+      setError("Invalid listing ID.");
       setLoading(false);
       return;
     }
+
     try {
+      const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
+      if (!databaseId) {
+        throw new Error("NEXT_PUBLIC_APPWRITE_DATABASE_ID is not configured");
+      }
       const doc = await databases.getDocument(
-        process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "landsalelk",
+        databaseId,
         "listings",
         id,
       );
@@ -69,9 +63,13 @@ export default function OwnerVerificationPage() {
       } else {
         setListing(doc);
       }
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load listing details.");
+    } catch (e: unknown) {
+      console.error(e);
+      if (e instanceof AppwriteException && e.code === 404) {
+        setError("Listing not found.");
+      } else {
+        setError("An error occurred while fetching listing details.");
+      }
     } finally {
       setLoading(false);
     }
@@ -102,33 +100,34 @@ export default function OwnerVerificationPage() {
 
       if (!result.success) throw new Error(result.error);
 
-      const params = result.paymentParams;
+      const paymentParams = result.paymentParams;
+      if (!paymentParams) throw new Error("Invalid payment parameters");
 
       // Create and submit PayHere form
       const form = document.createElement("form");
       form.method = "POST";
-      form.action = params.sandbox
+      form.action = paymentParams?.sandbox
         ? "https://sandbox.payhere.lk/pay/checkout"
         : "https://www.payhere.lk/pay/checkout";
 
       // Add all payment parameters as hidden fields
       const fields = {
-        merchant_id: params.merchant_id,
-        return_url: params.return_url,
-        cancel_url: params.cancel_url,
-        notify_url: params.notify_url,
-        order_id: params.order_id,
-        items: params.items,
-        currency: params.currency,
-        amount: params.amount,
-        first_name: params.first_name,
-        last_name: params.last_name,
-        email: params.email,
-        phone: params.phone,
-        address: params.address,
-        city: params.city,
-        country: params.country,
-        hash: params.hash,
+        merchant_id: paymentParams.merchant_id,
+        return_url: paymentParams.return_url,
+        cancel_url: paymentParams.cancel_url,
+        notify_url: paymentParams.notify_url,
+        order_id: paymentParams.order_id,
+        items: paymentParams.items,
+        currency: paymentParams.currency,
+        amount: paymentParams.amount,
+        first_name: paymentParams.first_name,
+        last_name: paymentParams.last_name,
+        email: paymentParams.email,
+        phone: paymentParams.phone,
+        address: paymentParams.address,
+        city: paymentParams.city,
+        country: paymentParams.country,
+        hash: paymentParams.hash,
       };
 
       Object.entries(fields).forEach(([key, value]) => {
@@ -143,7 +142,7 @@ export default function OwnerVerificationPage() {
       toast.success("Redirecting to PayHere Gateway...");
       form.submit();
     } catch (err) {
-      toast.error(err.message || "Payment initiation failed");
+      toast.error((err as Error).message || "Payment initiation failed");
       setVerifying(false);
     }
   };
@@ -162,7 +161,7 @@ export default function OwnerVerificationPage() {
 
       if (result.success) {
         toast.success("Listing declined.");
-        setListing((prev) => ({ ...prev, status: "rejected_by_owner" }));
+        setListing((prev: any) => ({ ...prev, status: "rejected_by_owner" }));
         setError("You have declined this listing.");
       } else {
         throw new Error(result.error);

@@ -70,8 +70,10 @@ This document outlines the planned improvements and future features for the Land
 ## 🛠 Technical Improvements
 
 ### DevOps & Quality (New — Phase 1)
-- [/] **CI/CD Quality Gates** — Lint and build verification before deployment
+- [x] **CI/CD Quality Gates** — Lint and build verification before deployment
 - [/] **Branch Protection** — Required reviews and status checks
+- [x] **Technical Debt Repayment** — Enabled strict TypeScript mode, removed hardcoded configuration, and improved security logging.
+- [x] **Payment Function** — Implemented serverless payment processing logic.
 - [ ] **Staging Environment** — Separate Appwrite project for pre-production testing
 - [ ] **Automated Testing** — Playwright E2E tests in CI pipeline
 
