@@ -4,11 +4,18 @@ import { Client, Databases, ID, Permission, Role } from 'node-appwrite';
 import { generatePayHereHash } from '@/lib/payhere';
 import logger from '@/lib/logger';
 
-// Initialize Admin Client (Server Side Only)
+/**
+ * Initializes the Appwrite Admin Client for server-side operations.
+ * This client uses an API key with elevated permissions to perform actions
+ * that regular client-side SDKs cannot, such as modifying user data or
+ * bypassing security rules for administrative tasks.
+ *
+ * @returns {{getDatabases: function(): import('node-appwrite').Databases}} An object containing the Appwrite Databases service.
+ */
 const createAdminClient = () => {
     const client = new Client()
-        .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
-        .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
+        .setEndpoint(process.env.APPWRITE_ENDPOINT)
+        .setProject(process.env.APPWRITE_PROJECT_ID)
         .setKey(process.env.APPWRITE_API_KEY); // Must have API Key with Write permissions
 
     return {
@@ -16,7 +23,9 @@ const createAdminClient = () => {
     };
 };
 
+// The main database ID for the LandSale.lk application.
 const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk';
+// The collection ID for property listings.
 const COLLECTION_LISTINGS = 'listings';
 
 /**
