@@ -17,11 +17,11 @@ import {
 import NotificationBell from "@/components/ui/NotificationBell";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useComparison } from "@/context/ComparisonContext";
+import { useAuth } from "@/context/AuthContext";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  // user state: undefined = loading, null = logged out, object = logged in
-  const [user, setUser] = useState(undefined);
+  const { user } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { compareList } = useComparison() || {};
@@ -41,19 +41,6 @@ export function Navbar() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { account } = await import("@/appwrite");
-        const session = await account.get();
-        setUser(session);
-      } catch (e) {
-        setUser(null);
-      }
-    };
-    checkUser();
   }, []);
 
   const navLinks = [
@@ -119,7 +106,7 @@ export function Navbar() {
                   </div>
                 ) : user ? (
                   <>
-                    <NotificationBell user={user} />
+                    <NotificationBell />
                     <Link
                       href="/dashboard"
                       className="rounded-xl bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-[#d1fae5] hover:text-[#10b981]"

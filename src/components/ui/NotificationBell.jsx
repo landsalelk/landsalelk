@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Bell, Check, Trash2, X, Wifi, WifiOff } from "lucide-react";
+import { Bell, Check, Trash2 } from "lucide-react";
 import {
   getNotifications,
   getUnreadCount,
@@ -9,22 +9,18 @@ import {
   markAllAsRead,
   deleteNotification,
 } from "@/lib/notifications.client";
-import { account } from "@/appwrite";
-import { useNotificationRealtime } from "@/hooks/useRealtime";
+import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /**
  * NotificationBell component
  * Displays a bell icon with unread count and a dropdown of notifications.
- *
- * @param {Object} props
- * @param {Object} [props.user] - Optional initial user object to avoid redundant fetching.
  */
-export default function NotificationBell({ user: initialUser }) {
+export default function NotificationBell() {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [user, setUser] = useState(initialUser || null);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
   const isFetching = useRef(false);
@@ -59,32 +55,12 @@ export default function NotificationBell({ user: initialUser }) {
     }
   }, []);
 
-  /**
-   * Check for user session.
-   * Uses initialUser if provided to skip API call.
-   */
-  const checkUser = useCallback(async () => {
-    // If we have an initial user, use it and load notifications
-    if (initialUser) {
-      setUser(initialUser);
-      loadNotifications(initialUser.$id);
-      return;
-    }
-
-    // Otherwise fetch user from Appwrite
-    try {
-      const userData = await account.get();
-      setUser(userData);
-      loadNotifications(userData.$id);
-    } catch {
-      setUser(null);
-    }
-  }, [loadNotifications, initialUser]);
-
   // Initial load and refresh on open
   useEffect(() => {
-    checkUser();
-  }, [checkUser, isOpen]);
+    if (user) {
+        loadNotifications(user.$id);
+    }
+  }, [user, isOpen, loadNotifications]);
 
   useEffect(() => {
     // Close on outside click
