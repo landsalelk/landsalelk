@@ -4,7 +4,7 @@ import os
 import logging
 from .schemas import LogEntry
 from .ai_analyzer import analyze
-from .healing_actions import alert_user, restart_module, log_incident
+import src.core.modules.integrity.healing_actions as healing_actions
 
 class IntegrityManager:
     def __init__(self, config_path='config/integrity_config.yaml'):
@@ -29,16 +29,16 @@ class IntegrityManager:
             verdict = analyze(log_entry)
 
             if verdict.is_anomaly or verdict.severity > self.severity_threshold:
-                log_incident(verdict)
+                healing_actions.log_incident(verdict)
                 action = verdict.recommended_action
 
                 if action in self.allowed_actions:
                     if action == "RESTART_SERVICE":
-                        restart_module(log_entry.source)
+                        healing_actions.restart_module(log_entry.source)
                     elif action == "ALERT":
-                        alert_user(f"Anomaly detected in {log_entry.source}: {verdict.diagnosis}")
+                        healing_actions.alert_user(f"Anomaly detected in {log_entry.source}: {verdict.diagnosis}")
                 else:
-                    alert_user(f"Recommended action '{action}' not allowed. Defaulting to ALERT.")
+                    healing_actions.alert_user(f"Recommended action '{action}' not allowed. Defaulting to ALERT.")
 
             self.log_buffer.task_done()
 
@@ -49,4 +49,4 @@ class IntegrityManager:
             logging.info("System Status: Nominal")
         else:
             logging.error("Issues Detected: Internal state has been corrupted.")
-            alert_user("Internal state corruption detected!")
+            healing_actions.alert_user("Internal state corruption detected!")

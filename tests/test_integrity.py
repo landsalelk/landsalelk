@@ -22,14 +22,14 @@ class TestIntegritySystem(unittest.TestCase):
         self.assertGreater(verdict.severity, 5)
         self.assertTrue(verdict.is_anomaly)
 
-    @patch('src.core.modules.integrity.healing_actions.alert_user')
-    def test_healing_rate_limit(self, mock_alert_user):
+    @patch('src.core.modules.integrity.healing_actions.logging.warning')
+    def test_healing_rate_limit(self, mock_logging_warning):
         """Test that the restart_module action is rate-limited."""
         LAST_RESTART_TIME.clear()
         restart_module("rate_limit_test")
         for _ in range(9):
             restart_module("rate_limit_test")
-        self.assertEqual(mock_alert_user.call_count, 9)
+        self.assertEqual(mock_logging_warning.call_count, 9)
 
     def test_schema_validation(self):
         """Test that the LogEntry schema raises a validation error for malformed data."""
@@ -54,9 +54,9 @@ class TestIntegritySystem(unittest.TestCase):
                 message="A critical exception occurred."
             )
 
-            with patch('src.core.modules.integrity.integrity_manager.log_incident') as mock_log, \
-                 patch('src.core.modules.integrity.integrity_manager.restart_module') as mock_restart, \
-                 patch('src.core.modules.integrity.integrity_manager.alert_user') as mock_alert:
+            with patch('src.core.modules.integrity.integrity_manager.healing_actions.log_incident') as mock_log, \
+                 patch('src.core.modules.integrity.integrity_manager.healing_actions.restart_module') as mock_restart, \
+                 patch('src.core.modules.integrity.integrity_manager.healing_actions.alert_user') as mock_alert:
 
                 await manager.log_buffer.put(log_entry)
                 await manager.log_buffer.join()
@@ -68,10 +68,11 @@ class TestIntegritySystem(unittest.TestCase):
                     pass
 
                 mock_log.assert_called_once()
-                self.assertTrue(mock_restart.called or mock_alert.called)
+                # With the deterministic analyzer, a "CRITICAL" log should trigger a restart.
+                mock_restart.assert_called_once()
+                mock_alert.assert_not_called()
 
         asyncio.run(run_test())
 
 if __name__ == '__main__':
-    # To run tests, use: python -m unittest tests/test_integrity.py
     unittest.main()

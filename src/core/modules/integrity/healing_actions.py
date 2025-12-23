@@ -5,19 +5,19 @@ import logging
 LAST_RESTART_TIME = {}
 
 def alert_user(message: str):
-    """Pushes a notification to the UI/Notification system via logging."""
-    logging.warning(f"ALERT: {message}")
+    """Logs a warning-level alert."""
+    logging.warning(message)
 
 def restart_module(module_name: str):
-    """Gracefully stops and starts a specific agent module."""
+    """Gracefully stops and starts a specific agent module, with rate-limiting."""
     current_time = time.time()
     if module_name in LAST_RESTART_TIME and (current_time - LAST_RESTART_TIME[module_name]) < 300:
-        alert_user(f"Restart of {module_name} is rate-limited.")
+        logging.warning(f"Restart of module '{module_name}' is rate-limited.")
         return
-    logging.info(f"ACTION: Restarting module {module_name}...")
+    logging.info(f"Restarting module: {module_name}...")
     LAST_RESTART_TIME[module_name] = current_time
     # In a real scenario, this would interact with a module management system.
 
 def log_incident(verdict: Verdict):
-    """Writes to a logging service."""
-    logging.critical(f"INCIDENT: {verdict.diagnosis} (Severity: {verdict.severity})")
+    """Logs a critical-level incident."""
+    logging.critical(f"Incident detected - Diagnosis: {verdict.diagnosis} (Severity: {verdict.severity})")
