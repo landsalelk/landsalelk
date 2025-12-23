@@ -17,6 +17,10 @@ import { toast } from "sonner";
 import { account, OAuthProvider } from "@/lib/appwrite";
 import { handleOAuthLogin } from "@/lib/auth-utils";
 
+/**
+ * Renders the login page component.
+ * Handles user authentication including email/password and OAuth (Google/Facebook).
+ */
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");

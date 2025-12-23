@@ -51,6 +51,10 @@ function calculatePasswordStrength(password) {
   return { score, strength, color, checks };
 }
 
+/**
+ * Renders the registration page component.
+ * Handles user sign-up including email/password creation and OAuth (Google/Facebook).
+ */
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
