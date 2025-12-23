@@ -12,27 +12,39 @@ export async function incrementViewCount(listingId) {
       return { success: false, error: 'Analytics not configured' };
     }
 
-    // 1. Get current document to know current count
-    const listing = await databases.getDocument(
-      DB_ID,
-      COLLECTION_LISTINGS,
-      listingId
-    );
+    let currentViews = 0;
+    try {
+        const listing = await databases.getDocument(
+            DB_ID,
+            COLLECTION_LISTINGS,
+            listingId
+        );
+        currentViews = listing.views_count || 0;
+    } catch (error) {
+        if (error.code === 404) {
+            // If the document doesn't exist, we can assume 0 views and let the update create it if configured to do so,
+            // or handle it as an error if listings should always exist. For now, we'll proceed with 0.
+            console.warn(`Listing document ${listingId} not found. Assuming 0 views.`);
+        } else {
+            // For other errors, re-throw to be caught by the outer catch block
+            throw error;
+        }
+    }
 
-    const currentViews = listing.views_count || 0;
-
-    // 2. Update with incremented count
-    // Note: In high concurrency, this simple read-modify-write might miss counts.
-    // For exact analytics, an Appwrite Function or specific atomic operator would be better,
-    // but this suffices for general view counters.
-    await databases.updateDocument(
-      DB_ID,
-      COLLECTION_LISTINGS,
-      listingId,
-      {
-        views_count: currentViews + 1
-      }
-    );
+    // Update with incremented count
+    try {
+        await databases.updateDocument(
+            DB_ID,
+            COLLECTION_LISTINGS,
+            listingId,
+            {
+                views_count: currentViews + 1
+            }
+        );
+    } catch (error) {
+        console.error(`Failed to update view count for listing ${listingId}:`, error);
+        return { success: false, error: "Failed to update views" };
+    }
 
     return { success: true, views: currentViews + 1 };
   } catch (error) {

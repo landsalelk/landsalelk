@@ -3,19 +3,14 @@
 import { databases, functions, ID, Query } from '@/lib/server/appwrite';
 import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/appwrite/config';
 import { headers } from 'next/headers';
+import { z } from 'zod';
+
+const emailSchema = z.string().email();
 
 export async function subscribeToNewsletter(email) {
-  if (!email) {
-    return { success: false, error: 'Email is required' };
-  }
-
-  // Basic email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return { success: false, error: 'Invalid email address' };
-  }
-
   try {
+    const validatedEmail = emailSchema.parse(email);
+
     // Rate Limiting (Simple IP based)
     const headersList = await headers();
     // Depending on deployment, IP might be in different headers
@@ -28,7 +23,7 @@ export async function subscribeToNewsletter(email) {
     const existing = await databases.listDocuments(
       DB_ID,
       COLLECTION_SUBSCRIBERS,
-      [Query.equal('email', email)]
+      [Query.equal('email', validatedEmail)]
     );
 
     if (existing.total > 0) {
@@ -49,7 +44,7 @@ export async function subscribeToNewsletter(email) {
       COLLECTION_SUBSCRIBERS,
       ID.unique(),
       {
-        email,
+        email: validatedEmail,
         is_active: true, // Internal flag, but status determines visibility
         status: 'pending',
         verification_token: verificationToken,
@@ -61,20 +56,28 @@ export async function subscribeToNewsletter(email) {
     // We assume the function 'send-email' exists and takes this payload
     const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://landsale.lk'}/newsletter/verify?token=${verificationToken}`;
 
-    await functions.createExecution(
-        'send-email', // Function ID
-        JSON.stringify({
-            type: 'newsletter_verification',
-            email: email,
-            data: {
-                link: verificationLink
-            }
-        }),
-        true // Async
-    );
+    try {
+        await functions.createExecution(
+            'send-email', // Function ID
+            JSON.stringify({
+                type: 'newsletter_verification',
+                email: validatedEmail,
+                data: {
+                    link: verificationLink
+                }
+            }),
+            true // Async
+        );
+    } catch (error) {
+        console.error('Failed to trigger email function:', error);
+        return { success: false, error: "Notification email failed to send" };
+    }
 
     return { success: true, message: 'Please check your email to confirm subscription.' };
   } catch (error) {
+    if (error instanceof z.ZodError) {
+        return { success: false, error: 'Invalid email address' };
+    }
     console.error('Newsletter subscription error:', error);
     if (error.code === 404) {
         return { success: false, error: 'Service unavailable. Please try again later.' };
