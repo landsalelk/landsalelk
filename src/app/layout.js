@@ -9,6 +9,7 @@ import { ComparisonProvider } from '@/context/ComparisonContext';
 import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google';
 import FacebookPixel from '@/components/analytics/FacebookPixel';
 import { Suspense } from 'react';
+import { ClarityBoundary } from "@/components/wrappers/ClarityBoundary";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -63,10 +64,11 @@ export default function RootLayout({ children }) {
       <head>
       </head>
       <body className={`${outfit.className} bg-[#f0f9ff] min-h-screen`}>
-        <ComparisonProvider>
-          {/* Floating Background Blobs */}
-          <div className="bg-blob bg-blob-1" />
-          <div className="bg-blob bg-blob-2" />
+        <ClarityBoundary>
+          <ComparisonProvider>
+            {/* Floating Background Blobs */}
+            <div className="bg-blob bg-blob-1" />
+            <div className="bg-blob bg-blob-2" />
           <div className="bg-blob bg-blob-3" />
 
           <Navbar />
@@ -78,6 +80,7 @@ export default function RootLayout({ children }) {
           <CookieConsent />
           <Toaster position="top-center" richColors />
         </ComparisonProvider>
+      </ClarityBoundary>
 
         {/* Analytics Integrations */}
         {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (

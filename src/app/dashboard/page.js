@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { account } from "@/lib/appwrite";
 import { getUserListings } from "@/lib/properties";
+import { ErrorAlert } from "@/components/generic/ErrorAlert";
 import { getUserFavorites } from "@/lib/favorites";
 import { getKYCStatus } from "@/lib/kyc";
 import { PropertyCard } from "@/components/property/PropertyCard";
@@ -27,6 +28,7 @@ export default function DashboardPage() {
     const [user, setUser] = useState(null);
     const [agent, setAgent] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [notifications, setNotifications] = useState({
         email: true,
         sms: false,
@@ -43,6 +45,133 @@ export default function DashboardPage() {
     const [inquiriesStats, setInquiriesStats] = useState({ total: 0, change: 0 });
     const [totalViews, setTotalViews] = useState(0);
 
+    const loadDashboardData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const userData = await account.get();
+            setUser(userData);
+            if (userData.prefs && userData.prefs.notifications) {
+                setNotifications(userData.prefs.notifications);
+            }
+
+            const [userListings, kycDoc, agentDocs] = await Promise.all([
+                getUserListings(userData.$id),
+                getKYCStatus(),
+                databases.listDocuments(DB_ID, COLLECTION_AGENTS, [Query.equal('user_id', userData.$id)])
+            ]);
+
+            if (agentDocs.documents.length > 0) {
+                setAgent(agentDocs.documents[0]);
+            }
+
+            setListings(userListings);
+            setKycStatus(kycDoc?.status || 'unverified');
+
+            // Calculate total views
+            const views = userListings.reduce((acc, listing) => acc + (listing.views_count || 0), 0);
+            setTotalViews(views);
+
+            try {
+                const favDocs = await getUserFavorites();
+                setFavorites(favDocs);
+            } catch (e) {
+                // Silent fail
+            }
+
+            // Fetch Inquiries (Messages) Stats
+            try {
+                const now = new Date();
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+                const sixtyDaysAgo = new Date();
+                sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+                const [totalInquiriesRes, last30DaysRes, prev30DaysRes] = await Promise.all([
+                    databases.listDocuments(
+                        DB_ID,
+                        COLLECTION_MESSAGES,
+                        [Query.equal('receiver_id', userData.$id), Query.limit(1)] // Just need total
+                    ),
+                    databases.listDocuments(
+                        DB_ID,
+                        COLLECTION_MESSAGES,
+                        [
+                            Query.equal('receiver_id', userData.$id),
+                            Query.greaterThanEqual('timestamp', thirtyDaysAgo.toISOString()),
+                            Query.limit(1)
+                        ]
+                    ),
+                    databases.listDocuments(
+                        DB_ID,
+                        COLLECTION_MESSAGES,
+                        [
+                            Query.equal('receiver_id', userData.$id),
+                            Query.greaterThanEqual('timestamp', sixtyDaysAgo.toISOString()),
+                            Query.lessThan('timestamp', thirtyDaysAgo.toISOString()),
+                            Query.limit(1)
+                        ]
+                    )
+                ]);
+
+                const total = totalInquiriesRes.total;
+                const currentPeriodCount = last30DaysRes.total;
+                const prevPeriodCount = prev30DaysRes.total;
+
+                let change = 0;
+                if (prevPeriodCount > 0) {
+                    change = Math.round(((currentPeriodCount - prevPeriodCount) / prevPeriodCount) * 100);
+                } else if (currentPeriodCount > 0) {
+                    change = 100;
+                }
+
+                setInquiriesStats({ total, change });
+
+            } catch (e) {
+                console.error("Error fetching inquiries:", e);
+            }
+
+            // Fetch Offers
+            try {
+                // 1. Offers Sent by me
+                const sentOffersRes = await databases.listDocuments(
+                    DB_ID,
+                    COLLECTION_LISTING_OFFERS,
+                    [Query.equal('user_id', userData.$id), Query.orderDesc('created_at')]
+                );
+                setOffersSent(sentOffersRes.documents);
+
+                // 2. Offers Received (for my listings)
+                if (userListings.length > 0) {
+                    const listingIds = userListings.map(l => l.$id);
+                    // Appwrite limitation: Query.equal('listing_id', array) works?
+                    // If array is too big, might fail. For now assume it works for < 100 listings.
+                    const receivedOffersRes = await databases.listDocuments(
+                        DB_ID,
+                        COLLECTION_LISTING_OFFERS,
+                        [Query.equal('listing_id', listingIds), Query.orderDesc('created_at')]
+                    );
+                    setOffersReceived(receivedOffersRes.documents);
+                }
+            } catch (e) {
+                console.error("Error fetching offers:", e);
+            }
+        } catch (error) {
+            console.error(error);
+            // Only redirect to login if it's an authentication error
+            if (error.code === 401 || error.type === 'general_unauthorized_scope' || error.message?.includes('Unauthorized')) {
+                router.push('/auth/login');
+            } else {
+                // For other errors, show error but don't redirect
+                setError("Failed to load dashboard data. Please check your connection and try again.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    }, [router]);
+
+
     // Stats based on actual data
     const stats = {
         totalViews: totalViews,
@@ -54,133 +183,9 @@ export default function DashboardPage() {
     };
 
     useEffect(() => {
-        const loadDashboardData = async () => {
-            try {
-                const userData = await account.get();
-                setUser(userData);
-                if (userData.prefs && userData.prefs.notifications) {
-                    setNotifications(userData.prefs.notifications);
-                }
-
-                const [userListings, kycDoc, agentDocs] = await Promise.all([
-                    getUserListings(userData.$id),
-                    getKYCStatus(),
-                    databases.listDocuments(DB_ID, COLLECTION_AGENTS, [Query.equal('user_id', userData.$id)])
-                ]);
-
-                if (agentDocs.documents.length > 0) {
-                    setAgent(agentDocs.documents[0]);
-                }
-
-                setListings(userListings);
-                setKycStatus(kycDoc?.status || 'unverified');
-
-                // Calculate total views
-                const views = userListings.reduce((acc, listing) => acc + (listing.views_count || 0), 0);
-                setTotalViews(views);
-
-                try {
-                    const favDocs = await getUserFavorites();
-                    setFavorites(favDocs);
-                } catch (e) {
-                    // Silent fail
-                }
-
-                // Fetch Inquiries (Messages) Stats
-                try {
-                    const now = new Date();
-                    const thirtyDaysAgo = new Date();
-                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-                    const sixtyDaysAgo = new Date();
-                    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
-
-                    const [totalInquiriesRes, last30DaysRes, prev30DaysRes] = await Promise.all([
-                        databases.listDocuments(
-                            DB_ID,
-                            COLLECTION_MESSAGES,
-                            [Query.equal('receiver_id', userData.$id), Query.limit(1)] // Just need total
-                        ),
-                        databases.listDocuments(
-                            DB_ID,
-                            COLLECTION_MESSAGES,
-                            [
-                                Query.equal('receiver_id', userData.$id),
-                                Query.greaterThanEqual('timestamp', thirtyDaysAgo.toISOString()),
-                                Query.limit(1)
-                            ]
-                        ),
-                        databases.listDocuments(
-                            DB_ID,
-                            COLLECTION_MESSAGES,
-                            [
-                                Query.equal('receiver_id', userData.$id),
-                                Query.greaterThanEqual('timestamp', sixtyDaysAgo.toISOString()),
-                                Query.lessThan('timestamp', thirtyDaysAgo.toISOString()),
-                                Query.limit(1)
-                            ]
-                        )
-                    ]);
-
-                    const total = totalInquiriesRes.total;
-                    const currentPeriodCount = last30DaysRes.total;
-                    const prevPeriodCount = prev30DaysRes.total;
-
-                    let change = 0;
-                    if (prevPeriodCount > 0) {
-                        change = Math.round(((currentPeriodCount - prevPeriodCount) / prevPeriodCount) * 100);
-                    } else if (currentPeriodCount > 0) {
-                        change = 100;
-                    }
-
-                    setInquiriesStats({ total, change });
-
-                } catch (e) {
-                    console.error("Error fetching inquiries:", e);
-                }
-
-                // Fetch Offers
-                try {
-                    // 1. Offers Sent by me
-                    const sentOffersRes = await databases.listDocuments(
-                        DB_ID,
-                        COLLECTION_LISTING_OFFERS,
-                        [Query.equal('user_id', userData.$id), Query.orderDesc('created_at')]
-                    );
-                    setOffersSent(sentOffersRes.documents);
-
-                    // 2. Offers Received (for my listings)
-                    if (userListings.length > 0) {
-                        const listingIds = userListings.map(l => l.$id);
-                        // Appwrite limitation: Query.equal('listing_id', array) works? 
-                        // If array is too big, might fail. For now assume it works for < 100 listings.
-                        const receivedOffersRes = await databases.listDocuments(
-                            DB_ID,
-                            COLLECTION_LISTING_OFFERS,
-                            [Query.equal('listing_id', listingIds), Query.orderDesc('created_at')]
-                        );
-                        setOffersReceived(receivedOffersRes.documents);
-                    }
-                } catch (e) {
-                    console.error("Error fetching offers:", e);
-                }
-            } catch (error) {
-                console.error(error);
-                // Only redirect to login if it's an authentication error
-                if (error.code === 401 || error.type === 'general_unauthorized_scope' || error.message?.includes('Unauthorized')) {
-                    router.push('/auth/login');
-                } else {
-                    // For other errors, show error but don't redirect
-                    toast.error('Failed to load dashboard data. Please refresh the page.');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
         setMounted(true);
         loadDashboardData();
-    }, [router]);
+    }, [loadDashboardData]);
 
     const handleNotificationToggle = async (key) => {
         const newSettings = { ...notifications, [key]: !notifications[key] };
@@ -273,6 +278,18 @@ export default function DashboardPage() {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-[#10b981]" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <ErrorAlert
+                    title="Could not load dashboard"
+                    message={error}
+                    onRetry={loadDashboardData}
+                />
             </div>
         );
     }
