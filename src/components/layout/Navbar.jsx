@@ -15,11 +15,12 @@ import {
   Scale,
 } from "lucide-react";
 import NotificationBell from "@/components/ui/NotificationBell";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { useComparison } from "@/context/ComparisonContext";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(undefined);
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { compareList } = useComparison() || {};
@@ -107,9 +108,16 @@ export function Navbar() {
 
               {/* Right Side Actions */}
               <div className="hidden items-center gap-3 md:flex">
-                {user ? (
+                {user === undefined ? (
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-9 w-9 rounded-full" />
+                    <Skeleton className="h-9 w-9 rounded-xl" />
+                    <Skeleton className="h-9 w-9 rounded-xl" />
+                    <Skeleton className="h-9 w-9 rounded-xl" />
+                  </div>
+                ) : user ? (
                   <>
-                    <NotificationBell />
+                    <NotificationBell user={user} />
                     <Link
                       href="/dashboard"
                       className="rounded-xl bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-[#d1fae5] hover:text-[#10b981]"
@@ -287,7 +295,9 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4">
-              {user ? (
+              {user === undefined ? (
+                <Skeleton className="h-12 w-full rounded-xl" />
+              ) : user ? (
                 <Link
                   href="/profile"
                   className="w-full rounded-xl bg-[#10b981] py-3 text-center font-bold text-white"

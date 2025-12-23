@@ -11,12 +11,13 @@ import {
 } from "@/lib/notifications.client";
 import { account } from "@/appwrite";
 import { useNotificationRealtime } from "@/hooks/useRealtime";
+import { Skeleton } from "@/components/ui/Skeleton";
 
-export default function NotificationBell() {
+export default function NotificationBell({ user: initialUser }) {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(initialUser || null);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -39,6 +40,11 @@ export default function NotificationBell() {
 
   // Define checkUser after loadNotifications since it depends on it
   const checkUser = useCallback(async () => {
+    if (initialUser) {
+      setUser(initialUser);
+      loadNotifications(initialUser.$id);
+      return;
+    }
     try {
       const userData = await account.get();
       setUser(userData);
@@ -46,7 +52,7 @@ export default function NotificationBell() {
     } catch {
       setUser(null);
     }
-  }, [loadNotifications]);
+  }, [loadNotifications, initialUser]);
 
   // Now use checkUser in useEffect after it's defined
   useEffect(() => {
@@ -134,7 +140,16 @@ export default function NotificationBell() {
           {/* Notifications List */}
           <div className="max-h-80 overflow-y-auto">
             {loading ? (
-              <div className="p-4 text-center text-gray-500">Loading...</div>
+              <div className="space-y-4 p-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex gap-3">
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : notifications.length > 0 ? (
               notifications.map((notification) => (
                 <div
