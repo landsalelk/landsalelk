@@ -34,10 +34,10 @@ export default function OwnerVerificationPage() {
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const secret = searchParams.get("secret");
 
-  const [listing, setListing] = useState(null);
+  const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * Fetches the listing details from the database and verifies the secret token.
