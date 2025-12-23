@@ -20,11 +20,11 @@ import Link from "next/link";
 
 // Server Component
 export default async function HomePage() {
-  // Fetch data in parallel
+  // Fetch data in parallel, but only if the databases client is initialized
   const propertiesPromise = getFeaturedProperties(8);
-  const landsPromise = databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'land'), Query.limit(1)]).catch(() => ({ total: 0 }));
-  const housesPromise = databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'house'), Query.limit(1)]).catch(() => ({ total: 0 }));
-  const apartmentsPromise = databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'apartment'), Query.limit(1)]).catch(() => ({ total: 0 }));
+  const landsPromise = databases ? databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'land'), Query.limit(1)]).catch(() => ({ total: 0 })) : Promise.resolve({ total: 0 });
+  const housesPromise = databases ? databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'house'), Query.limit(1)]).catch(() => ({ total: 0 })) : Promise.resolve({ total: 0 });
+  const apartmentsPromise = databases ? databases.listDocuments(DB_ID, COLLECTION_LISTINGS, [Query.equal('category_id', 'apartment'), Query.limit(1)]).catch(() => ({ total: 0 })) : Promise.resolve({ total: 0 });
 
   const [featuredProperties, landsRes, housesRes, apartmentsRes] = await Promise.all([
     propertiesPromise,

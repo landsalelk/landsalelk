@@ -1,30 +1,50 @@
 import { Client, Account, Databases, Storage, Functions, Avatars, ID, Query, OAuthProvider } from "appwrite";
+import { z } from 'zod';
 
-// Validate environment variables
-// Fix: Use Singapore endpoint if global one fails or as default if not specified
-// The project is in Singapore region (sgp), so we must use the correct endpoint.
-let endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
+// Define a schema for the client-side environment variables
+const clientEnvSchema = z.object({
+  NEXT_PUBLIC_APPWRITE_ENDPOINT: z.string().url('Invalid Appwrite endpoint URL'),
+  NEXT_PUBLIC_APPWRITE_PROJECT_ID: z.string().min(1, 'Appwrite project ID is required'),
+  NEXT_PUBLIC_APPWRITE_DATABASE_ID: z.string().min(1, 'Appwrite database ID is required'),
+});
 
-// Override global endpoint to sgp if it's the generic one, because we know this project is in SGP.
-// This fixes the "Project is not accessible in this region" error.
-if (endpoint === 'https://cloud.appwrite.io/v1') {
-    endpoint = 'https://sgp.cloud.appwrite.io/v1';
+let client, account, databases, storage, functions, avatars;
+let isAppwriteInitialized = false;
+
+try {
+  // We can only access process.env in a try-catch block on the client-side
+  // as it may not be available during server-side rendering in all contexts.
+  if (typeof process !== 'undefined' && process.env) {
+    const env = clientEnvSchema.parse({
+      NEXT_PUBLIC_APPWRITE_ENDPOINT: process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT,
+      NEXT_PUBLIC_APPWRITE_PROJECT_ID: process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID,
+      NEXT_PUBLIC_APPWRITE_DATABASE_ID: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+    });
+
+    // The project is in Singapore region (sgp), so we must use the correct endpoint.
+    let endpoint = env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
+    if (endpoint === 'https://cloud.appwrite.io/v1') {
+        endpoint = 'https://sgp.cloud.appwrite.io/v1';
+    }
+
+    client = new Client()
+      .setEndpoint(endpoint)
+      .setProject(env.NEXT_PUBLIC_APPWRITE_PROJECT_ID);
+
+    account = new Account(client);
+    databases = new Databases(client);
+    storage = new Storage(client);
+    functions = new Functions(client);
+    avatars = new Avatars(client);
+    isAppwriteInitialized = true;
+  }
+} catch (error) {
+    if (error instanceof z.ZodError) {
+        console.error('Appwrite client-side configuration error:', error.flatten().fieldErrors);
+    } else {
+        console.error('Failed to initialize Appwrite client:', error);
+    }
 }
 
-const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
-
-if (!projectId && typeof window !== 'undefined') {
-    console.warn('NEXT_PUBLIC_APPWRITE_PROJECT_ID is not set. Appwrite features may not work correctly.');
-}
-
-const client = new Client()
-  .setEndpoint(endpoint)
-  .setProject(projectId || 'landsalelkproject');
-
-const account = new Account(client);
-const databases = new Databases(client);
-const storage = new Storage(client);
-const functions = new Functions(client);
-const avatars = new Avatars(client);
-
-export { client, account, databases, storage, functions, avatars, ID, Query, OAuthProvider };
+// Export a flag to check if initialization was successful
+export { client, account, databases, storage, functions, avatars, ID, Query, OAuthProvider, isAppwriteInitialized };
