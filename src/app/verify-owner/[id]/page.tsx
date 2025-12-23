@@ -86,6 +86,7 @@ export default function OwnerVerificationPage() {
 
       const params = result.paymentParams;
 
+      // Ensure payment parameters are valid before constructing the form
       if (!params) {
         throw new Error("Payment parameters were not received.");
       }
@@ -93,7 +94,7 @@ export default function OwnerVerificationPage() {
       // Create and submit PayHere form
       const form = document.createElement("form");
       form.method = "POST";
-      form.action = params?.sandbox
+      form.action = params.sandbox
         ? "https://sandbox.payhere.lk/pay/checkout"
         : "https://www.payhere.lk/pay/checkout";
 

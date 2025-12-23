@@ -21,7 +21,9 @@ export default function FacebookPixel() {
         window.fbq('track', 'PageView');
       }
     } catch (error) {
-      // Silently fail to avoid crashing the app
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Facebook Pixel Error:', error);
+      }
     }
   }, [pathname, searchParams, facebookPixelId]);
 
