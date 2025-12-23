@@ -1,39 +1,39 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 
 /**
  * FacebookPixel component handles the integration of the Facebook Pixel script.
  * It tracks 'PageView' events on initial load and subsequent client-side navigations.
- * The component ensures the script and tracking calls only execute on the client-side
- * and includes error handling to prevent application crashes.
+ * This component manages the script loading state to prevent race conditions and
+ * includes error handling for both script loading and event tracking.
  * @returns {JSX.Element|null} The Facebook Pixel script and noscript tag, or null if the pixel ID is not configured.
  */
 export default function FacebookPixel() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const facebookPixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
   useEffect(() => {
-    // This effect runs on mount and on every route change to track PageView events.
-    // The dependencies `pathname` and `searchParams` trigger the effect on navigation.
-    if (!facebookPixelId) return;
+    // This effect tracks PageView events. It depends on `isScriptLoaded` to ensure
+    // that `window.fbq` is available and initialized before tracking is attempted.
+    if (!facebookPixelId || !isScriptLoaded) return;
 
-    // Guard against execution in non-browser environments (e.g., SSR).
+    // Guard against execution in non-browser environments.
     if (typeof window === 'undefined') return;
 
     try {
-      // Check if the Facebook Pixel function is available before calling it.
       if (typeof window.fbq === 'function') {
         window.fbq('track', 'PageView');
       }
     } catch (error) {
-      // Catch any runtime errors from the Facebook SDK to prevent crashing the app.
+      // Catch runtime errors from the Facebook SDK to prevent app crashes.
       console.error('Facebook Pixel tracking error:', error);
     }
-  }, [pathname, searchParams, facebookPixelId]);
+  }, [pathname, searchParams, facebookPixelId, isScriptLoaded]);
 
   if (!facebookPixelId) return null;
 
@@ -41,25 +41,21 @@ export default function FacebookPixel() {
     <>
       <Script
         id="facebook-pixel"
+        src="https://connect.facebook.net/en_US/fbevents.js"
         strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            !function(f,b,e,v,n,t,s)
-            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${facebookPixelId}');
-            // 'PageView' tracking is handled by the useEffect hook
-          `,
+        onLoad={() => {
+          // The script has loaded, now we can initialize the pixel.
+          if (typeof window.fbq === 'function') {
+            window.fbq('init', facebookPixelId);
+            setIsScriptLoaded(true);
+          }
+        }}
+        onError={(e) => {
+          console.error('Facebook Pixel script failed to load:', e);
         }}
       />
       <noscript>
-        {/* Use a standard img tag for the noscript fallback as it's a 1x1 tracking pixel. */}
-        {/* next/image is unnecessary overhead for this use case. */}
+        {/* Standard img tag for the noscript fallback for tracking pixels. */}
         <img
           height="1"
           width="1"
