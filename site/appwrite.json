@@ -1,6 +1,6 @@
 {
-    "projectId": "landsalelkproject",
-    "endpoint": "https://sgp.cloud.appwrite.io/v1",
+    "projectId": "${APPWRITE_PROJECT_ID}",
+    "endpoint": "${APPWRITE_ENDPOINT}",
     "projectName": "landsalelk project",
     "settings": {
         "services": {
