@@ -36,7 +36,7 @@ export default function OwnerVerificationPage() {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [verifying, setVerifying] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * Fetches the listing details from the database.
