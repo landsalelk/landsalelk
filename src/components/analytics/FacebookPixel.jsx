@@ -31,7 +31,7 @@ export default function FacebookPixel() {
       }
     } catch (error) {
       // Catch runtime errors from the Facebook SDK to prevent app crashes.
-      console.error('Facebook Pixel tracking error:', error);
+      // Errors are silently ignored to avoid polluting the console.
     }
   }, [pathname, searchParams, facebookPixelId, isScriptLoaded]);
 
@@ -50,8 +50,9 @@ export default function FacebookPixel() {
             setIsScriptLoaded(true);
           }
         }}
-        onError={(e) => {
-          console.error('Facebook Pixel script failed to load:', e);
+        onError={() => {
+          // Silently fail if the script fails to load.
+          // This prevents errors from ad-blockers from crashing the app.
         }}
       />
       <noscript>
