@@ -43,14 +43,14 @@ export function ReportListingButton({ listingId, listingTitle }) {
             const user = await account.get();
 
             // For now, we'll log the report. In production, create a document in 'listing_reports' collection
-            console.log('Report submitted:', {
-                listing_id: listingId,
-                user_id: user.$id,
-                reason: selectedReason,
-                details: details,
-                status: 'pending',
-                created_at: new Date().toISOString()
-            });
+            // console.log('Report submitted:', {
+            //     listing_id: listingId,
+            //     user_id: user.$id,
+            //     reason: selectedReason,
+            //     details: details,
+            //     status: 'pending',
+            //     created_at: new Date().toISOString()
+            // });
 
             // Uncomment when collection is ready:
             // await databases.createDocument(
@@ -70,7 +70,7 @@ export function ReportListingButton({ listingId, listingTitle }) {
             setIsSubmitted(true);
             toast.success('Report submitted successfully');
         } catch (error) {
-            console.error('Error submitting report:', error);
+            // console.error('Error submitting report:', error);
             toast.error('Failed to submit report. Please try again.');
         } finally {
             setIsSubmitting(false);

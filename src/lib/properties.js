@@ -15,7 +15,7 @@ export async function getPropertyById(id) {
         );
         return doc;
     } catch (error) {
-        console.error(`Error fetching property ${id}:`, error);
+        // console.error(`Error fetching property ${id}:`, error);
         // Throwing error allows the UI to handle it (e.g. show 404 or Error Boundary)
         throw new Error("Failed to fetch property details.");
     }
@@ -39,7 +39,7 @@ export async function getFeaturedProperties(limit = 4) {
         );
         return result.documents;
     } catch (error) {
-        console.error("Error fetching featured properties:", error);
+        // console.error("Error fetching featured properties:", error);
         return []; // Return empty array to prevent UI crash (Robustness)
     }
 }
@@ -123,7 +123,7 @@ export async function searchProperties(filters = {}) {
 
         return documents;
     } catch (error) {
-        console.error("Error searching properties:", error);
+        // console.error("Error searching properties:", error);
         throw error; // Propagate error to UI
     }
 }
@@ -144,7 +144,7 @@ export async function getUserListings(userId) {
         );
         return result.documents;
     } catch (error) {
-        console.error("Error fetching user listings:", error);
+        // console.error("Error fetching user listings:", error);
         return [];
     }
 }
@@ -252,13 +252,13 @@ export async function createProperty(data) {
                 });
             }
         } catch (pointError) {
-            console.warn("Failed to award points:", pointError);
+            // console.warn("Failed to award points:", pointError);
             // Don't block listing creation
         }
 
         return doc;
     } catch (error) {
-        console.error("Create Listing Error:", error);
+        // console.error("Create Listing Error:", error);
 
         // FALLBACK: If extended attributes fail (schema mismatch), try minimal payload
         const isSchemaError = error.code === 400 && (
@@ -268,7 +268,7 @@ export async function createProperty(data) {
         );
 
         if (isSchemaError) {
-            console.warn("Schema mismatch detected. Retrying with minimal payload...");
+            // console.warn("Schema mismatch detected. Retrying with minimal payload...");
             try {
                 const minimalPayload = {
                     slug,
@@ -297,7 +297,7 @@ export async function createProperty(data) {
                 // Return success even if extended fields were lost
                 return doc;
             } catch (retryError) {
-                console.error("Minimal payload retry failed:", retryError);
+                // console.error("Minimal payload retry failed:", retryError);
                 throw retryError; // Throw original or new error
             }
         }
@@ -320,7 +320,7 @@ export async function updateProperty(id, data) {
             data
         );
     } catch (error) {
-        console.error("Update Listing Error:", error);
+        // console.error("Update Listing Error:", error);
         throw error;
     }
 }
@@ -340,7 +340,7 @@ export async function deleteProperty(id) {
                 try {
                     await storage.deleteFile(BUCKET_LISTING_IMAGES, imageId);
                 } catch (err) {
-                    console.warn(`Failed to delete image ${imageId}:`, err.message);
+                    // console.warn(`Failed to delete image ${imageId}:`, err.message);
                 }
             });
             await Promise.all(deletePromises);
@@ -350,7 +350,7 @@ export async function deleteProperty(id) {
         await databases.deleteDocument(DB_ID, COLLECTION_LISTINGS, id);
         return true;
     } catch (error) {
-        console.error("Delete Listing Error:", error);
+        // console.error("Delete Listing Error:", error);
         throw error;
     }
 }
@@ -374,7 +374,7 @@ export async function renewProperty(id) {
             }
         );
     } catch (error) {
-        console.error("Renew Listing Error:", error);
+        // console.error("Renew Listing Error:", error);
         throw error;
     }
 }
@@ -404,7 +404,7 @@ export async function getRelatedProperties(currentId, type, category, limit = 3)
         );
         return result.documents;
     } catch (error) {
-        console.error("Error fetching related properties:", error);
+        // console.error("Error fetching related properties:", error);
         return [];
     }
 }

@@ -86,7 +86,7 @@ export default function PayHereModal({
             }
 
         } catch (err) {
-            console.error(err);
+            // console.error(err);
             toast.error(err.message || "Failed to start payment");
             setLoading(false);
         }

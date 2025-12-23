@@ -44,7 +44,7 @@ export function AuditLogs() {
             setLogs(response.documents);
             setTotal(response.total);
         } catch (error) {
-            console.error('Failed to fetch audit logs:', error);
+            // console.error('Failed to fetch audit logs:', error);
             toast.error('Failed to load audit logs');
         } finally {
             setLoading(false);

@@ -47,7 +47,7 @@ export function AdminUsers() {
                 // or we just infer from functionality.
                 setUsers(response.documents);
             } catch (error) {
-                console.error(error);
+                // console.error(error);
                 toast.error('Failed to load users');
             } finally {
                 setLoading(false);

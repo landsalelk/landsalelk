@@ -21,7 +21,7 @@ const safeLocalStorage = {
         return localStorage.getItem(key);
       }
     } catch (e) {
-      console.warn("localStorage not available:", e);
+      // console.warn("localStorage not available:", e);
     }
     return null;
   },
@@ -32,7 +32,7 @@ const safeLocalStorage = {
         return true;
       }
     } catch (e) {
-      console.warn("localStorage not available:", e);
+      // console.warn("localStorage not available:", e);
     }
     return false;
   },
@@ -67,7 +67,7 @@ export function Hero() {
           setRecentSearches(parsed);
         }
       } catch (e) {
-        console.error("Failed to parse recent searches:", e);
+        // console.error("Failed to parse recent searches:", e);
       }
     }
   }, []);

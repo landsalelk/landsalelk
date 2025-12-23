@@ -32,7 +32,7 @@ export function EmailTemplates() {
             );
             setTemplates(response.documents);
         } catch (error) {
-            console.error('Failed to fetch templates:', error);
+            // console.error('Failed to fetch templates:', error);
             toast.error('Failed to load email templates');
         } finally {
             setLoading(false);
@@ -71,7 +71,7 @@ export function EmailTemplates() {
             }
             setEditingTemplate(null);
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.error('Failed to save template');
         } finally {
             setSubmitting(false);

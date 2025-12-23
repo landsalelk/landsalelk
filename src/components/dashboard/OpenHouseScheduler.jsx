@@ -44,7 +44,7 @@ export function OpenHouseScheduler({ userId }) {
             setListings(listingsRes.documents);
             setOpenHouses(openHousesRes.documents);
         } catch (error) {
-            console.error('Failed to fetch data:', error);
+            // console.error('Failed to fetch data:', error);
         } finally {
             setLoading(false);
         }
@@ -75,7 +75,7 @@ export function OpenHouseScheduler({ userId }) {
             setNewEvent({ listing_id: '', date: '', start_time: '', end_time: '', notes: '' });
             toast.success('Open House scheduled!');
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.error('Failed to schedule event');
         }
     };

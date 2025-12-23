@@ -76,7 +76,7 @@ export function AnalyticsDashboard() {
                 revenueTrend: revenueTrend
             });
         } catch (error) {
-            console.error("Analytics fetch failed:", error);
+            // console.error("Analytics fetch failed:", error);
         } finally {
             setLoading(false);
         }

@@ -125,7 +125,7 @@ export default function AuctionCard({ propertyId, initialPrice, endTime }) {
             toast.success("Bid placed successfully!");
             setBidAmount("");
         } catch (err) {
-            console.error(err);
+            // console.error(err);
             try {
                 // Try to parse function error if possible, though createExecution throws generic errors often
                 // Ideally function returns json with error message, but createExecution returns execution object

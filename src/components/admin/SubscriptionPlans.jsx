@@ -32,7 +32,7 @@ export function SubscriptionPlans() {
             );
             setPlans(response.documents);
         } catch (error) {
-            console.error('Failed to fetch plans:', error);
+            // console.error('Failed to fetch plans:', error);
             toast.error('Failed to load subscription plans');
         } finally {
             setLoading(false);
@@ -72,7 +72,7 @@ export function SubscriptionPlans() {
             }
             setEditingPlan(null);
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.error('Failed to save plan');
         } finally {
             setSubmitting(false);

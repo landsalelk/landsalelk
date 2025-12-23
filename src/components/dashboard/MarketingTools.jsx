@@ -30,7 +30,7 @@ export function MarketingTools({ userId }) {
             setListings(response.documents);
             if (response.documents.length > 0) setSelectedListing(response.documents[0]);
         } catch (error) {
-            console.error('Failed to fetch listings:', error);
+            // console.error('Failed to fetch listings:', error);
         } finally {
             setLoading(false);
         }
@@ -54,7 +54,7 @@ export function MarketingTools({ userId }) {
             pdf.save(`${selectedListing.title.slice(0, 15)}_flyer.pdf`);
             toast.success('Flyer downloaded!');
         } catch (error) {
-            console.error('PDF Generation failed:', error);
+            // console.error('PDF Generation failed:', error);
             toast.error('Failed to generate PDF');
         } finally {
             setGenerating(false);

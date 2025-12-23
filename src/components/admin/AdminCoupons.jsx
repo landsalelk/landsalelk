@@ -41,7 +41,7 @@ export function AdminCoupons() {
             );
             setCoupons(response.documents);
         } catch (error) {
-            console.error('Failed to fetch coupons:', error);
+            // console.error('Failed to fetch coupons:', error);
             toast.error('Failed to load coupons');
         } finally {
             setLoading(false);
@@ -56,7 +56,7 @@ export function AdminCoupons() {
             setCoupons(prev => prev.filter(c => c.$id !== id));
             toast.success('Coupon deleted');
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.error('Failed to delete coupon');
         }
     };
@@ -87,7 +87,7 @@ export function AdminCoupons() {
             setFormData({ code: '', discount_percent: 10, valid_until: '', max_uses: 100 });
             toast.success('Coupon created successfully!');
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.error('Failed to create coupon. Code might be duplicate.');
         } finally {
             setSubmitting(false);

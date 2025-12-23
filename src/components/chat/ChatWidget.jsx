@@ -56,7 +56,7 @@ export function ChatWidget({ agentId, agentName }) {
             await sendMessage(agentId, newMessage);
             setNewMessage('');
         } catch (e) {
-            console.error("Send failed", e);
+            // console.error("Send failed", e);
         }
     };
 

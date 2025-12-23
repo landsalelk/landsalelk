@@ -46,7 +46,7 @@ export async function submitKYC(data) {
         return kycDoc;
 
     } catch (error) {
-        console.error("KYC Submission Error:", error);
+        // console.error("KYC Submission Error:", error);
         throw error;
     }
 }

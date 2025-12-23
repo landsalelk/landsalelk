@@ -25,7 +25,7 @@ export function AdminAgents() {
       ]);
       setAgents(result.documents);
     } catch (error) {
-      console.error("Error loading agents:", error);
+      // console.error("Error loading agents:", error);
       toast.error("Failed to load agents");
     } finally {
       setLoading(false);

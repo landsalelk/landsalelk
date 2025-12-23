@@ -18,7 +18,7 @@ export function PayHereButton({ amount, orderId, items, customer, onSuccess, onD
 
         if (!process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID) {
             toast.error("Payment not configured. Please contact support.");
-            console.error("Missing NEXT_PUBLIC_PAYHERE_MERCHANT_ID");
+            // console.error("Missing NEXT_PUBLIC_PAYHERE_MERCHANT_ID");
             return;
         }
 
@@ -102,7 +102,7 @@ export function PayHereButton({ amount, orderId, items, customer, onSuccess, onD
                 throw new Error("PayHere SDK not loaded");
             }
         } catch (err) {
-            console.error("Payment error:", err);
+            // console.error("Payment error:", err);
             toast.error(err.message || "Payment failed. Please try again.");
             setLoading(false);
         }
@@ -118,7 +118,7 @@ export function PayHereButton({ amount, orderId, items, customer, onSuccess, onD
                     setSdkLoaded(true);
                 }}
                 onError={() => {
-                    console.error("Failed to load PayHere SDK");
+                    // console.error("Failed to load PayHere SDK");
                 }}
             />
             <button

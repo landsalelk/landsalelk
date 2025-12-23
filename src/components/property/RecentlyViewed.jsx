@@ -72,7 +72,7 @@ export function RecentlyViewed({ currentId }) {
             }));
             setRecent(normalized.slice(0, 4)); // Show max 4
         } catch (e) {
-            console.error('Failed to load history');
+            // console.error('Failed to load history');
         }
     }, [currentId, resolveUrl]);
 
@@ -160,6 +160,6 @@ export const addToHistory = (property) => {
         const updated = [newItem, ...filtered].slice(0, 10); // Keep last 10
         localStorage.setItem('recentlyViewed', JSON.stringify(updated));
     } catch (e) {
-        console.error('Failed to save history');
+        // console.error('Failed to save history');
     }
 };

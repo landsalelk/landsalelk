@@ -68,7 +68,7 @@ export function LeadCRM({ userId }) {
                 setAgentProfile(agentRes.value.documents[0]);
             }
         } catch (error) {
-            console.error("Error loading CRM data", error);
+            // console.error("Error loading CRM data", error);
             toast.error("Failed to load CRM data");
         } finally {
             setLoading(false);
@@ -133,7 +133,7 @@ export function LeadCRM({ userId }) {
             setNewLead({ name: '', phone: '', email: '', notes: '', status: 'new', property_id: '' });
             toast.success('Lead added successfully');
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.error('Failed to create lead');
         }
     };

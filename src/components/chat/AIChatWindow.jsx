@@ -51,7 +51,7 @@ export default function AIChatWindow() {
             setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
 
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             toast.error("AI is busy right now. Please try again.");
             setMessages(prev => [...prev, { role: 'assistant', content: "I'm having trouble connecting right now. Please try again later." }]);
         } finally {

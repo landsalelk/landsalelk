@@ -14,7 +14,7 @@ if (endpoint === 'https://cloud.appwrite.io/v1') {
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
 if (!projectId && typeof window !== 'undefined') {
-    console.warn('NEXT_PUBLIC_APPWRITE_PROJECT_ID is not set. Appwrite features may not work correctly.');
+    // console.warn('NEXT_PUBLIC_APPWRITE_PROJECT_ID is not set. Appwrite features may not work correctly.');
 }
 
 const client = new Client()
