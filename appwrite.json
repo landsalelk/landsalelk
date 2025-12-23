@@ -807,6 +807,15 @@
                         "status"
                     ],
                     "orders": []
+                },
+                {
+                    "key": "verification_code_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "verification_code"
+                    ],
+                    "orders": []
                 }
             ]
         },
