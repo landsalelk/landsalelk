@@ -30,9 +30,21 @@ export class RealEstateAgent {
   }
 
   async processRequest(messages, context = {}) {
+    // Incorporate context into system prompt if available
+    let systemPrompt = AI_CONFIG.SYSTEM_PROMPT;
+
+    if (context && Object.keys(context).length > 0) {
+      const contextString = `
+**CURRENT PAGE CONTEXT:**
+- Page: ${context.page || 'Unknown'}
+- Property Title: ${context.propertyTitle || 'Unknown'}
+`;
+      systemPrompt += contextString;
+    }
+
     // Construct the full conversation history
     const conversation = [
-      { role: "system", content: AI_CONFIG.SYSTEM_PROMPT },
+      { role: "system", content: systemPrompt },
       ...messages
     ];
 
