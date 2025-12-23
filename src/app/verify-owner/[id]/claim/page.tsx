@@ -60,8 +60,11 @@ export default function ClaimListingPage() {
 
                 setStatus('claiming');
 
-                // 2. Call Server Action to Claim
-                const result = await claimListing(listingId, secretToken, user.$id);
+                // 2. Create a secure JWT to authorize the server action
+                const jwt = await account.createJWT();
+
+                // 3. Call Server Action to Claim with the JWT
+                const result = await claimListing(listingId, secretToken, jwt.jwt);
 
                 if (result.success) {
                     setStatus('success');

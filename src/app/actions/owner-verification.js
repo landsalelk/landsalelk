@@ -1,6 +1,6 @@
 'use server';
 
-import { Client, Databases, ID, Permission, Role } from 'node-appwrite';
+import { Client, Databases, ID, Permission, Role, Account } from 'node-appwrite';
 import { generatePayHereHash } from '@/lib/payhere';
 
 // Initialize Admin Client (Server Side Only)
@@ -93,67 +93,75 @@ export async function initiateAgentHiring(listingId, secret, amount) {
 }
 
 /**
- * Claims the listing for the target user (Self-Service).
+ * Claims the listing for the target user (Self-Service) by verifying a secure JWT.
  * @param {string} listingId
  * @param {string} secret
- * @param {string} userId - The ID of the user claiming the listing (must be verified by caller or session)
+ * @param {string} jwt - The secure JSON Web Token from the client.
  */
-export async function claimListing(listingId, secret, userId) {
-    const { getDatabases } = createAdminClient();
-    const databases = getDatabases();
+export async function claimListing(listingId, secret, jwt) {
+    const adminDatabases = createAdminClient().getDatabases();
 
     try {
-        const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
+        if (!jwt) {
+            throw new Error("Authentication token is missing.");
+        }
+
+        // Create a new client and authenticate with the user's JWT
+        const userClient = new Client()
+            .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
+            .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
+            .setJWT(jwt);
+
+        const account = new Account(userClient);
+        const user = await account.get();
+        const userId = user.$id;
+
+        // Use the admin client for database operations from here
+        const listing = await adminDatabases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
         if (listing.verification_code !== secret) {
             throw new Error("Invalid Token");
-        }
-
-        if (!userId) {
-            throw new Error("User ID required to claim listing");
         }
 
         // Award points to agent who created the listing (DIY referral)
         const agentId = listing.agent_id;
         if (agentId) {
             try {
-                const agent = await databases.getDocument(DB_ID, 'agents', agentId);
-                await databases.updateDocument(DB_ID, 'agents', agentId, {
-                    points: (agent.points || 0) + 1, // 1 point for DIY referral
+                const agent = await adminDatabases.getDocument(DB_ID, 'agents', agentId);
+                await adminDatabases.updateDocument(DB_ID, 'agents', agentId, {
+                    points: (agent.points || 0) + 1,
                     listings_uploaded: (agent.listings_uploaded || 0) + 1
                 });
-                console.log(`Awarded 1 point to agent ${agentId} for DIY claim`);
             } catch (agentErr) {
-                console.warn('Could not update agent points:', agentErr.message);
+                // Non-critical error, just log it on the server
+                console.warn(`Could not update agent points for agent ${agentId}:`, agentErr.message);
             }
         }
 
         // Transfer Ownership Logic
-        // 1. Update document data
-        // 2. Update permissions so the new owner has write access
-        await databases.updateDocument(
+        await adminDatabases.updateDocument(
             DB_ID,
             COLLECTION_LISTINGS,
             listingId,
             {
-                user_id: userId,          // Set new owner ID
-                agent_id: null,           // Remove agent (already awarded points)
-                status: 'active',         // Activate
-                verification_code: null,  // Clear token
-                is_claimed: true          // Flag as claimed
+                user_id: userId,
+                agent_id: null,
+                status: 'active',
+                verification_code: null,
+                is_claimed: true
             },
             [
-                Permission.read(Role.any()),                // Public can read
-                Permission.update(Role.user(userId)),       // New Owner can update
-                Permission.delete(Role.user(userId)),       // New Owner can delete
-                Permission.read(Role.user(userId))          // New Owner can read
+                Permission.read(Role.any()),
+                Permission.update(Role.user(userId)),
+                Permission.delete(Role.user(userId)),
+                Permission.read(Role.user(userId))
             ]
         );
 
         return { success: true };
 
     } catch (error) {
-        console.error("Claim Error:", error);
+        // No console.error to prevent leaking implementation details
         return { success: false, error: error.message };
     }
 }
