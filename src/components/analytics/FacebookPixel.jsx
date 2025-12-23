@@ -28,10 +28,7 @@ export default function FacebookPixel() {
     }
   }, [pathname, searchParams, facebookPixelId]);
 
-  if (!facebookPixelId) {
-    console.warn("Facebook Pixel ID is not configured. Tracking will be disabled.");
-    return null;
-  }
+  if (!facebookPixelId) return null;
 
   return (
     <>
