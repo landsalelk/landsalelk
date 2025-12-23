@@ -20,8 +20,15 @@ const COLLECTION_LISTINGS = 'listings';
 
 /**
  * Validates the listing token and performs the decline action.
+ * @param {string} listingId - The listing ID.
+ * @param {string} secret - The verification token.
+ * @returns {Promise<{success: boolean, error?: string}>}
  */
 export async function declineListing(listingId, secret) {
+    if (!listingId || !secret) {
+        return { success: false, error: "Missing required parameters" };
+    }
+
     const { getDatabases } = createAdminClient();
     const databases = getDatabases();
 
@@ -45,8 +52,16 @@ export async function declineListing(listingId, secret) {
 
 /**
  * Initiates the payment process for hiring the agent.
+ * @param {string} listingId - The listing ID.
+ * @param {string} secret - The verification token.
+ * @param {number} amount - The amount to pay.
+ * @returns {Promise<{success: boolean, paymentParams?: object, error?: string}>}
  */
 export async function initiateAgentHiring(listingId, secret, amount) {
+    if (!listingId || !secret || !amount) {
+        return { success: false, error: "Missing required parameters" };
+    }
+
     const { getDatabases } = createAdminClient();
     const databases = getDatabases();
 
@@ -122,7 +137,8 @@ export async function claimListing(listingId, secret, userId) {
                     listings_uploaded: (agent.listings_uploaded || 0) + 1
                 });
             } catch (agentErr) {
-                console.warn('Failed to update agent points:', agentErr.message);
+                // Failed to update agent points.
+                // We ignore this to ensure the primary ownership transfer succeeds.
             }
         }
 
