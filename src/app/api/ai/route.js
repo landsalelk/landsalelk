@@ -100,7 +100,7 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${apiKey}`,
+            "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
             "HTTP-Referer": siteUrl,
             "X-Title": siteName,
             "Content-Type": "application/json"
