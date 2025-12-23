@@ -50,43 +50,60 @@ export default async ({ req, res, log, error }) => {
 
     log(`Creating GitHub Issue: ${title}`);
 
-    // Create Issue via GitHub API
-    const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `token ${GITHUB_TOKEN}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-        'User-Agent': 'Appwrite-Logger-Function'
-      },
-      body: JSON.stringify({
-        title,
-        body,
-        labels,
-        assignees
-      })
-    });
+    // Create Issue via GitHub API with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
-    const data = await response.json();
+    try {
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json',
+            'User-Agent': 'Appwrite-Logger-Function'
+          },
+          body: JSON.stringify({
+            title,
+            body,
+            labels,
+            assignees
+          }),
+          signal: controller.signal
+        });
 
-    if (!response.ok) {
-      error(`GitHub API Error: ${response.status} ${response.statusText}`);
-      error(JSON.stringify(data));
-      return res.json({
-        success: false,
-        message: 'Failed to create issue on GitHub',
-        details: data
-      }, 500);
+        clearTimeout(timeoutId);
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          error(`GitHub API Error: ${response.status} ${response.statusText}`);
+          error(JSON.stringify(data));
+          return res.json({
+            success: false,
+            message: 'Failed to create issue on GitHub',
+            details: data
+          }, 500);
+        }
+
+        log(`Issue created successfully: ${data.html_url}`);
+
+        return res.json({
+          success: true,
+          message: 'Issue created successfully',
+          issueUrl: data.html_url,
+          issueId: data.number
+        });
+    } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+            return res.json({
+                success: false,
+                message: 'GitHub API request timed out'
+            }, 504);
+        }
+        throw fetchError;
     }
-
-    log(`Issue created successfully: ${data.html_url}`);
-
-    return res.json({
-      success: true,
-      message: 'Issue created successfully',
-      issueUrl: data.html_url,
-      issueId: data.number
-    });
 
   } catch (err) {
     error(`Function execution error: ${err.message}`);
