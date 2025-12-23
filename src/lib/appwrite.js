@@ -1,5 +1,11 @@
 import { Client, Account, Databases, Storage, Functions, Avatars, ID, Query, OAuthProvider, Permission, Role } from "appwrite";
 
+/**
+ * Appwrite Client Configuration
+ * Initializes the Appwrite client and exports services.
+ * Enforces strict environment variable validation to prevent runtime failures.
+ */
+
 // Validate environment variables
 // Fix: Use Singapore endpoint if global one fails or as default if not specified
 // The project is in Singapore region (sgp), so we must use the correct endpoint.
@@ -13,13 +19,14 @@ if (endpoint === 'https://cloud.appwrite.io/v1') {
 
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
-if (!projectId && typeof window !== 'undefined') {
-    console.warn('NEXT_PUBLIC_APPWRITE_PROJECT_ID is not set. Appwrite features may not work correctly.');
+if (!projectId) {
+    // Fail fast to prevent silent errors
+    throw new Error("NEXT_PUBLIC_APPWRITE_PROJECT_ID is not defined in environment variables.");
 }
 
 const client = new Client()
   .setEndpoint(endpoint)
-  .setProject(projectId || 'landsalelkproject');
+  .setProject(projectId);
 
 const account = new Account(client);
 const databases = new Databases(client);
