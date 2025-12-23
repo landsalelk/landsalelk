@@ -3,13 +3,21 @@ import { NextResponse } from 'next/server';
 
 /**
  * Shuffles an array of strings in-place using the Fisher-Yates algorithm.
+ * Fails gracefully by leaving the array unshuffled if an error occurs.
  * @param {Array<string>} array The array to shuffle.
  */
 function shuffle(array) {
   if (!Array.isArray(array)) return; // Guard clause
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
+  try {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Failed to shuffle array:', error);
+    }
+    // Return original array on error
   }
 }
 
@@ -122,9 +130,11 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
     let aiContent = null;
     let usedModel = "";
     let lastError = "";
+    let attempt = 0;
 
     // Retry logic with model fallback
     for (const model of models) {
+      attempt++;
       try {
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
@@ -162,14 +172,14 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
           if (response.status === 429) {
             break; // Exit loop immediately
           }
-          await delay(1000); // Wait 1 second before trying the next model
+          await delay(Math.pow(2, attempt) * 200); // Exponential backoff
         }
       } catch (err) {
         lastError = `Model ${model} error: ${err.message}`;
         if (process.env.NODE_ENV === 'development') {
           console.warn(lastError);
         }
-        await delay(1000); // Also wait on network errors
+        await delay(Math.pow(2, attempt) * 200); // Exponential backoff
       }
     }
 
