@@ -242,6 +242,7 @@ export default function CreateListingPage() {
       try {
         Tesseract = (await import("tesseract.js")).default;
       } catch (importErr) {
+        // Handle network failures or missing package specifically to prevent unhandled promise rejections
         toast.error("Failed to load OCR engine. Please check your connection.");
         throw importErr;
       }
@@ -278,7 +279,7 @@ export default function CreateListingPage() {
         toast.info("No clear details found in image. Please enter manually.");
       }
     } catch (err) {
-      toast.error("Failed to scan image. Please try again.");
+      toast.error("OCR process failed. Please try again.");
     } finally {
       setOcrProcessing(false);
     }
