@@ -8,8 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "node scripts/deploy.js push site --site-id 6941d9280032a28b0536 --force",
-    "deploy:functions": "node scripts/deploy.js deploy function --all",
+    "deploy": "appwrite push site --site-id 6941d9280032a28b0536 --force --config appwrite.json",
+    "deploy:functions": "appwrite deploy function --all --config appwrite.json",
     "test:e2e": "playwright test",
     "analyze": "cross-env ANALYZE=true next build"
   },
@@ -47,7 +47,6 @@
     "lightningcss-linux-x64-musl": "^1.22.1"
   },
   "devDependencies": {
-    "command-exists": "^1.2.9",
     "@next/bundle-analyzer": "^16.1.0",
     "@playwright/test": "^1.57.0",
     "@types/node": "25.0.3",
