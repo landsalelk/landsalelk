@@ -6,6 +6,11 @@ import { generatePayHereHash } from '@/lib/payhere';
 
 // Initialize Admin Client (Server Side Only)
 const createAdminClient = () => {
+    // Check Env Vars
+    if (!process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || !process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || !process.env.APPWRITE_API_KEY) {
+        throw new Error("Missing Appwrite Environment Variables");
+    }
+
     const client = new Client()
         .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
         .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
@@ -21,16 +26,15 @@ const COLLECTION_LISTINGS = 'listings';
 
 /**
  * Validates the listing token and performs the decline action.
+ *
+ * @param {string} listingId - The listing ID.
+ * @param {string} secret - The verification token.
+ * @returns {Promise<{success: boolean, error?: string}>}
  */
 export async function declineListing(listingId, secret) {
-    const { getDatabases } = createAdminClient();
-    const databases = getDatabases();
-
     try {
-        const headersList = await headers();
-        const host = headersList.get('host');
-        const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-        const baseUrl = `${protocol}://${host}`;
+        const { getDatabases } = createAdminClient();
+        const databases = getDatabases();
 
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
@@ -46,7 +50,7 @@ export async function declineListing(listingId, secret) {
         return { success: true };
     } catch (error) {
         console.error("Decline Error:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error.message || "Failed to decline" };
     }
 }
 
@@ -59,10 +63,16 @@ export async function declineListing(listingId, secret) {
  * @returns {Promise<{success: boolean, paymentParams?: object, error?: string}>}
  */
 export async function initiateAgentHiring(listingId, secret, amount) {
-    const { getDatabases } = createAdminClient();
-    const databases = getDatabases();
-
     try {
+        const { getDatabases } = createAdminClient();
+        const databases = getDatabases();
+
+        const headersList = await headers();
+        const host = headersList.get('host');
+        const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+        const protocol = isDev ? 'http' : 'https';
+        const baseUrl = `${protocol}://${host}`;
+
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
         if (listing.verification_code !== secret) {
@@ -99,7 +109,7 @@ export async function initiateAgentHiring(listingId, secret, amount) {
 
     } catch (error) {
         console.error("Hiring Init Error:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error.message || "Failed to initiate hiring" };
     }
 }
 
@@ -114,10 +124,10 @@ export async function initiateAgentHiring(listingId, secret, amount) {
  * @returns {Promise<{success: boolean, error?: string}>} Result of the claim operation.
  */
 export async function claimListing(listingId, secret, jwt) {
-    const { getDatabases } = createAdminClient();
-    const databases = getDatabases();
-
     try {
+        const { getDatabases } = createAdminClient();
+        const databases = getDatabases();
+
         // 1. Verify Listing Token First
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
@@ -152,16 +162,13 @@ export async function claimListing(listingId, secret, jwt) {
                     points: (agent.points || 0) + 1, // 1 point for DIY referral
                     listings_uploaded: (agent.listings_uploaded || 0) + 1
                 });
-                console.log(`Awarded 1 point to agent ${agentId} for DIY claim`);
+                // console.log removed
             } catch (agentErr) {
                 console.warn('Could not update agent points:', agentErr.message);
             }
         }
 
         // Transfer Ownership Logic
-        // 1. Update document data
-        // 2. Update permissions so the new owner has write access
-
         await databases.updateDocument(
             DB_ID,
             COLLECTION_LISTINGS,
@@ -185,6 +192,9 @@ export async function claimListing(listingId, secret, jwt) {
 
     } catch (error) {
         console.error("Claim Error:", error);
-        return { success: false, error: error.message };
+        // Handle Appwrite Errors explicitly
+        if (error.code === 404) return { success: false, error: "Listing not found" };
+        if (error.code === 401) return { success: false, error: "Unauthorized" };
+        return { success: false, error: error.message || "Unknown error" };
     }
 }
