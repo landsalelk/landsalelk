@@ -38,16 +38,8 @@ const main = async () => {
     } catch (error) {
         // If any command fails, the promise will reject and be caught here.
         console.error('Deployment script failed.');
-        if (error.stderr) {
-            console.error(error.stderr);
-        }
-        if (error.stdout) {
-            // Some CLI tools output errors to stdout
-            console.error(error.stdout);
-        }
-        if (!error.stderr && !error.stdout) {
-            console.error(error.message);
-        }
+        const output = error.stderr || error.stdout || error.message;
+        console.error(output);
         process.exit(1);
     }
 };
