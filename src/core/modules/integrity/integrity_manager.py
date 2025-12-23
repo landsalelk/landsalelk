@@ -1,6 +1,7 @@
 import asyncio
 import yaml
 import os
+import logging
 from .schemas import LogEntry
 from .ai_analyzer import analyze
 from .healing_actions import alert_user, restart_module, log_incident
@@ -16,7 +17,7 @@ class IntegrityManager:
     def _load_config(self, config_path):
         """Loads the configuration from a YAML file."""
         if not os.path.exists(config_path):
-            print(f"Warning: Config file not found at {config_path}. Using default values.")
+            logging.warning(f"Config file not found at {config_path}. Using default values.")
             return {}
         with open(config_path, 'r') as f:
             return yaml.safe_load(f)
@@ -43,9 +44,9 @@ class IntegrityManager:
 
     async def verify_system_state(self):
         """Performs a manual check of the system's internal state."""
-        print("Performing manual integrity check...")
+        logging.info("Performing manual integrity check...")
         if self._internal_state.get("critical_data") == "initial_state_checksum":
-            print("System Status: Nominal")
+            logging.info("System Status: Nominal")
         else:
-            print("Issues Detected: Internal state has been corrupted.")
+            logging.error("Issues Detected: Internal state has been corrupted.")
             alert_user("Internal state corruption detected!")

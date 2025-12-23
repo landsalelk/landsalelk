@@ -1,6 +1,7 @@
 import asyncio
 import argparse
 import datetime
+import logging
 from src.core.modules.integrity.integrity_manager import IntegrityManager
 from src.core.modules.integrity.schemas import LogEntry
 
@@ -24,7 +25,7 @@ async def main():
         monitor_task.cancel()
         return
 
-    print("Jules is running with Integrity Monitor. Simulating log entries...")
+    logging.info("Jules is running with Integrity Monitor. Simulating log entries...")
     async def log_simulator():
         await asyncio.sleep(2)
         await integrity_manager.log_buffer.put(
@@ -53,11 +54,12 @@ async def main():
     try:
         await monitor_task
     except asyncio.CancelledError:
-        print("Integrity monitor shut down gracefully.")
+        logging.info("Integrity monitor shut down gracefully.")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     try:
         # To run this script, use: python -m src.core.jules
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\nShutting down Jules.")
+        logging.info("Shutting down Jules.")
