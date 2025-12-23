@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { account, ID, OAuthProvider } from "@/lib/appwrite";
+import { useAuth } from "@/context/AuthContext";
 
 // Password strength calculator
 function calculatePasswordStrength(password) {
@@ -52,6 +53,7 @@ function calculatePasswordStrength(password) {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { checkUser, user } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -74,16 +76,10 @@ export default function RegisterPage() {
   );
 
   useEffect(() => {
-    const checkSession = async () => {
-        try {
-            await account.get();
-            router.replace('/dashboard');
-        } catch (error) {
-            // Not logged in
-        }
-    };
-    checkSession();
-  }, [router]);
+    if (user) {
+      router.replace('/dashboard');
+    }
+  }, [user, router]);
 
   // Validate email format
   const validateEmail = (email) => {
@@ -221,6 +217,7 @@ export default function RegisterPage() {
 
       await account.create(ID.unique(), formEmail, formPassword, formName);
       await account.createEmailPasswordSession(formEmail, formPassword);
+      await checkUser();
       toast.success("ගිණුම සාර්ථකයි! Account created!");
       router.push("/dashboard");
     } catch (error) {

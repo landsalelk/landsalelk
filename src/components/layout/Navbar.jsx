@@ -16,10 +16,11 @@ import {
 } from "lucide-react";
 import NotificationBell from "@/components/ui/NotificationBell";
 import { useComparison } from "@/context/ComparisonContext";
+import { useAuth } from "@/context/AuthContext";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const { user, loading } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { compareList } = useComparison() || {};
@@ -39,19 +40,6 @@ export function Navbar() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { account } = await import("@/appwrite");
-        const session = await account.get();
-        setUser(session);
-      } catch (e) {
-        setUser(null);
-      }
-    };
-    checkUser();
   }, []);
 
   const navLinks = [
@@ -107,7 +95,9 @@ export function Navbar() {
 
               {/* Right Side Actions */}
               <div className="hidden items-center gap-3 md:flex">
-                {user ? (
+                {loading ? (
+                   <div className="h-10 w-10 animate-pulse rounded-full bg-slate-200"></div>
+                ) : user ? (
                   <>
                     <NotificationBell />
                     <Link
@@ -287,7 +277,9 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4">
-              {user ? (
+              {loading ? (
+                <div className="w-full h-12 animate-pulse bg-slate-200 rounded-xl"></div>
+              ) : user ? (
                 <Link
                   href="/profile"
                   className="w-full rounded-xl bg-[#10b981] py-3 text-center font-bold text-white"

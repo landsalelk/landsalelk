@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { account } from "@/lib/appwrite";
+import { useAuth } from "@/context/AuthContext";
 import { getUserListings } from "@/lib/properties";
 import { getUserFavorites } from "@/lib/favorites";
 import { getKYCStatus } from "@/lib/kyc";
@@ -24,7 +25,7 @@ import { NotificationCenter } from '@/components/notifications/NotificationCente
 
 export default function DashboardPage() {
     const router = useRouter();
-    const [user, setUser] = useState(null);
+    const { user, loading: authLoading, logout, checkUser } = useAuth();
     const [agent, setAgent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [notifications, setNotifications] = useState({
@@ -54,10 +55,16 @@ export default function DashboardPage() {
     };
 
     useEffect(() => {
+        if (authLoading) return;
+
+        if (!user) {
+            router.push('/auth/login');
+            return;
+        }
+
         const loadDashboardData = async () => {
             try {
-                const userData = await account.get();
-                setUser(userData);
+                const userData = user;
                 if (userData.prefs && userData.prefs.notifications) {
                     setNotifications(userData.prefs.notifications);
                 }
@@ -166,13 +173,7 @@ export default function DashboardPage() {
                 }
             } catch (error) {
                 console.error(error);
-                // Only redirect to login if it's an authentication error
-                if (error.code === 401 || error.type === 'general_unauthorized_scope' || error.message?.includes('Unauthorized')) {
-                    router.push('/auth/login');
-                } else {
-                    // For other errors, show error but don't redirect
-                    toast.error('Failed to load dashboard data. Please refresh the page.');
-                }
+                toast.error('Failed to load dashboard data. Please refresh the page.');
             } finally {
                 setLoading(false);
             }
@@ -180,7 +181,7 @@ export default function DashboardPage() {
 
         setMounted(true);
         loadDashboardData();
-    }, [router]);
+    }, [router, user, authLoading]);
 
     const handleNotificationToggle = async (key) => {
         const newSettings = { ...notifications, [key]: !notifications[key] };
@@ -201,13 +202,8 @@ export default function DashboardPage() {
     };
 
     const handleLogout = async () => {
-        try {
-            await account.deleteSession('current');
-            toast.success('Logged out successfully');
-            router.push('/');
-        } catch (e) {
-            toast.error('Logout failed');
-        }
+        await logout();
+        router.push('/');
     };
 
     const handleAcceptOffer = async (offerId) => {
@@ -269,7 +265,7 @@ export default function DashboardPage() {
 
     if (!mounted) return null;
 
-    if (loading) {
+    if (loading || authLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-[#10b981]" />
@@ -738,7 +734,7 @@ export default function DashboardPage() {
                                             // Update User Name
                                             if (newName !== user.name) {
                                                 await account.updateName(newName);
-                                                setUser(prev => ({ ...prev, name: newName }));
+                                                checkUser();
                                             }
 
                                             // Update Agent Phone (if agent)

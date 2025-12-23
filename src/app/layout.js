@@ -6,6 +6,7 @@ import { Toaster } from 'sonner';
 import AIChatWindow from '@/components/chat/AIChatWindow';
 import CookieConsent from '@/components/ui/CookieConsent';
 import { ComparisonProvider } from '@/context/ComparisonContext';
+import { AuthProvider } from '@/context/AuthContext';
 import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google';
 import FacebookPixel from '@/components/analytics/FacebookPixel';
 import { Suspense } from 'react';
@@ -63,21 +64,23 @@ export default function RootLayout({ children }) {
       <head>
       </head>
       <body className={`${outfit.className} bg-[#f0f9ff] min-h-screen`}>
-        <ComparisonProvider>
-          {/* Floating Background Blobs */}
-          <div className="bg-blob bg-blob-1" />
-          <div className="bg-blob bg-blob-2" />
-          <div className="bg-blob bg-blob-3" />
+        <AuthProvider>
+          <ComparisonProvider>
+            {/* Floating Background Blobs */}
+            <div className="bg-blob bg-blob-1" />
+            <div className="bg-blob bg-blob-2" />
+            <div className="bg-blob bg-blob-3" />
 
-          <Navbar />
-          <main className="pt-24 relative z-10">
-            {children}
-          </main>
-          <Footer />
-          <AIChatWindow />
-          <CookieConsent />
-          <Toaster position="top-center" richColors />
-        </ComparisonProvider>
+            <Navbar />
+            <main className="pt-24 relative z-10">
+              {children}
+            </main>
+            <Footer />
+            <AIChatWindow />
+            <CookieConsent />
+            <Toaster position="top-center" richColors />
+          </ComparisonProvider>
+        </AuthProvider>
 
         {/* Analytics Integrations */}
         {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (

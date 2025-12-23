@@ -15,9 +15,11 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { account, OAuthProvider } from "@/lib/appwrite";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { checkUser, user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -30,16 +32,10 @@ export default function LoginPage() {
 
   // Check session on mount
   useEffect(() => {
-    const checkSession = async () => {
-        try {
-            await account.get();
-            router.replace('/dashboard');
-        } catch (error) {
-            // Not logged in
-        }
-    };
-    checkSession();
-  }, [router]);
+    if (user) {
+      router.replace('/dashboard');
+    }
+  }, [user, router]);
 
   // Validate email format
   const validateEmail = (email) => {
@@ -114,10 +110,12 @@ export default function LoginPage() {
         // No active session, proceed with login
       }
 
-      const session = await account.createEmailPasswordSession(
+      await account.createEmailPasswordSession(
         formEmail,
         formPassword,
       );
+
+      await checkUser();
       const user = await account.get();
 
       toast.success("ආයුබෝවන්! Welcome back!");
