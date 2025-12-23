@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { account, ID, OAuthProvider } from "@/lib/appwrite";
+import { handleOAuthLogin } from "@/lib/auth-utils";
 
 // Password strength calculator
 function calculatePasswordStrength(password) {
@@ -704,20 +705,7 @@ export default function RegisterPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => {
-                try {
-                  if (typeof window !== "undefined") {
-                    account.createOAuth2Session(
-                      OAuthProvider.Google,
-                      `${window.location.origin}/dashboard`,
-                      `${window.location.origin}/auth/register`,
-                    );
-                  }
-                } catch (error) {
-                  console.error("Google OAuth error:", error);
-                  toast.error("Failed to initiate Google sign up: " + error.message);
-                }
-              }}
+              onClick={() => handleOAuthLogin(OAuthProvider.Google, '/dashboard', '/auth/register')}
               className="flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 py-3 font-medium text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50"
               aria-label="Sign up with Google"
             >
@@ -743,20 +731,7 @@ export default function RegisterPage() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                try {
-                  if (typeof window !== "undefined") {
-                    account.createOAuth2Session(
-                      OAuthProvider.Facebook,
-                      `${window.location.origin}/dashboard`,
-                      `${window.location.origin}/auth/register`,
-                    );
-                  }
-                } catch (error) {
-                  console.error("Facebook OAuth error:", error);
-                  toast.error("Failed to initiate Facebook sign up: " + error.message);
-                }
-              }}
+              onClick={() => handleOAuthLogin(OAuthProvider.Facebook, '/dashboard', '/auth/register')}
               className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#1877F2] bg-[#1877F2] px-4 py-3 font-medium text-white transition-all hover:bg-[#166FE5]"
               aria-label="Sign up with Facebook"
             >
