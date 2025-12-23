@@ -1,6 +1,11 @@
 
 import { NextResponse } from 'next/server';
 
+/**
+ * Handles POST requests to interact with the OpenRouter AI API.
+ * Expects a JSON body with prompt or message data.
+ * Returns the AI completion response or an error.
+ */
 export async function POST(request) {
   try {
     const { messages, context } = await request.json();
@@ -153,9 +158,6 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
 
   } catch (error) {
     console.error("AI Chat Error:", error);
-    return NextResponse.json({
-      type: "CHAT",
-      reply: "I apologize, but I'm having trouble processing your request right now. Please try again in a moment."
-    });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
