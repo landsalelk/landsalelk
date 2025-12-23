@@ -77,6 +77,12 @@ export default function OwnerVerificationPage() {
     router.push(`/verify-owner/${id}/claim?secret=${secret}`);
   };
 
+  /**
+   * Handles the agent hiring process by initiating a payment flow.
+   * This function calls a server action to get payment parameters,
+   * then dynamically creates and submits a form to redirect the user
+   * to the PayHere payment gateway.
+   */
   const handleHireAgent = async () => {
     setVerifying(true);
     try {
@@ -128,7 +134,6 @@ export default function OwnerVerificationPage() {
       }
     } catch (err) {
       // Catch unexpected errors (e.g., network issues)
-      console.error("Unexpected error in handleHireAgent:", err);
       toast.error("An unexpected error occurred. Please try again.");
       setVerifying(false);
     }
@@ -154,7 +159,6 @@ export default function OwnerVerificationPage() {
         toast.error(result?.error || "Failed to decline listing.");
       }
     } catch (err) {
-      console.error("Unexpected error in handleDecline:", err);
       toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setVerifying(false);
