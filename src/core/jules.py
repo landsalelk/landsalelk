@@ -13,24 +13,28 @@ async def log_simulator(integrity_manager: IntegrityManager) -> None:
     Args:
         integrity_manager (IntegrityManager): The instance of the integrity manager to add logs to.
     """
-    await asyncio.sleep(2)
-    await integrity_manager.log_buffer.put(
-        LogEntry(
-            timestamp=datetime.datetime.now().isoformat(),
-            level="INFO",
-            source="main_loop",
-            message="System startup complete."
+    try:
+        await asyncio.sleep(2)
+        await integrity_manager.log_buffer.put(
+            LogEntry(
+                timestamp=datetime.datetime.now().isoformat(),
+                level="INFO",
+                source="main_loop",
+                message="System startup complete."
+            )
         )
-    )
-    await asyncio.sleep(5)
-    await integrity_manager.log_buffer.put(
-        LogEntry(
-            timestamp=datetime.datetime.now().isoformat(),
-            level="ERROR",
-            source="database_connector",
-            message="Connection timeout to primary database."
+        await asyncio.sleep(5)
+        await integrity_manager.log_buffer.put(
+            LogEntry(
+                timestamp=datetime.datetime.now().isoformat(),
+                level="ERROR",
+                source="database_connector",
+                message="Connection timeout to primary database."
+            )
         )
-    )
+    except Exception as e:
+        logging.error(f"An error occurred in the log simulator: {e}", exc_info=True)
+
 
 async def main() -> None:
     """
