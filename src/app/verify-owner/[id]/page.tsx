@@ -39,6 +39,12 @@ export default function OwnerVerificationPage() {
       return;
     }
 
+    if (!secret) {
+      setError("Invalid or missing verification token.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID;
       if (!databaseId) {
