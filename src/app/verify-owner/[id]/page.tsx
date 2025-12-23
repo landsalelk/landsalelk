@@ -19,11 +19,31 @@ import {
   initiateAgentHiring,
 } from "@/app/actions/owner-verification";
 
+interface IPayHereParams {
+  sandbox: boolean;
+  merchant_id: string;
+  return_url: string;
+  cancel_url: string;
+  notify_url: string;
+  order_id: string;
+  items: string;
+  currency: string;
+  amount: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  country: string;
+  hash: string;
+}
+
 /**
  * Dynamically creates and submits a form to redirect the user to the PayHere gateway.
- * @param {object} params - The payment parameters returned from the server action.
+ * @param {IPayHereParams} params - The payment parameters returned from the server action.
  */
-function createPayHereForm(params) {
+function createPayHereForm(params: IPayHereParams): void {
   const form = document.createElement("form");
   form.method = "POST";
   form.action = params.sandbox
@@ -133,15 +153,13 @@ export default function OwnerVerificationPage() {
       const result = await initiateAgentHiring(id, secret, amount);
 
       if (!result || !result.success) {
-        toast.error(result?.error || "Payment initiation failed.");
-        setVerifying(false);
-        return;
+        throw new Error(result?.error || "Payment initiation failed.");
       }
 
       createPayHereForm(result.paymentParams);
     } catch (err) {
-      // Catch unexpected errors (e.g., network issues)
-      toast.error("An unexpected error occurred. Please try again.");
+      toast.error(err.message || "An unexpected error occurred. Please try again.");
+    } finally {
       setVerifying(false);
     }
   };
@@ -164,14 +182,14 @@ export default function OwnerVerificationPage() {
       const result = await declineListing(id, secret);
 
       if (!result || !result.success) {
-        toast.error(result?.error || "Failed to decline listing.");
-      } else {
-        toast.success("Listing declined.");
-        setListing((prev) => ({ ...prev, status: "rejected_by_owner" }));
-        setError("You have declined this listing.");
+        throw new Error(result?.error || "Failed to decline listing.");
       }
+
+      toast.success("Listing declined.");
+      setListing((prev) => ({ ...prev, status: "rejected_by_owner" }));
+      setError("You have declined this listing.");
     } catch (err) {
-      toast.error("An unexpected error occurred. Please try again.");
+      toast.error(err.message || "An unexpected error occurred. Please try again.");
     } finally {
       setVerifying(false);
     }
