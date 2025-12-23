@@ -40,7 +40,7 @@ export function PropertyCard({ property }) {
     const fallback =
       "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
     const endpoint = APPWRITE_ENDPOINT;
-    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || "landsalelkproject";
+    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
     const bucketId = "listing_images";
 
     const resolveUrl = (val) => {
@@ -49,7 +49,7 @@ export function PropertyCard({ property }) {
       if (!str) return null;
       if (str.startsWith("http")) return str; // Already a URL
       // Assume it's a File ID
-      return `${endpoint}/storage/buckets/${bucketId}/files/${str}/view?project=${projectId}`;
+      return `${endpoint}/storage/buckets/${bucketId}/files/${str}/view?project=${projectId}&width=400&quality=80`;
     };
 
     // Try primary_image first

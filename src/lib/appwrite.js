@@ -1,13 +1,11 @@
 import { Client, Account, Databases, Storage, Functions, Avatars, ID, Query, OAuthProvider, Permission, Role } from "appwrite";
+import { APPWRITE_ENDPOINT } from "@/appwrite/config";
 
 /**
- * Appwrite Client Configuration
- * Initializes the Appwrite client and exports services.
- * Enforces strict environment variable validation to prevent runtime failures.
+ * Core Appwrite Client & Services
+ * @module Appwrite
  */
 
-// Validate environment variables
-const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
 if (!projectId) {
@@ -16,7 +14,7 @@ if (!projectId) {
 
 // Initialize Client
 export const client = new Client()
-    .setEndpoint(endpoint)
+    .setEndpoint(APPWRITE_ENDPOINT)
     .setProject(projectId);
 
 // Export Services
