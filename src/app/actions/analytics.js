@@ -3,6 +3,11 @@
 import { databases } from '@/lib/server/appwrite';
 import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
 
+/**
+ * Increments the view count for a specific listing.
+ * @param {string} listingId - The ID of the listing to update.
+ * @returns {Promise<{success: boolean, views?: number, error?: string}>}
+ */
 export async function incrementViewCount(listingId) {
   if (!listingId) return { success: false, error: 'Listing ID is required' };
 
@@ -22,7 +27,7 @@ export async function incrementViewCount(listingId) {
         currentViews = listing.views_count || 0;
     } catch (error) {
         if (error.code !== 404) {
-            throw error;
+            return { success: false, error: error.message };
         }
     }
 
