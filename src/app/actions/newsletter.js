@@ -58,8 +58,9 @@ export async function subscribeToNewsletter(rawEmail) {
 
     const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://landsale.lk'}/newsletter/verify?token=${verificationToken}`;
 
-    // Asynchronously trigger the email function
-    functions.createExecution(
+    // Asynchronously trigger the email function. If this fails, the user is still in the DB as 'pending',
+    // but they will receive an error message so they know the verification email may not have arrived.
+    await functions.createExecution(
       'send-email',
       JSON.stringify({
         type: 'newsletter_verification',
@@ -67,11 +68,7 @@ export async function subscribeToNewsletter(rawEmail) {
         data: { link: verificationLink }
       }),
       true
-    ).catch(emailError => {
-      // High-priority: Failed to trigger newsletter verification email.
-      // A monitoring service or cron job should be in place to detect and retry these failures.
-      // For now, the user is in the database as 'pending', so the subscription is not lost.
-    });
+    );
 
     return { success: true, message: 'Thank you for subscribing! Please check your email to confirm.' };
   } catch (error) {
