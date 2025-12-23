@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { databases } from "@/lib/appwrite";
+import { DB_ID, COLLECTION_LISTINGS } from "@/appwrite/config";
 import { toast } from "sonner";
 import {
   Check,
@@ -19,6 +20,12 @@ import {
   initiateAgentHiring,
 } from "@/app/actions/owner-verification";
 
+/**
+ * OwnerVerificationPage Component
+ * @description This page allows a property owner to verify or decline a listing created by an agent.
+ * The owner accesses this page via a unique, secret link sent to them.
+ * @returns {JSX.Element} The rendered page component.
+ */
 export default function OwnerVerificationPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -31,6 +38,11 @@ export default function OwnerVerificationPage() {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState(null);
 
+  /**
+   * Fetches the listing details from the database.
+   * @description Verifies the listing ID and secret token, then fetches the document.
+   * It handles various states like invalid tokens, already verified listings, or API errors.
+   */
   const fetchListing = useCallback(async () => {
     if (!id) {
       setError("Listing ID is missing from the URL.");
@@ -38,11 +50,7 @@ export default function OwnerVerificationPage() {
       return;
     }
     try {
-      const doc = await databases.getDocument(
-        process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "landsalelk",
-        "listings",
-        id,
-      );
+      const doc = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, id);
 
       if (doc.verification_code !== secret) {
         setError("Invalid or expired verification token.");
