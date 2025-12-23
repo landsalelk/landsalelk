@@ -33,29 +33,46 @@ export default function OwnerVerificationPage() {
 
   const fetchListing = useCallback(async () => {
     try {
-      const doc = await databases.getDocument(
-        process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "landsalelk",
-        "listings",
-        id,
-      );
+      // Robust error handling for document fetch
+      // We wrap the getDocument call in a try/catch to ensure we handle network or permission errors gracefully
+      let doc;
+      try {
+        doc = await databases.getDocument(
+          process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "landsalelk",
+          "listings",
+          id,
+        );
+      } catch (e) {
+        console.error("Failed to fetch document:", e);
+        setError("Failed to load listing details. Please try again later.");
+        setLoading(false);
+        return;
+      }
 
       // 1. Handle Active Listings (Already Verified)
-      // We check this first because if it's active, the verification code might be cleared/null
-      // so strict token matching would fail. We want to show a success message instead.
+      // We check status BEFORE token validation because:
+      // - Active listings may have their verification_code cleared or nullified.
+      // - Users clicking an old link for an already live property should not see an "Invalid Token" error.
+      // - Instead, we redirect them to a success/live view to improve user experience.
       if (doc.status === "active") {
         setListing(doc);
-        // We will render a success view based on this status in the render method
+        // Early return to skip validation logic, as the render method handles the active state view
         return;
       }
 
       // 2. Validate Token
+      // For any non-active state (e.g. pending), strict token matching is required for security
+      // to prevent unauthorized access to the owner verification page.
       if (doc.verification_code !== secret) {
         setError("Invalid or expired verification token.");
         return;
       }
 
       // 3. Validate Status (Pending States)
-      // We accept both 'pending' (frontend created) and 'pending_owner' (function created)
+      // We accept both:
+      // - 'pending_owner': Created via backend function (SMS flow)
+      // - 'pending': Created via frontend (direct flow)
+      // This ensures backwards compatibility and supports both creation paths.
       if (doc.status !== "pending_owner" && doc.status !== "pending") {
         if (doc.status === "rejected_by_owner") {
           setError("You have declined this listing.");
@@ -66,8 +83,9 @@ export default function OwnerVerificationPage() {
         setListing(doc);
       }
     } catch (err) {
-      console.error(err);
-      setError("Failed to load listing details.");
+      // Log error internally (could be sent to Sentry/logging service in production)
+      console.error("Owner Verification Logic Error:", err);
+      setError("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -199,6 +217,9 @@ export default function OwnerVerificationPage() {
       </div>
     );
   }
+
+  // Ensure listing exists before rendering
+  if (!listing) return null;
 
   const firstImage = listing.images ? JSON.parse(listing.images)[0] : null;
   const serviceFee = listing.service_fee || 0;
