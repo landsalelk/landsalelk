@@ -24,9 +24,6 @@ export default function FacebookPixel() {
   }, [pathname, searchParams, facebookPixelId]);
 
   if (!facebookPixelId) {
-    console.warn(
-      'Facebook Pixel ID (NEXT_PUBLIC_FACEBOOK_PIXEL_ID) is missing. The pixel will not be loaded.',
-    );
     return null;
   }
 
