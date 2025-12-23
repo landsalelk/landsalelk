@@ -1,6 +1,13 @@
 
 import { NextResponse } from 'next/server';
 
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
 export async function POST(request) {
   try {
     const { messages, context } = await request.json();
@@ -90,6 +97,9 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
       "mistralai/mistral-7b-instruct:free"
     ];
 
+    // Shuffle models to distribute load
+    shuffle(models);
+
     let aiContent = null;
     let usedModel = "";
     let lastError = "";
@@ -127,6 +137,10 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
           const errText = await response.text();
           lastError = `Model ${model} failed: ${response.status} - ${errText}`;
           console.warn(lastError);
+          // Stop retrying if we hit a rate limit error.
+          if (response.status === 429) {
+            break; // Exit loop immediately
+          }
         }
       } catch (err) {
         lastError = `Model ${model} error: ${err.message}`;
