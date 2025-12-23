@@ -57,8 +57,9 @@ export default function OwnerVerificationPage() {
           "listings",
           id,
         );
-      } catch (e) {
-        console.error("Failed to fetch document:", e);
+      } catch (e: unknown) {
+        // Failed to load listing (e.g., network error or permission denied)
+        // We log implicitly by setting the user-facing error.
         setError("Failed to load listing details. Please try again later.");
         setLoading(false);
         return;
@@ -97,9 +98,8 @@ export default function OwnerVerificationPage() {
       } else {
         setListing(doc);
       }
-    } catch (err) {
-      // Log error internally (could be sent to Sentry/logging service in production)
-      console.error("Owner Verification Logic Error:", err);
+    } catch (err: unknown) {
+      // Unexpected logical errors
       setError("An unexpected error occurred.");
     } finally {
       setLoading(false);
