@@ -21,6 +21,9 @@ const COLLECTION_LISTINGS = 'listings';
 
 /**
  * Validates the listing token and performs the decline action.
+ * @param {string} listingId The ID of the listing to decline.
+ * @param {string} secret The verification token sent to the owner.
+ * @returns {Promise<{success: boolean, error?: string}>} Object indicating success or failure.
  */
 export async function declineListing(listingId, secret) {
     const { getDatabases } = createAdminClient();
@@ -47,6 +50,10 @@ export async function declineListing(listingId, secret) {
 
 /**
  * Initiates the payment process for hiring the agent.
+ * @param {string} listingId The ID of the listing.
+ * @param {string} secret The verification token.
+ * @param {number} amount The amount to be paid.
+ * @returns {Promise<{success: boolean, error?: string, paymentParams?: object}>} Payment parameters or error.
  */
 export async function initiateAgentHiring(listingId, secret, amount) {
     const { getDatabases } = createAdminClient();
@@ -95,11 +102,23 @@ export async function initiateAgentHiring(listingId, secret, amount) {
 
 /**
  * Claims the listing for the target user (Self-Service).
- * @param {string} listingId
- * @param {string} secret
- * @param {string} userId - The ID of the user claiming the listing (must be verified by caller or session)
+ * This function is critical for the "Do-It-Yourself" (DIY) owner verification flow.
+ * When an agent creates a listing on behalf of an owner, a verification link containing
+ * a secret token is sent to the owner. Clicking this link allows the owner to either
+ * hire the agent or claim the listing themselves.
+ *
+ * This function handles the "claim" action. It verifies the secret token, reassigns
+ * the listing to the new owner's `userId`, and awards a small point bonus to the
+ * original agent for the successful referral (DIY claim).
+ *
+ * @param {string} listingId The ID of the listing to be claimed.
+ * @param {string} secret The unique verification token sent to the owner.
+ * @param {string} userId The Appwrite user ID of the new owner claiming the listing.
+ * @returns {Promise<{success: boolean, error?: string}>} An object indicating success or failure.
  */
 export async function claimListing(listingId, secret, userId) {
+    // Index verification: The `verification_code` field in the `listings` collection
+    // should be indexed to ensure efficient lookups.
     const { getDatabases } = createAdminClient();
     const databases = getDatabases();
 
@@ -123,7 +142,6 @@ export async function claimListing(listingId, secret, userId) {
                     points: (agent.points || 0) + 1, // 1 point for DIY referral
                     listings_uploaded: (agent.listings_uploaded || 0) + 1
                 });
-                // console.log(`Awarded 1 point to agent ${agentId} for DIY claim`);
             } catch (agentErr) {
                 logger.warn('Could not update agent points:', agentErr.message);
             }
