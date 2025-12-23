@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server';
  * @param {Array<any>} array The array to shuffle.
  */
 function shuffle(array) {
+  if (!Array.isArray(array)) return; // Guard clause
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
@@ -165,7 +166,7 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
     try {
       parsedResponse = JSON.parse(aiContent);
     } catch (e) {
-      console.warn("AI did not return valid JSON, using fallback.", aiContent);
+      // AI did not return valid JSON, using fallback.
       parsedResponse = { type: "CHAT", reply: aiContent };
     }
 
