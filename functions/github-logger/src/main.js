@@ -1,5 +1,3 @@
-import { Client } from 'node-appwrite';
-
 /**
  * GitHub Logger Function
  *

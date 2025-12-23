@@ -8,6 +8,7 @@ import { Client, Functions } from 'node-appwrite';
  * @param {string} title - Title of the issue
  * @param {string} body - Body of the issue
  * @param {Array<string>} labels - Labels for the issue
+ * @returns {Promise<{success: boolean, execution?: object, error?: string}>}
  */
 export async function logErrorToGitHub(title, body, labels = ['bug', 'frontend']) {
   try {
@@ -22,8 +23,7 @@ export async function logErrorToGitHub(title, body, labels = ['bug', 'frontend']
     const apiKey = process.env.APPWRITE_API_KEY;
 
     if (!projectId) {
-        console.error('Missing NEXT_PUBLIC_APPWRITE_PROJECT_ID');
-        return { success: false, error: 'Configuration missing' };
+        return { success: false, error: 'Configuration missing: NEXT_PUBLIC_APPWRITE_PROJECT_ID' };
     }
 
     const client = new Client()
@@ -32,9 +32,9 @@ export async function logErrorToGitHub(title, body, labels = ['bug', 'frontend']
 
     if (apiKey) {
       client.setKey(apiKey);
-    } else {
-       console.warn("APPWRITE_API_KEY not found. Logging will fail if function execution is restricted to API Keys.");
     }
+    // If no API Key, we proceed. The function execution might fail if restricted,
+    // but we avoid console spam here.
 
     const functions = new Functions(client);
 
@@ -45,13 +45,11 @@ export async function logErrorToGitHub(title, body, labels = ['bug', 'frontend']
     );
 
     if (execution.status === 'failed') {
-        console.error('GitHub Logger Function failed:', execution.response);
-        return { success: false, error: execution.response };
+        return { success: false, error: `Function execution failed: ${execution.response}` };
     }
 
     return { success: true, execution };
   } catch (error) {
-    console.error('Failed to invoke GitHub Logger:', error);
     return { success: false, error: error.message };
   }
 }
