@@ -235,10 +235,8 @@ export default function CreateListingPage() {
       const {
         data: { text },
       } = await Tesseract.recognize(imageToScan, "eng", {
-        logger: (m) => console.log(m),
+        logger: () => {},
       });
-
-      console.log("OCR Result:", text);
 
       // Basic Regex to find phone numbers (Sri Lankan format roughly)
       // Look for patterns like 077 123 4567, 07x-xxxxxxx, +94...
@@ -265,7 +263,6 @@ export default function CreateListingPage() {
         toast.info("No clear details found in image. Please enter manually.");
       }
     } catch (err) {
-      console.error(err);
       toast.error("Failed to scan image.");
     } finally {
       setOcrProcessing(false);
@@ -419,7 +416,6 @@ export default function CreateListingPage() {
         router.push("/profile");
       }
     } catch (error) {
-      console.error(error);
       // Show more specific error if available
       const msg = error.message || "Failed to create listing";
       toast.error(`${msg}. Please try again.`);

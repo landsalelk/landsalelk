@@ -3,7 +3,7 @@
 import { Client, Databases, ID, Permission, Role } from 'node-appwrite';
 import { generatePayHereHash } from '@/lib/payhere';
 
-// Initialize Admin Client (Server Side Only)
+// Initialize Admin Client (Server-Side Only)
 const createAdminClient = () => {
     const client = new Client()
         .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
