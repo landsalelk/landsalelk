@@ -124,6 +124,14 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
             break; // Success
           }
         } else {
+          // Specifically handle the 401 Unauthorized error
+          if (response.status === 401) {
+            const errText = await response.text();
+            lastError = `AI API request failed with status 401 (Unauthorized). This indicates the OPENROUTER_API_KEY is invalid or expired. Details: ${errText}`;
+            console.error(`CRITICAL: ${lastError}`);
+            // If the key is invalid, no other model will work. Break the loop immediately.
+            break;
+          }
           const errText = await response.text();
           lastError = `Model ${model} failed: ${response.status} - ${errText}`;
           console.warn(lastError);
