@@ -13,16 +13,20 @@ import { NextResponse } from 'next/server';
  */
 export async function POST(request) {
   try {
-    const { messages, context } = await request.json();
-
-    // Use OPENROUTER_API_KEY as discovered in environment
     const apiKey = process.env.OPENROUTER_API_KEY;
-    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://landsale.lk";
-    const siteName = "LandSale.lk";
-
     if (!apiKey) {
       return NextResponse.json({ error: "OpenRouter API Key not configured" }, { status: 500 });
     }
+
+    const { messages, context } = await request.json();
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json({ error: "Invalid 'messages' field. It must be a non-empty array." }, { status: 400 });
+    }
+
+    // Use OPENROUTER_API_KEY as discovered in environment
+    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://landsale.lk";
+    const siteName = "LandSale.lk";
 
     const systemPrompt = `
 You are the intelligent AI assistant for ${siteName}, Sri Lanka's premier real estate platform.
@@ -156,7 +160,10 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
     }
 
     if (!aiContent) {
-      throw new Error(`All AI models failed. Last error: ${lastError}`);
+      return NextResponse.json({
+        type: "CHAT",
+        reply: `I apologize, but all our AI models failed to process your request. Last error: ${lastError}`
+      }, { status: 500 });
     }
 
     // Clean up markdown if present
@@ -175,6 +182,6 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
     return NextResponse.json({
       type: "CHAT",
       reply: "I apologize, but I'm having trouble processing your request right now. Please try again in a moment."
-    });
+    }, { status: 500 });
   }
 }
