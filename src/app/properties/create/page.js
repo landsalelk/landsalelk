@@ -30,7 +30,6 @@ import {
   MessageCircle,
   AlertCircle,
 } from "lucide-react";
-import Tesseract from "tesseract.js";
 import { Permission, Role } from "appwrite";
 
 // Sri Lankan phone number formatter
@@ -231,6 +230,9 @@ export default function CreateListingPage() {
 
     setOcrProcessing(true);
     try {
+      // ⚡ Bolt: Dynamically import Tesseract.js to reduce initial bundle size
+      const Tesseract = (await import("tesseract.js")).default;
+
       const imageToScan = images[0];
       const {
         data: { text },
