@@ -1,46 +1,25 @@
 'use server';
 
-import { Client, Databases, ID, Query, Functions } from 'node-appwrite';
+import { ID, Query } from 'node-appwrite';
+import { databases, functions } from '@/lib/server/appwrite';
 import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/appwrite/config';
 import { headers } from 'next/headers';
-
-const createAdminClient = () => {
-  const client = new Client()
-    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
-    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
-
-  return {
-    getDatabases: () => new Databases(client),
-    getFunctions: () => new Functions(client),
-  };
-};
 
 export async function subscribeToNewsletter(email) {
   if (!email) {
     return { success: false, error: 'Email is required' };
   }
 
-  // Basic email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return { success: false, error: 'Invalid email address' };
   }
 
-  // Rate Limiting (Simple IP based)
-  const headersList = await headers();
-  // Depending on deployment, IP might be in different headers
-  const ip = headersList.get('x-forwarded-for') || 'unknown';
-
-  // Note: For a real production app, use Redis or a dedicated rate-limit table.
-  // Here we'll just proceed but in a real scenario we'd check a 'rate_limits' collection.
+  if (!databases || !functions) {
+    return { success: false, error: 'Newsletter service is currently unavailable.' };
+  }
 
   try {
-    const { getDatabases, getFunctions } = createAdminClient();
-    const databases = getDatabases();
-    const functions = getFunctions();
-
-    // Check if email already exists
     const existing = await databases.listDocuments(
       DB_ID,
       COLLECTION_SUBSCRIBERS,
@@ -50,15 +29,15 @@ export async function subscribeToNewsletter(email) {
     if (existing.total > 0) {
       const doc = existing.documents[0];
       if (doc.status === 'active') {
-        return { success: true, message: 'Already subscribed' };
+        return { success: true, message: 'You are already subscribed.' };
       } else {
-        // Resend verification?
-        // For now, let's treat it as success to avoid info leak, or tell them to check email.
-         return { success: true, message: 'Please check your email to confirm subscription.' };
+        // To prevent user enumeration, we don't reveal if the email is in a pending state.
+        // We can re-trigger the verification email here if desired, but for now, we'll return a generic message.
+        return { success: true, message: 'Please check your email to confirm your subscription.' };
       }
     }
 
-    const verificationToken = ID.unique() + ID.unique(); // Simple random token
+    const verificationToken = ID.unique() + ID.unique();
 
     await databases.createDocument(
       DB_ID,
@@ -66,40 +45,33 @@ export async function subscribeToNewsletter(email) {
       ID.unique(),
       {
         email,
-        is_active: true, // Internal flag, but status determines visibility
         status: 'pending',
         verification_token: verificationToken,
         subscribed_at: new Date().toISOString(),
       }
     );
 
-    // Trigger Email Function
-    // We assume the function 'send-email' exists and takes this payload
     const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://landsale.lk'}/newsletter/verify?token=${verificationToken}`;
 
-    try {
-        await functions.createExecution(
-            'send-email', // Function ID
-            JSON.stringify({
-                type: 'newsletter_verification',
-                email: email,
-                data: {
-                    link: verificationLink
-                }
-            }),
-            true // Async
-        );
-    } catch (emailError) {
-        console.error('Failed to trigger email function:', emailError);
-        // We still return success to the user, but log the error.
-    }
+    // Asynchronously trigger the email function
+    functions.createExecution(
+      'send-email',
+      JSON.stringify({
+        type: 'newsletter_verification',
+        email: email,
+        data: { link: verificationLink }
+      }),
+      true
+    ).catch(emailError => {
+      // Log this error for monitoring, but don't block the user response.
+      // The user has been added to the DB, and a cron job could handle failed email sends.
+      console.error(`High-Priority: Failed to trigger newsletter verification email for ${email}:`, emailError);
+    });
 
-    return { success: true, message: 'Please check your email to confirm subscription.' };
+    return { success: true, message: 'Subscription successful! Please check your email to confirm.' };
   } catch (error) {
-    console.error('Newsletter subscription error:', error);
-    if (error.code === 404) {
-        return { success: false, error: 'Service unavailable. Please try again later.' };
-    }
-    return { success: false, error: 'Failed to subscribe. Please try again later.' };
+    // Generic error to avoid leaking implementation details
+    // console.error('Newsletter subscription error:', error);
+    return { success: false, error: 'An unexpected error occurred. Please try again.' };
   }
 }
