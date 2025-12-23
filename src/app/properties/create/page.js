@@ -29,6 +29,7 @@ import {
   ScanText,
   MessageCircle,
   AlertCircle,
+  Save,
 } from "lucide-react";
 import Tesseract from "tesseract.js";
 import { Permission, Role } from "appwrite";
@@ -114,6 +115,29 @@ export default function CreateListingPage() {
     contact_phone: "",
     owner_phone: "",
   });
+  const [isAgent, setIsAgent] = useState(false);
+
+  useEffect(() => {
+    const checkAgent = async () => {
+        try {
+            const { account, databases } = await import("@/lib/appwrite");
+            const { Query } = await import("appwrite");
+            const { DB_ID, COLLECTION_AGENTS } = await import("@/appwrite/config");
+
+            const user = await account.get();
+            const agents = await databases.listDocuments(DB_ID, COLLECTION_AGENTS, [
+                Query.equal('user_id', user.$id)
+            ]);
+
+            if (agents.total > 0) {
+                setIsAgent(true);
+            }
+        } catch (e) {
+            // Not an agent or not logged in
+        }
+    };
+    checkAgent();
+  }, []);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -286,8 +310,8 @@ export default function CreateListingPage() {
     setAgentScanning(false);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const submitListing = async (e, asDraft = false) => {
+    if (e) e.preventDefault();
     setSubmitting(true);
 
     try {
@@ -303,7 +327,7 @@ export default function CreateListingPage() {
           : maybeTarget?.closest?.("form")) || null;
 
       // Extra safety: in some automation / hydration edge cases, currentTarget might not be the <form> element.
-      if (!(form instanceof HTMLFormElement)) {
+      if (!form) {
         form = document.querySelector("form");
       }
 
@@ -382,7 +406,7 @@ export default function CreateListingPage() {
       }
 
       // Ensure at least one image or use placeholder only if no images uploaded
-      if (imageIds.length === 0 && images.length > 0) {
+      if (!asDraft && imageIds.length === 0 && images.length > 0) {
         toast.error("All images failed to upload. Please try again.");
         setSubmitting(false);
         return;
@@ -406,9 +430,13 @@ export default function CreateListingPage() {
         // send array (Appwrite schema expects an array for images)
         images: imageIds,
         service_fee: parseFloat(mergedFormData.service_fee) || 0,
+        status: asDraft ? "draft" : undefined,
       });
 
-      if (newProperty.status === "pending") {
+      if (asDraft) {
+        toast.success("Draft saved successfully!");
+        router.push("/dashboard");
+      } else if (newProperty.status === "pending") {
         const link = `https://landsale.lk/verify-owner/${newProperty.$id}?secret=${newProperty.verification_code}`;
         setSuccessModal({
           link: link,
@@ -428,7 +456,14 @@ export default function CreateListingPage() {
     }
   };
 
+  const handleSubmit = (e) => submitListing(e, false);
+  const handleSaveDraft = (e) => submitListing(e, true);
+
   const nextStep = () => {
+    if (step === 1 && isAgent) {
+        setStep(3); // Skip agent matching for agents
+        return;
+    }
     if (step < 4) setStep(step + 1);
     if (step === 2 && !agentMatched) {
       scanForAgents();
@@ -436,6 +471,10 @@ export default function CreateListingPage() {
   };
 
   const prevStep = () => {
+    if (step === 3 && isAgent) {
+        setStep(1);
+        return;
+    }
     if (step > 1) setStep(step - 1);
   };
 
@@ -1273,24 +1312,38 @@ export default function CreateListingPage() {
                   </div>
                 </div>
 
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="btn-primary flex w-full items-center justify-center gap-3 py-5 text-lg"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="h-6 w-6 animate-spin" />
-                      Publishing...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-6 w-6" />
-                      Publish Listing
-                    </>
+                {/* Submit Buttons */}
+                <div className="flex flex-col gap-3">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="btn-primary flex w-full items-center justify-center gap-3 py-5 text-lg"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        Publishing...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-6 w-6" />
+                        Publish Listing
+                      </>
+                    )}
+                  </button>
+
+                  {isAgent && (
+                    <button
+                      type="button"
+                      onClick={handleSaveDraft}
+                      disabled={submitting}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 py-4 font-bold text-slate-600 transition-colors hover:bg-slate-200"
+                    >
+                      <Save className="h-5 w-5" />
+                      Save as Draft
+                    </button>
                   )}
-                </button>
+                </div>
               </div>
             )}
 

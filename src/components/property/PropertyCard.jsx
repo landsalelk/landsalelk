@@ -138,6 +138,9 @@ export function PropertyCard({ property }) {
     "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
   const displayImage = imgError ? fallbackImage : image;
 
+  const status = property?.status;
+  const showDraftBadge = status === 'draft';
+
   return (
     <Link href={`/properties/${propertyId}`} className="group block">
       <div className="glass-card animate-fade-in flex h-full cursor-pointer flex-col min-[450px]:flex-row items-stretch overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl md:flex-col md:rounded-[2rem]">
@@ -157,9 +160,9 @@ export function PropertyCard({ property }) {
           <div className="absolute inset-0 hidden bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 md:block" />
 
           {/* Badge */}
-          {badge && (
-            <span className="property-badge animate-pulse-slow origin-top-left scale-75 md:scale-100">
-              {badge}
+          {(badge || showDraftBadge) && (
+            <span className={`property-badge animate-pulse-slow origin-top-left scale-75 md:scale-100 ${showDraftBadge ? 'bg-amber-500' : ''}`}>
+              {badge || (showDraftBadge ? 'DRAFT' : '')}
             </span>
           )}
 
