@@ -1,5 +1,6 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { Client, Databases, ID, Permission, Role, Account } from 'node-appwrite';
 import { generatePayHereHash } from '@/lib/payhere';
 
@@ -26,6 +27,11 @@ export async function declineListing(listingId, secret) {
     const databases = getDatabases();
 
     try {
+        const headersList = await headers();
+        const host = headersList.get('host');
+        const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+        const baseUrl = `${protocol}://${host}`;
+
         const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
 
         if (listing.verification_code !== secret) {
@@ -68,9 +74,9 @@ export async function initiateAgentHiring(listingId, secret, amount) {
             paymentParams: {
                 sandbox: process.env.NEXT_PUBLIC_PAYHERE_SANDBOX === 'true', // Check environment
                 merchant_id: process.env.NEXT_PUBLIC_PAYHERE_MERCHANT_ID,
-                return_url: `${process.env.SITE_URL}/verify-owner/${listingId}/success`,
-                cancel_url: `${process.env.SITE_URL}/verify-owner/${listingId}?secret=${secret}`,
-                notify_url: `${process.env.SITE_URL}/api/payhere/notify`, // Webhook
+                return_url: `${baseUrl}/verify-owner/${listingId}/success`,
+                cancel_url: `${baseUrl}/verify-owner/${listingId}?secret=${secret}`,
+                notify_url: `${baseUrl}/api/payhere/notify`, // Webhook
                 order_id: orderId,
                 items: `Agent Service Fee for ${listing.title}`,
                 amount: amount,
