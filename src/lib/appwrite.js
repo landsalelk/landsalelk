@@ -1,4 +1,4 @@
-import { Client, Account, Databases, Storage, Functions, Avatars, ID, Query, OAuthProvider } from "appwrite";
+import { Client, Account, Databases, Storage, Functions, Avatars, ID, Query, OAuthProvider, Permission, Role } from "appwrite";
 
 // Validate environment variables
 // Fix: Use Singapore endpoint if global one fails or as default if not specified
@@ -27,4 +27,4 @@ const storage = new Storage(client);
 const functions = new Functions(client);
 const avatars = new Avatars(client);
 
-export { client, account, databases, storage, functions, avatars, ID, Query, OAuthProvider };
+export { client, account, databases, storage, functions, avatars, ID, Query, OAuthProvider, Permission, Role };
