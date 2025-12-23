@@ -4,21 +4,32 @@ import { useState, useEffect } from 'react';
 import { submitKYC, getKYCStatus } from '@/lib/kyc';
 import { UploadCloud, ShieldCheck, FileText, CheckCircle, Clock, AlertTriangle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { account } from '@/lib/appwrite';
+import { useRouter } from 'next/navigation';
 
 export default function KYCPage() {
     const [status, setStatus] = useState(null); // null, pending, approved, rejected
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [files, setFiles] = useState({ front: null, back: null });
+    const router = useRouter();
 
     useEffect(() => {
         async function check() {
-            const doc = await getKYCStatus();
-            if (doc) setStatus(doc.status);
+            try {
+                await account.get(); // Check if user is logged in
+                const doc = await getKYCStatus();
+                if (doc) setStatus(doc.status);
+            } catch (error) {
+                // If not logged in, redirect to login
+                toast.error("You must be logged in to verify your identity.");
+                router.push('/auth/login?redirect=/kyc');
+                return;
+            }
             setLoading(false);
         }
         check();
-    }, []);
+    }, [router]);
 
     const handleFileChange = (e, side) => {
         if (e.target.files && e.target.files[0]) {
@@ -43,7 +54,8 @@ export default function KYCPage() {
             setStatus('pending');
             toast.success("Verification submitted successfully!");
         } catch (err) {
-            toast.error("Submission failed. Please try again.");
+            console.error(err);
+            toast.error(err.message || "Submission failed. Please try again.");
         } finally {
             setSubmitting(false);
         }

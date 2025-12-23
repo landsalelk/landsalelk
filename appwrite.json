@@ -302,6 +302,23 @@
             "path": "."
         }
     ],
+    "storage": [
+        {
+            "$id": "kyc_documents",
+            "name": "KYC Documents",
+            "enabled": true,
+            "maximumFileSize": 20000000,
+            "allowedFileExtensions": ["jpg", "jpeg", "png", "pdf", "webp"],
+            "encryption": true,
+            "antivirus": true,
+            "$permissions": [
+                "create(\"users\")",
+                "read(\"team:admins\")",
+                "update(\"team:admins\")",
+                "delete(\"team:admins\")"
+            ]
+        }
+    ],
     "collections": [
         {
             "$id": "users_extended",
@@ -3969,18 +3986,62 @@
                     "array": false
                 },
                 {
-                    "key": "documents",
+                    "key": "nic_front_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "nic_back_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "request_type",
                     "type": "string",
                     "required": false,
-                    "array": true,
-                    "size": 255
+                    "size": 50,
+                    "array": false,
+                    "default": "verify_identity"
+                },
+                {
+                    "key": "document_type",
+                    "type": "string",
+                    "required": true,
+                    "size": 50,
+                    "array": false,
+                    "default": "nic"
+                },
+                {
+                    "key": "file_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "submitted_at",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "reviewed_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false
                 }
             ],
             "databaseId": "landsalelkdb",
             "enabled": true,
-            "rowSecurity": false,
+            "rowSecurity": true,
             "$permissions": [
-                "read(\"any\")"
+                "create(\"users\")",
+                "read(\"team:admins\")",
+                "update(\"team:admins\")"
             ],
             "indexes": []
         },

@@ -1,4 +1,4 @@
-import { databases, storage, account, ID, Query, Permission, Role } from "@/appwrite";
+import { databases, storage, account, ID, Query } from "@/appwrite";
 import { DB_ID, COLLECTION_KYC, BUCKET_KYC } from "@/appwrite/config";
 
 /**
@@ -24,6 +24,10 @@ export async function submitKYC(data) {
         );
 
         // 2. Create KYC Request Doc
+        // We rely on Collection Level Permissions:
+        // - create("users") -> Authenticated users can create
+        // - rowSecurity: true -> Creator gets read/write/delete access automatically
+        // - update("team:admins") -> Admins can update status
         const kycDoc = await databases.createDocument(
             DB_ID,
             COLLECTION_KYC,
@@ -34,13 +38,10 @@ export async function submitKYC(data) {
                 nic_front_id: frontUpload.$id,
                 nic_back_id: backUpload.$id,
                 request_type: data.type || 'verify_identity',
+                document_type: 'nic', // Required by backend
+                file_id: frontUpload.$id, // Required by backend (seems to want a primary file ID)
                 submitted_at: new Date().toISOString()
-            },
-            [
-                Permission.read(Role.user(user.$id)),
-                Permission.read(Role.team('admins')),
-                Permission.update(Role.team('admins')), // Only admins update status
-            ]
+            }
         );
 
         return kycDoc;
