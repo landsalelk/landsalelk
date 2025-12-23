@@ -2,9 +2,7 @@
 
 import { databases, ID, Permission, Role } from '@/lib/server/appwrite';
 import { generatePayHereHash } from '@/lib/payhere';
-
-const DB_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || 'landsalelk';
-const COLLECTION_LISTINGS = 'listings';
+import { DB_ID, COLLECTION_LISTINGS } from '@/appwrite/config';
 
 /**
  * Validates the listing token and performs the decline action.

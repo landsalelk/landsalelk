@@ -15,15 +15,15 @@ export async function subscribeToNewsletter(email) {
     return { success: false, error: 'Invalid email address' };
   }
 
-  // Rate Limiting (Simple IP based)
-  const headersList = await headers();
-  // Depending on deployment, IP might be in different headers
-  const ip = headersList.get('x-forwarded-for') || 'unknown';
-
-  // Note: For a real production app, use Redis or a dedicated rate-limit table.
-  // Here we'll just proceed but in a real scenario we'd check a 'rate_limits' collection.
-
   try {
+    // Rate Limiting (Simple IP based)
+    const headersList = await headers();
+    // Depending on deployment, IP might be in different headers
+    const ip = headersList.get('x-forwarded-for') || 'unknown';
+
+    // Note: For a real production app, use Redis or a dedicated rate-limit table.
+    // Here we'll just proceed but in a real scenario we'd check a 'rate_limits' collection.
+
     // Check if email already exists
     const existing = await databases.listDocuments(
       DB_ID,
@@ -61,22 +61,17 @@ export async function subscribeToNewsletter(email) {
     // We assume the function 'send-email' exists and takes this payload
     const verificationLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://landsale.lk'}/newsletter/verify?token=${verificationToken}`;
 
-    try {
-        await functions.createExecution(
-            'send-email', // Function ID
-            JSON.stringify({
-                type: 'newsletter_verification',
-                email: email,
-                data: {
-                    link: verificationLink
-                }
-            }),
-            true // Async
-        );
-    } catch (emailError) {
-        console.error('Failed to trigger email function:', emailError);
-        // We still return success to the user, but log the error.
-    }
+    await functions.createExecution(
+        'send-email', // Function ID
+        JSON.stringify({
+            type: 'newsletter_verification',
+            email: email,
+            data: {
+                link: verificationLink
+            }
+        }),
+        true // Async
+    );
 
     return { success: true, message: 'Please check your email to confirm subscription.' };
   } catch (error) {
