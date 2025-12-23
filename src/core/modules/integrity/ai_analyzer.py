@@ -1,8 +1,18 @@
+"""
+This module contains the logic for analyzing log entries and generating
+a verdict on whether they represent an anomaly.
+"""
 from .schemas import LogEntry, Verdict
 
 def analyze(log: LogEntry) -> Verdict:
     """
     Analyzes a log entry and returns a deterministic verdict based on predefined rules.
+
+    Args:
+        log (LogEntry): The log entry to analyze.
+
+    Returns:
+        Verdict: The verdict of the analysis.
     """
     message_lower = log.message.lower()
 
