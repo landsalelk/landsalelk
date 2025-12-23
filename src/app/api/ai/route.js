@@ -3,8 +3,12 @@ import { NextResponse } from 'next/server';
 
 /**
  * Handles POST requests to interact with the OpenRouter AI API.
- * Expects a JSON body with prompt or message data.
- * Returns the AI completion response or an error.
+ * Expects a JSON body with an array of message objects.
+ * @param {Request} request The incoming Next.js request object containing the JSON payload.
+ * @param {object} request.body The request body.
+ * @param {Array<object>} request.body.messages An array of message objects for the AI.
+ * @param {string} [request.body.context] Optional context for the AI.
+ * @returns {NextResponse} A JSON response containing the AI's completion or an error.
  */
 export async function POST(request) {
   try {
@@ -24,7 +28,6 @@ export async function POST(request) {
     }
 
     if (!siteUrl || !siteName) {
-      console.error("Missing required environment variables: NEXT_PUBLIC_APP_URL or NEXT_PUBLIC_SITE_NAME");
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
