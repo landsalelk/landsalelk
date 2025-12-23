@@ -141,6 +141,7 @@ export default function CreateListingPage() {
   });
 
   useEffect(() => {
+    // Ensures component is mounted to prevent hydration mismatches
     setMounted(true);
   }, []);
 
@@ -238,14 +239,7 @@ export default function CreateListingPage() {
     setOcrProcessing(true);
     try {
       // ⚡ Bolt: Dynamically import Tesseract.js to reduce initial bundle size
-      let Tesseract;
-      try {
-        Tesseract = (await import("tesseract.js")).default;
-      } catch (importErr) {
-        // Handle network failures or missing package specifically to prevent unhandled promise rejections
-        toast.error("Failed to load OCR engine. Please check your connection.");
-        throw importErr;
-      }
+      const Tesseract = (await import("tesseract.js")).default;
 
       const imageToScan = images[0];
       const {
@@ -279,6 +273,7 @@ export default function CreateListingPage() {
         toast.info("No clear details found in image. Please enter manually.");
       }
     } catch (err) {
+      console.error("OCR Error:", err);
       toast.error("OCR process failed. Please try again.");
     } finally {
       setOcrProcessing(false);
