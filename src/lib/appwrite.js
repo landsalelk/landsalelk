@@ -7,25 +7,24 @@ import { Client, Account, Databases, Storage, Functions, Avatars, ID, Query, OAu
  */
 
 // Validate environment variables
-// Fix: Use Singapore endpoint if global one fails or as default if not specified
-// The project is in Singapore region (sgp), so we must use the correct endpoint.
 const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://sgp.cloud.appwrite.io/v1';
-
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
 if (!projectId) {
-    // Fail fast to prevent silent errors
     throw new Error("NEXT_PUBLIC_APPWRITE_PROJECT_ID is not defined in environment variables.");
 }
 
-const client = new Client()
-  .setEndpoint(endpoint)
-  .setProject(projectId);
+// Initialize Client
+export const client = new Client()
+    .setEndpoint(endpoint)
+    .setProject(projectId);
 
-const account = new Account(client);
-const databases = new Databases(client);
-const storage = new Storage(client);
-const functions = new Functions(client);
-const avatars = new Avatars(client);
+// Export Services
+export const account = new Account(client);
+export const databases = new Databases(client);
+export const storage = new Storage(client);
+export const functions = new Functions(client);
+export const avatars = new Avatars(client);
 
-export { client, account, databases, storage, functions, avatars, ID, Query, OAuthProvider, Permission, Role };
+// Export SDK Tools
+export { ID, Query, OAuthProvider, Permission, Role };
