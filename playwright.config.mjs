@@ -4,7 +4,10 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 
-// Timeouts in milliseconds for the E2E test suite.
+/**
+ * Timeout configurations in milliseconds for the E2E test suite.
+ * Adjusted to accommodate Next.js Cold Start and CI flakiness.
+ */
 const TIMEOUTS = {
     // Maximum time one test can run for. Increased for Next.js Cold Start on CI.
     TEST: 120 * 1000,
