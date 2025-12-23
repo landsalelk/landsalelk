@@ -8,8 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "cd site && appwrite push site --site-id 6941d9280032a28b0536 --force",
-    "deploy:functions": "cd site && appwrite deploy function --all",
+    "deploy": "cd site && appwrite push site --site-id 6941d9280032a28b0536 --force || exit 1",
+    "deploy:functions": "cd site && appwrite deploy function --all || exit 1",
     "test:e2e": "playwright test",
     "analyze": "cross-env ANALYZE=true next build"
   },
