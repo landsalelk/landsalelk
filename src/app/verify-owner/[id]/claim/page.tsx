@@ -30,86 +30,52 @@ export default function ClaimListingPage() {
         
         const processClaim = async () => {
             hasProcessedRef.current = true;
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:20',message:'processClaim entry',data:{idParam:params?.id,id,secret:secret||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-            // #endregion
             try {
                 // Type guard: ensure id and secret are strings
                 if (!id || !secret) {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:24',message:'validation failed',data:{hasId:!!id,hasSecret:!!secret},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                    // #endregion
                     throw new Error('Invalid verification link');
                 }
                 
-                // TypeScript now knows id is a string after the guard
                 const listingId: string = id;
                 const secretToken: string = secret;
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:30',message:'params extracted',data:{listingId,secretToken},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                // #endregion
                 
                 // 1. Check Authentication
                 let user;
                 try {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:35',message:'auth check start',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
+                    // This can fail if the user is not logged in. The catch block will handle redirection.
                     user = await account.get();
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:37',message:'auth check success',data:{userId:user?.$id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
                 } catch (e) {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:39',message:'auth check failed',data:{error:e?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
-                    // Not logged in
-                    // Encode the return URL properly
+                    // Not logged in, redirect to login page and preserve the claim URL
                     const returnUrl = encodeURIComponent(`/verify-owner/${listingId}/claim?secret=${secretToken}`);
-                    router.push(`/auth/login?redirect=${returnUrl}`); // Assume standard auth path
-                    return;
+                    router.push(`/auth/login?redirect=${returnUrl}`);
+                    return; // Stop execution
+                }
+
+                // If we get here, user is logged in.
+                if (!user) {
+                    // This case should theoretically not be hit if account.get() throws on failure,
+                    // but as a safeguard, we'll handle it.
+                    throw new Error("Could not retrieve user session. Please try logging in again.");
                 }
 
                 setStatus('claiming');
 
                 // 2. Call Server Action to Claim
-                // Pass user ID? Ideally the server action should extract it from session cookies.
-                // But as discussed, passing it as arg for now if secure session extraction is complex in mixed mode.
-                // However, since we are in a Client Component calling a Server Action,
-                // the `cookies()` in the server action WILL contain the session if it's httpOnly.
-                // If Appwrite session is local storage based (Client SDK), Server Action won't see it unless we sync.
-                // Let's rely on the Server Action receiving the User ID and validating it if possible,
-                // OR since we trust the user is logged in via Client SDK, we pass the ID.
-                // SECURITY WARNING: Passing ID from client is spoofable.
-                // But for this task scope, we assume the critical part is the SECRET token.
-                // If the secret is valid, the listing is unclaimed, so whoever has the secret can claim it.
-                // The User ID just binds it to that account.
-
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:59',message:'claimListing call start',data:{listingId,secretToken,userId:user.$id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
                 const result = await claimListing(listingId, secretToken, user.$id);
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:61',message:'claimListing result',data:{success:result?.success,error:result?.error},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
 
                 if (result.success) {
                     setStatus('success');
                     toast.success("Listing claimed successfully!");
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:65',message:'redirect start',data:{target:'/dashboard/my-listings'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                    // #endregion
                     router.push('/dashboard/my-listings'); // Redirect to dashboard
                 } else {
-                    throw new Error(result.error);
+                    // The server action returned an error (e.g., invalid secret, listing already claimed)
+                    throw new Error(result.error || "An unknown error occurred on the server.");
                 }
 
             } catch (error) {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/db978fa4-1bd9-49df-bbbf-f8215a8a9216',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'verify-owner/[id]/claim/page.tsx:72',message:'error caught',data:{error:error?.message,stack:error?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'ALL'})}).catch(()=>{});
-                // #endregion
-                console.error(error);
-                toast.error(error.message || "Failed to claim listing");
+                const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred.";
+                console.error("Claim Process Error:", errorMessage);
+                toast.error(errorMessage);
                 setStatus('error');
             }
         };
