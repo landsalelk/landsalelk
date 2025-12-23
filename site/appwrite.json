@@ -808,6 +808,56 @@
                     ],
                     "orders": []
                 }
+            ],
+            "indexes": [
+                {
+                    "key": "category_id_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "category_id"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "listing_type_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "listing_type"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "status_category_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "status",
+                        "category_id"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "status_listing_type_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "status",
+                        "listing_type"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "user_status_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "user_id",
+                        "status"
+                    ],
+                    "orders": []
+                }
             ]
         },
         {
