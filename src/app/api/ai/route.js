@@ -62,15 +62,11 @@ export async function POST(request) {
     }
 
     const apiKey = process.env.OPENROUTER_API_KEY;
-    const siteUrl = process.env.NEXT_PUBLIC_APP_URL;
-    const siteName = process.env.NEXT_PUBLIC_SITE_NAME;
+    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://landsale.lk";
+    const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "LandSale.lk";
 
     if (!apiKey) {
       return NextResponse.json({ error: "OpenRouter API Key not configured" }, { status: 500 });
-    }
-
-    if (!siteUrl || !siteName) {
-      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
     const systemPrompt = `
@@ -81,6 +77,7 @@ Your capabilities include searching for properties, helping users post propertie
 - **Property Types:** 'sale', 'rent', 'land'
 - **Land Types (Categories):** 'House', 'Apartment', 'Commercial', 'Bare Land', 'Coconut Land', 'Tea Estate', 'Paddy Field', 'Rubber Land', 'Cinnamon Land'.
 - **Locations:** Major cities in Sri Lanka (Colombo, Kandy, Galle, Gampaha, Kurunegala, etc.).
+// WARNING: Appwrite queries on 'location' field require a database index. Ensure index exists before deploying.
 
 **INSTRUCTIONS:**
 You must analyze the user's intent and respond with a **valid JSON object**.
@@ -188,7 +185,7 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
           console.warn(lastError);
         }
       } catch (err) {
-        lastError = `Model ${model} error: ${err.message}`;
+        lastError = `Fetch failed for model ${model}: ${err.message}`;
         console.warn(lastError);
       }
     }
