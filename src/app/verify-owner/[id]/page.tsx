@@ -42,8 +42,13 @@ export default function OwnerVerificationPage() {
    * Fetches the listing details and validates the verification token.
    * Prioritizes checking for 'active' status to improve UX for already verified listings.
    */
+  /**
+   * Fetches the listing details and validates the verification token.
+   * Prioritizes checking for 'active' status to improve UX for already verified listings.
+   */
   const fetchListing = useCallback(async () => {
     // Reset states to ensure clean slate for retries
+    setLoading(true);
     setError(null);
     setListing(null);
 
@@ -53,7 +58,7 @@ export default function OwnerVerificationPage() {
       let doc;
       try {
         doc = await databases.getDocument(
-          process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || "landsalelk",
+          process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
           "listings",
           id,
         );
@@ -61,7 +66,6 @@ export default function OwnerVerificationPage() {
         // Failed to load listing (e.g., network error or permission denied)
         // We log implicitly by setting the user-facing error.
         setError("Failed to load listing details. Please try again later.");
-        setLoading(false);
         return;
       }
 
@@ -115,6 +119,10 @@ export default function OwnerVerificationPage() {
     }
   }, [id, secret, fetchListing]);
 
+  /**
+   * Redirects the user to the "Claim Free" workflow.
+   * This is for owners who want to sell the property themselves.
+   */
   const handleClaimFree = async () => {
     // Redirect to login/register logic via our Claim page
     // We pass the secret to ensure security holds
@@ -123,6 +131,10 @@ export default function OwnerVerificationPage() {
     router.push(`/verify-owner/${id}/claim?secret=${secret}`);
   };
 
+  /**
+   * Initiates the payment process for hiring the agent.
+   * This calls a server action to generate payment parameters and submits a form to PayHere.
+   */
   const handleHireAgent = async () => {
     setVerifying(true);
     try {
@@ -171,12 +183,16 @@ export default function OwnerVerificationPage() {
       document.body.appendChild(form);
       toast.success("Redirecting to PayHere Gateway...");
       form.submit();
-    } catch (err) {
-      toast.error(err.message || "Payment initiation failed");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "Payment initiation failed");
       setVerifying(false);
     }
   };
 
+  /**
+   * Handles the decline action.
+   * If confirmed, calls the server action to mark the listing as rejected.
+   */
   const handleDecline = async () => {
     if (
       !confirm(
@@ -196,7 +212,7 @@ export default function OwnerVerificationPage() {
       } else {
         throw new Error(result.error);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       toast.error("Error declining listing.");
     } finally {
       setVerifying(false);
