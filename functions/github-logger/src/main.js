@@ -18,7 +18,7 @@
 
 export default async ({ req, res, log, error }) => {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-  const GITHUB_REPO = process.env.GITHUB_REPO || 'landsalelk/landsalelk';
+  const GITHUB_REPO = process.env.GITHUB_REPO;
 
   // Basic validation
   if (!GITHUB_TOKEN) {
@@ -26,6 +26,14 @@ export default async ({ req, res, log, error }) => {
     return res.json({
       success: false,
       message: 'Configuration error: GITHUB_TOKEN missing.'
+    }, 500);
+  }
+
+  if (!GITHUB_REPO) {
+    error('GITHUB_REPO is not defined in environment variables.');
+    return res.json({
+      success: false,
+      message: 'Configuration error: GITHUB_REPO missing.'
     }, 500);
   }
 
