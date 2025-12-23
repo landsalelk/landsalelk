@@ -10,6 +10,11 @@ const LoadingSpinner = () => (
   </div>
 );
 
+const INITIAL_AI_MESSAGE = {
+  sender: 'ai' as const,
+  text: "Hello! I'm your LandSale Assistant. How can I help you find a property today?"
+};
+
 /**
  * AIAgentChatWidget
  *
@@ -20,16 +25,12 @@ const LoadingSpinner = () => (
 export default function AIAgentChatWidget() {
   // State to manage if the chat window is open or closed.
   const [isOpen, setIsOpen] = useState(false);
-  // State to hold the history of chat messages.
-  const [messages, setMessages] = useState([
-    { sender: 'ai', text: "Hello! I'm your LandSale Assistant. How can I help you find a property today?" }
-  ]);
+  // State to hold the history of chat messages, now with an optional error flag.
+  const [messages, setMessages] = useState<{ sender: 'ai' | 'user'; text: string; isError?: boolean }[]>([INITIAL_AI_MESSAGE]);
   // State for the user's current input in the text field.
   const [inputValue, setInputValue] = useState('');
   // State to indicate when the AI is "typing" or processing a message.
   const [isLoading, setIsLoading] = useState(false);
-  // State to hold any error messages from the chat operation.
-  const [error, setError] = useState('');
 
   const chatBodyRef = useRef<HTMLDivElement>(null);
 
@@ -62,42 +63,51 @@ export default function AIAgentChatWidget() {
    */
   const toggleChat = () => {
     setIsOpen((prev) => !prev);
-    setError(''); // Clear errors when opening/closing
   };
 
   /**
    * Handles the logic for sending a user's message.
-   * Includes input validation, state updates, and a simulated API call with error handling.
+   * Includes input validation, state updates, and a real API call with error handling.
    */
   const handleSendMessage = async () => {
     // Basic input validation: prevent sending empty or while loading.
     if (inputValue.trim() === '' || isLoading) return;
 
-    // TODO: In a real-world application, sanitize the input before processing.
-    // Example: const sanitizedInput = DOMPurify.sanitize(inputValue);
-    const newMessage = { sender: 'user', text: inputValue };
+    const newMessage = { sender: 'user' as const, text: inputValue };
+    const updatedMessages = [...messages, newMessage];
 
-    setMessages((prev) => [...prev, newMessage]);
+    setMessages(updatedMessages);
     setInputValue('');
     setIsLoading(true);
-    setError('');
 
-    // Simulate an API call to an AI backend.
+    // Real API call to the AI backend.
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: updatedMessages }),
+      });
 
-      // Mock AI response
-      const aiResponse = { sender: 'ai', text: `You said: "${newMessage.text}". I am a mock AI.` };
-
-      // Simulate a random error for testing purposes.
-      if (newMessage.text.toLowerCase().includes("error")) {
-        throw new Error("Sorry, I encountered a simulated error.");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'The AI agent is currently unavailable.');
       }
+
+      const data = await response.json();
+      const aiResponse = { sender: 'ai' as const, text: data.response };
 
       setMessages((prev) => [...prev, aiResponse]);
 
-    } catch (e: any) {
-      setError(e.message || "Something went wrong. Please try again.");
+    } catch (e: unknown) {
+      let errorMessageText: string;
+      if (e instanceof Error) {
+        errorMessageText = e.message;
+      } else {
+        errorMessageText = "An unknown error occurred. Please try again.";
+      }
+      // Add the error as a message from the AI for a better user experience.
+      const errorResponse = { sender: 'ai' as const, text: errorMessageText, isError: true };
+      setMessages((prev) => [...prev, errorResponse]);
     } finally {
       setIsLoading(false);
     }
@@ -152,6 +162,8 @@ export default function AIAgentChatWidget() {
                 <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
                   msg.sender === 'user'
                     ? 'bg-orange-500 text-white'
+                    : msg.isError
+                    ? 'bg-red-100 text-red-700'
                     : 'bg-slate-200 text-slate-800'
                 }`}>
                   {msg.text}
@@ -159,7 +171,6 @@ export default function AIAgentChatWidget() {
               </div>
             ))}
             {isLoading && <LoadingSpinner />}
-            {error && <div className="text-sm text-red-500 bg-red-100 p-2 rounded-lg">{error}</div>}
           </div>
 
           {/* Input Area */}

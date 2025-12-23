@@ -153,9 +153,9 @@ Do not include markdown formatting like \`\`\`json. Just return the raw JSON.
 
   } catch (error) {
     console.error("AI Chat Error:", error);
+    // Ensure a proper error status is returned to the client
     return NextResponse.json({
-      type: "CHAT",
-      reply: "I apologize, but I'm having trouble processing your request right now. Please try again in a moment."
-    });
+      error: error.message || "An internal server error occurred."
+    }, { status: 500 });
   }
 }
