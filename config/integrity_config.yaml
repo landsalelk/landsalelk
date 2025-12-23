@@ -1,0 +1,7 @@
+# Configuration for the Integrity Monitoring System
+sensitivity_thresholds:
+  severity: 5
+
+allowed_actions:
+  - ALERT
+  - RESTART_SERVICE
