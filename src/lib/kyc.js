@@ -9,18 +9,21 @@ import { DB_ID, COLLECTION_KYC, BUCKET_KYC } from "@/appwrite/config";
  * @param {string} [data.type='verify_identity'] - Request type
  */
 export async function submitKYC(data) {
+    let frontUpload = null;
+    let backUpload = null;
+
     try {
         const user = await account.get(); // Ensure user is logged in
         if (!user) throw new Error("User not authenticated");
 
         // 1. Upload Files
-        const frontUpload = await storage.createFile(
+        frontUpload = await storage.createFile(
             BUCKET_KYC,
             ID.unique(),
             data.nicFront
         );
 
-        const backUpload = await storage.createFile(
+        backUpload = await storage.createFile(
             BUCKET_KYC,
             ID.unique(),
             data.nicBack
@@ -50,6 +53,13 @@ export async function submitKYC(data) {
         return kycDoc;
 
     } catch (error) {
+        // Rollback: Delete files if they were uploaded but document creation failed
+        if (frontUpload) {
+            await storage.deleteFile(BUCKET_KYC, frontUpload.$id).catch(() => {});
+        }
+        if (backUpload) {
+            await storage.deleteFile(BUCKET_KYC, backUpload.$id).catch(() => {});
+        }
         throw error;
     }
 }
