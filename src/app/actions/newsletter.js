@@ -1,6 +1,6 @@
 'use server';
 
-import { databases, functions, ID, Query } from '@/lib/server/appwrite';
+import { databases, functions, Query } from '@/lib/server/appwrite';
 import { DB_ID, COLLECTION_SUBSCRIBERS } from '@/appwrite/config';
 import { headers } from 'next/headers';
 import { z } from 'zod';
@@ -37,12 +37,12 @@ export async function subscribeToNewsletter(email) {
       }
     }
 
-    const verificationToken = ID.unique() + ID.unique(); // Simple random token
+    const verificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     await databases.createDocument(
       DB_ID,
       COLLECTION_SUBSCRIBERS,
-      ID.unique(),
+      'unique()',
       {
         email: validatedEmail,
         is_active: true, // Internal flag, but status determines visibility
@@ -69,7 +69,6 @@ export async function subscribeToNewsletter(email) {
             true // Async
         );
     } catch (error) {
-        console.error('Failed to trigger email function:', error);
         return { success: false, error: "Notification email failed to send" };
     }
 
@@ -78,7 +77,6 @@ export async function subscribeToNewsletter(email) {
     if (error instanceof z.ZodError) {
         return { success: false, error: 'Invalid email address' };
     }
-    console.error('Newsletter subscription error:', error);
     if (error.code === 404) {
         return { success: false, error: 'Service unavailable. Please try again later.' };
     }

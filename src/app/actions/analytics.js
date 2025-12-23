@@ -21,12 +21,7 @@ export async function incrementViewCount(listingId) {
         );
         currentViews = listing.views_count || 0;
     } catch (error) {
-        if (error.code === 404) {
-            // If the document doesn't exist, we can assume 0 views and let the update create it if configured to do so,
-            // or handle it as an error if listings should always exist. For now, we'll proceed with 0.
-            console.warn(`Listing document ${listingId} not found. Assuming 0 views.`);
-        } else {
-            // For other errors, re-throw to be caught by the outer catch block
+        if (error.code !== 404) {
             throw error;
         }
     }
@@ -42,13 +37,11 @@ export async function incrementViewCount(listingId) {
             }
         );
     } catch (error) {
-        console.error(`Failed to update view count for listing ${listingId}:`, error);
         return { success: false, error: "Failed to update views" };
     }
 
     return { success: true, views: currentViews + 1 };
   } catch (error) {
-    console.error('Error incrementing view count:', error);
     return { success: false, error: error.message };
   }
 }
