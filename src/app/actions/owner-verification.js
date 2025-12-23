@@ -103,7 +103,14 @@ export async function claimListing(listingId, secret, jwt) {
     const databases = getDatabases();
 
     try {
-        // Verify User Identity using JWT
+        // 1. Verify Listing Token First
+        const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
+
+        if (listing.verification_code !== secret) {
+            throw new Error("Invalid Token");
+        }
+
+        // 2. Verify User Identity using JWT
         if (!jwt) {
             throw new Error("User authentication required (missing JWT)");
         }
@@ -119,12 +126,6 @@ export async function claimListing(listingId, secret, jwt) {
 
         if (!userId) {
             throw new Error("Failed to verify user identity");
-        }
-
-        const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
-
-        if (listing.verification_code !== secret) {
-            throw new Error("Invalid Token");
         }
 
         // Award points to agent who created the listing (DIY referral)
