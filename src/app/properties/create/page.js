@@ -30,8 +30,8 @@ import {
   MessageCircle,
   AlertCircle,
 } from "lucide-react";
-import Tesseract from "tesseract.js";
 import { Permission, Role } from "appwrite";
+import { account } from "@/appwrite";
 
 // Sri Lankan phone number formatter
 function formatPhoneNumber(value) {
@@ -143,7 +143,41 @@ export default function CreateListingPage() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+
+    const init = async () => {
+      // Check Auth
+      try {
+        await account.get();
+      } catch (err) {
+        toast.error("Please sign in to list a property");
+        router.push("/auth/login?redirect=/properties/create");
+        return;
+      }
+
+      // Load Draft
+      const savedDraft = localStorage.getItem("listing_draft");
+      if (savedDraft) {
+        try {
+          const parsed = JSON.parse(savedDraft);
+          setFormData((prev) => ({ ...prev, ...parsed }));
+          toast.info("Draft restored from previous session");
+        } catch (e) {
+          console.error("Failed to parse draft", e);
+        }
+      }
+    };
+    init();
+  }, [router]);
+
+  // Save Draft
+  useEffect(() => {
+    if (mounted) {
+      const handler = setTimeout(() => {
+        localStorage.setItem("listing_draft", JSON.stringify(formData));
+      }, 1000);
+      return () => clearTimeout(handler);
+    }
+  }, [formData, mounted]);
 
   const propertyTypes = [
     {
@@ -231,6 +265,7 @@ export default function CreateListingPage() {
 
     setOcrProcessing(true);
     try {
+      const Tesseract = (await import("tesseract.js")).default;
       const imageToScan = images[0];
       const {
         data: { text },
@@ -407,6 +442,9 @@ export default function CreateListingPage() {
         images: imageIds,
         service_fee: parseFloat(mergedFormData.service_fee) || 0,
       });
+
+      // Clear Draft
+      localStorage.removeItem("listing_draft");
 
       if (newProperty.status === "pending") {
         const link = `https://landsale.lk/verify-owner/${newProperty.$id}?secret=${newProperty.verification_code}`;

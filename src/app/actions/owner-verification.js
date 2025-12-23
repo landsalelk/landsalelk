@@ -1,6 +1,6 @@
 'use server';
 
-import { Client, Databases, ID, Permission, Role } from 'node-appwrite';
+import { Client, Databases, ID, Permission, Role, Account } from 'node-appwrite';
 import { generatePayHereHash } from '@/lib/payhere';
 
 // Initialize Admin Client (Server Side Only)
@@ -96,33 +96,35 @@ export async function initiateAgentHiring(listingId, secret, amount) {
  * Claims the listing for the target user (Self-Service).
  * @param {string} listingId
  * @param {string} secret
- * @param {string} userId - The ID of the user claiming the listing (must be verified by caller or session)
+ * @param {string} jwt - The JWT for the user session (required for security)
  */
-export async function claimListing(listingId, secret, userId) {
-    // #region agent log
-    try { const fs = require('fs'); const logPath = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs.appendFileSync(logPath, JSON.stringify({location:'owner-verification.js:101',message:'claimListing entry',data:{listingId,secret:secret?'***':'null',userId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-    // #endregion
+export async function claimListing(listingId, secret, jwt) {
     const { getDatabases } = createAdminClient();
     const databases = getDatabases();
 
     try {
-        // #region agent log
-        try { const fs2 = require('fs'); const logPath2 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs2.appendFileSync(logPath2, JSON.stringify({location:'owner-verification.js:106',message:'fetching listing',data:{listingId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
-        const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
-        // #region agent log
-        try { const fs3 = require('fs'); const logPath3 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs3.appendFileSync(logPath3, JSON.stringify({location:'owner-verification.js:108',message:'listing fetched',data:{listingExists:!!listing,verificationCodeMatch:listing?.verification_code===secret},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
-
-        if (listing.verification_code !== secret) {
-            // #region agent log
-            try { const fs4 = require('fs'); const logPath4 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs4.appendFileSync(logPath4, JSON.stringify({location:'owner-verification.js:111',message:'verification code mismatch',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-            // #endregion
-            throw new Error("Invalid Token");
+        // Verify User Identity using JWT
+        if (!jwt) {
+            throw new Error("User authentication required (missing JWT)");
         }
 
+        const client = new Client()
+            .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT)
+            .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
+            .setJWT(jwt);
+
+        const account = new Account(client);
+        const user = await account.get();
+        const userId = user.$id;
+
         if (!userId) {
-            throw new Error("User ID required to claim listing");
+            throw new Error("Failed to verify user identity");
+        }
+
+        const listing = await databases.getDocument(DB_ID, COLLECTION_LISTINGS, listingId);
+
+        if (listing.verification_code !== secret) {
+            throw new Error("Invalid Token");
         }
 
         // Award points to agent who created the listing (DIY referral)
@@ -144,9 +146,6 @@ export async function claimListing(listingId, secret, userId) {
         // 1. Update document data
         // 2. Update permissions so the new owner has write access
 
-        // #region agent log
-        try { const fs5 = require('fs'); const logPath5 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs5.appendFileSync(logPath5, JSON.stringify({location:'owner-verification.js:135',message:'updating listing',data:{listingId,userId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
         await databases.updateDocument(
             DB_ID,
             COLLECTION_LISTINGS,
@@ -165,16 +164,10 @@ export async function claimListing(listingId, secret, userId) {
                 Permission.read(Role.user(userId))          // New Owner can read
             ]
         );
-        // #region agent log
-        try { const fs6 = require('fs'); const logPath6 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs6.appendFileSync(logPath6, JSON.stringify({location:'owner-verification.js:152',message:'listing updated successfully',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
 
         return { success: true };
 
     } catch (error) {
-        // #region agent log
-        try { const fs7 = require('fs'); const logPath7 = 'c:\\Users\\prabh\\Videos\\site-new\\.cursor\\debug.log'; fs7.appendFileSync(logPath7, JSON.stringify({location:'owner-verification.js:157',message:'claimListing error',data:{error:error?.message,stack:error?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})+'\n'); } catch(e){}
-        // #endregion
         console.error("Claim Error:", error);
         return { success: false, error: error.message };
     }
