@@ -42,37 +42,21 @@ const getAppwriteEndpoint = () => {
     return FALLBACK_ENDPOINT;
 };
 
-let client;
-let account;
-let databases;
-let storage;
-let functions;
-let avatars;
+const endpoint = getAppwriteEndpoint();
+const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || FALLBACK_PROJECT_ID;
 
-try {
-    const endpoint = getAppwriteEndpoint();
-    const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || FALLBACK_PROJECT_ID;
+// Create client with resolved configuration
+// We allow this to throw if invalid configuration is provided (fail fast)
+const client = new Client()
+    .setEndpoint(endpoint)
+    .setProject(projectId);
 
-    // Create client with resolved configuration
-    client = new Client()
-        .setEndpoint(endpoint)
-        .setProject(projectId);
-
-    // Initialize Appwrite services
-    account = new Account(client);
-    databases = new Databases(client);
-    storage = new Storage(client);
-    functions = new Functions(client);
-    avatars = new Avatars(client);
-
-} catch (error) {
-    // Fail fast during initialization if something is critically wrong
-    // Note: console.error is allowed for critical system failures
-    console.error("CRITICAL: Failed to initialize Appwrite Client", error);
-    // We allow the module to export undefined services rather than crashing the entire process immediately,
-    // as some build steps might import this file but not use it.
-    // However, usage will throw runtime errors.
-}
+// Initialize Appwrite services
+const account = new Account(client);
+const databases = new Databases(client);
+const storage = new Storage(client);
+const functions = new Functions(client);
+const avatars = new Avatars(client);
 
 // Export all services and utilities
 export {
