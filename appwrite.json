@@ -834,6 +834,15 @@
                     "array": false,
                     "format": "",
                     "default": null
+                },
+                {
+                    "key": "agency_id",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
                 }
             ],
             "indexes": [
@@ -938,6 +947,15 @@
                     "columns": [
                         "user_id",
                         "status"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "agency_id_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "agency_id"
                     ],
                     "orders": []
                 }
@@ -2548,6 +2566,15 @@
                     "size": 255,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "agency_id",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
                 }
             ],
             "indexes": [
@@ -2576,6 +2603,15 @@
                     "columns": [
                         "status",
                         "is_verified"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "agency_id_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "agency_id"
                     ],
                     "orders": []
                 }
@@ -4170,9 +4206,64 @@
             "name": "Legal Documents",
             "columns": [
                 {
-                    "key": "title",
+                    "key": "user_id",
                     "type": "string",
                     "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "listing_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 36,
+                    "array": false
+                },
+                {
+                    "key": "category",
+                    "type": "string",
+                    "required": true,
+                    "size": 50,
+                    "array": false
+                },
+                {
+                    "key": "document_type",
+                    "type": "string",
+                    "required": true,
+                    "size": 50,
+                    "array": false
+                },
+                {
+                    "key": "file_id",
+                    "type": "string",
+                    "required": true,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "original_filename",
+                    "type": "string",
+                    "required": false,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "consent_given",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": false
+                },
+                {
+                    "key": "uploaded_at",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false
+                },
+                {
+                    "key": "title",
+                    "type": "string",
+                    "required": false,
                     "size": 255,
                     "array": false
                 },
@@ -4184,23 +4275,9 @@
                     "array": false
                 },
                 {
-                    "key": "file_id",
-                    "type": "string",
-                    "required": true,
-                    "size": 255,
-                    "array": false
-                },
-                {
                     "key": "price",
                     "type": "double",
-                    "required": true,
-                    "array": false
-                },
-                {
-                    "key": "category",
-                    "type": "string",
-                    "required": true,
-                    "size": 50,
+                    "required": false,
                     "array": false
                 }
             ],
@@ -4393,6 +4470,335 @@
                     "attributes": [
                         "property_id"
                     ]
+                }
+            ]
+        },
+        {
+            "$id": "agencies",
+            "$permissions": [
+                "read(\"any\")",
+                "create(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "landsalelkdb",
+            "name": "Agencies",
+            "enabled": true,
+            "rowSecurity": false,
+            "columns": [
+                {
+                    "key": "owner_id",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "name",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 200,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "slug",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 100,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "description",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 5000,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "logo_url",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 500,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "contact_phone",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 20,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "contact_email",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "address",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 500,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "city",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 100,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "district",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 100,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "lawyer_name",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 200,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "lawyer_regnum",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 50,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "elements": [
+                        "pending",
+                        "approved",
+                        "rejected",
+                        "suspended"
+                    ],
+                    "format": "enum",
+                    "default": "pending"
+                },
+                {
+                    "key": "verified_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "format": "",
+                    "default": null
+                },
+                {
+                    "key": "website",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "social_facebook",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "total_listings",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 9223372036854776000,
+                    "default": 0
+                },
+                {
+                    "key": "total_agents",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": 0,
+                    "max": 9223372036854776000,
+                    "default": 0
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "slug_idx",
+                    "type": "unique",
+                    "status": "available",
+                    "columns": [
+                        "slug"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "owner_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "owner_id"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "status_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "status"
+                    ],
+                    "orders": []
+                }
+            ]
+        },
+        {
+            "$id": "agency_invitations",
+            "$permissions": [
+                "read(\"users\")",
+                "create(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "databaseId": "landsalelkdb",
+            "name": "Agency Invitations",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "agency_id",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "inviter_id",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "invitee_email",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "invitee_id",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "status",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "elements": [
+                        "pending",
+                        "accepted",
+                        "rejected",
+                        "expired"
+                    ],
+                    "format": "enum",
+                    "default": "pending"
+                },
+                {
+                    "key": "invite_token",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 64,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "expires_at",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false,
+                    "format": "",
+                    "default": null
+                },
+                {
+                    "key": "accepted_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false,
+                    "format": "",
+                    "default": null
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "agency_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "agency_id"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "email_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "invitee_email"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "token_idx",
+                    "type": "unique",
+                    "status": "available",
+                    "columns": [
+                        "invite_token"
+                    ],
+                    "orders": []
                 }
             ]
         }

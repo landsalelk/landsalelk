@@ -264,7 +264,7 @@ export default function DashboardPage() {
         { id: 'wallet', label: 'My Wallet', icon: Wallet, link: '/dashboard/wallet' },
         { id: 'favorites', label: 'Saved Homes', icon: Heart },
         { id: 'messages', label: 'Messages', icon: MessageCircle, link: '/messages' },
-        { id: 'settings', label: 'Settings', icon: Settings },
+        { id: 'settings', label: 'Settings', icon: Settings, link: '/dashboard/settings' },
     ];
 
     if (!mounted) return null;
@@ -721,111 +721,7 @@ export default function DashboardPage() {
                             </div>
                         )}
 
-                        {/* Settings Section */}
-                        {activeSection === 'settings' && (
-                            <div className="space-y-6 animate-fade-in">
-                                <h1 className="text-2xl font-bold text-slate-800">Settings</h1>
 
-                                <div className="glass-card rounded-2xl p-6">
-                                    <h3 className="font-bold text-slate-700 mb-4">Account Information</h3>
-                                    <form className="space-y-4 max-w-md" onSubmit={async (e) => {
-                                        e.preventDefault();
-                                        const formData = new FormData(e.target);
-                                        const newName = formData.get('name');
-                                        const newPhone = formData.get('phone');
-
-                                        try {
-                                            // Update User Name
-                                            if (newName !== user.name) {
-                                                await account.updateName(newName);
-                                                setUser(prev => ({ ...prev, name: newName }));
-                                            }
-
-                                            // Update Agent Phone (if agent)
-                                            if (agent && newPhone !== agent.phone) {
-                                                await databases.updateDocument(DB_ID, COLLECTION_AGENTS, agent.$id, {
-                                                    phone: newPhone
-                                                });
-                                                setAgent(prev => ({ ...prev, phone: newPhone }));
-                                            }
-
-                                            toast.success("Profile updated!");
-                                        } catch (err) {
-                                            console.error(err);
-                                            toast.error("Failed to update profile");
-                                        }
-                                    }}>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-600 mb-1">Full Name</label>
-                                            <input
-                                                type="text"
-                                                name="name"
-                                                defaultValue={user?.name}
-                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#10b981]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-600 mb-1">Email</label>
-                                            <input
-                                                type="email"
-                                                defaultValue={user?.email}
-                                                disabled
-                                                className="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-500"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-600 mb-1">Phone</label>
-                                            <input
-                                                type="tel"
-                                                name="phone"
-                                                defaultValue={agent?.phone || user?.phone}
-                                                placeholder="+94 77 123 4567"
-                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#10b981]"
-                                            />
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            className="px-6 py-3 bg-[#10b981] text-white rounded-xl font-bold hover:bg-[#059669] transition-colors"
-                                        >
-                                            Save Changes
-                                        </button>
-                                    </form>
-                                </div>
-
-                                <div className="glass-card rounded-2xl p-6">
-                                    <h3 className="font-bold text-slate-700 mb-4">Notifications</h3>
-                                    <div className="space-y-4">
-                                        <label className="flex items-center justify-between cursor-pointer">
-                                            <span className="text-slate-600">Email notifications</span>
-                                            <input
-                                                type="checkbox"
-                                                checked={notifications?.email ?? true}
-                                                onChange={() => handleNotificationToggle('email')}
-                                                className="w-5 h-5 accent-[#10b981]"
-                                            />
-                                        </label>
-                                        <label className="flex items-center justify-between cursor-pointer">
-                                            <span className="text-slate-600">SMS alerts</span>
-                                            <input
-                                                type="checkbox"
-                                                checked={notifications?.sms ?? false}
-                                                onChange={() => handleNotificationToggle('sms')}
-                                                className="w-5 h-5 accent-[#10b981]"
-                                            />
-                                        </label>
-                                        <label className="flex items-center justify-between cursor-pointer">
-                                            <span className="text-slate-600">Marketing emails</span>
-                                            <input
-                                                type="checkbox"
-                                                checked={notifications?.marketing ?? false}
-                                                onChange={() => handleNotificationToggle('marketing')}
-                                                className="w-5 h-5 accent-[#10b981]"
-                                            />
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </main>
                 </div>
             </div>

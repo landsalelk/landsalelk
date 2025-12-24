@@ -114,9 +114,6 @@ export default function AgentRegistrationPage() {
                     rating: 0,
                     review_count: 0,
                     deals_count: 0,
-                    points: 0,
-                    listings_uploaded: 0,
-                    total_earnings: 0,
                     created_at: new Date().toISOString()
                 }
             );

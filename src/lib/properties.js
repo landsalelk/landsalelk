@@ -222,8 +222,26 @@ export async function createProperty(data) {
             is_foreign_eligible: data.is_foreign_eligible || false,
             has_payment_plan: data.has_payment_plan || false,
             infrastructure_distance: parseFloat(data.infrastructure_distance) || 0,
-            service_fee: parseFloat(data.service_fee) || 0
+            has_payment_plan: data.has_payment_plan || false,
+            infrastructure_distance: parseFloat(data.infrastructure_distance) || 0,
+            service_fee: parseFloat(data.service_fee) || 0,
+
+            // Agency / Franchise Logic
+            agency_id: data.agency_id || null, // Passed from UI if user is agency manager
+            is_lawyer_verified: data.is_lawyer_verified || false
         };
+
+        // Auto-detect Agency Logic if not explicitly passed
+        if (!payload.agency_id && user.labels && user.labels.includes('agency_manager')) {
+            // We could fetch the agency ID here, but for efficiency, it's better passed from UI context.
+            // If the UI doesn't pass it, we might want to fetch it or rely on a backend function.
+            // For now, we trust the UI/ServerAction to pass agency_id if the user is in agency mode.
+            // But we can enforced 'is_lawyer_verified' if agency_id is present.
+        }
+
+        if (payload.agency_id) {
+            payload.is_lawyer_verified = true;
+        }
 
         const doc = await databases.createDocument(
             DB_ID,

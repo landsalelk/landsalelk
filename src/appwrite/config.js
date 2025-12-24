@@ -27,6 +27,7 @@ export const COLLECTION_NOTIFICATIONS = 'notifications';
 // AGENT SYSTEM
 // ================================
 export const COLLECTION_AGENTS = 'agents';
+export const COLLECTION_AGENCIES = 'agencies'; // NEW: Agency/Franchise Entities
 export const COLLECTION_AGENT_LEADS = 'agent_leads';
 export const COLLECTION_TRAINING_PROGRESS = 'training_progress';
 export const COLLECTION_CERTIFICATES = 'certificates';
@@ -84,6 +85,7 @@ export const COLLECTION_SUBSCRIBERS = 'subscribers';
 // COMMUNICATION
 // ================================
 export const COLLECTION_MESSAGES = 'messages';
+export const COLLECTION_AGENCY_INVITATIONS = 'agency_invitations';
 
 // ================================
 // STORAGE BUCKETS
@@ -94,3 +96,4 @@ export const BUCKET_CERTIFICATES = 'certificates';
 export const BUCKET_AGENT_IDS = 'agent-ids';
 export const BUCKET_LEGAL_VAULT = 'legal_vault';
 export const BUCKET_WATERMARKED = 'watermarked_docs';
+export const BUCKET_AVATARS = 'avatars';
