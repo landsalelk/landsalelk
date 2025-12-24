@@ -1,0 +1,27 @@
+name: Health Check (Uptime)
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Run every 6 hours
+  workflow_dispatch:      # Manual trigger
+
+jobs:
+  uptime-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Production Site
+        uses: jtalk/url-health-check-action@v3
+        with:
+          url: https://landsale.lk
+          max-attempts: 3
+          retry-delay: 5s
+          follow-redirect: true
+
+      - name: Alert on Failure
+        if: failure()
+        continue-on-error: true
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: "${{ secrets.DISCORD_WEBHOOK }}"
+        with:
+          args: '🚨 URGENT: Production site (landsale.lk) is DOWN!'

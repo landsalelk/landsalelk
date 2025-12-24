@@ -1,0 +1,166 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+  workflow_dispatch:
+
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+
+
+jobs:
+  # ============================================
+  # DEPLOYMENT - Only runs after quality gates pass
+  # ============================================
+  deploy:
+    name: "🚀 Deploy to Appwrite"
+    runs-on: ubuntu-latest
+    # Only deploy on push to main (not PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+
+      - name: "⚙️ Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: "📦 Install Dependencies"
+        run: npm ci
+
+      - name: "🔧 Install Appwrite CLI"
+        run: npm install -g appwrite-cli
+
+      - name: "🚀 Deploy to Appwrite"
+        env:
+          APPWRITE_ENDPOINT: "${{ secrets.APPWRITE_ENDPOINT }}"
+          APPWRITE_PROJECT_ID: "${{ secrets.APPWRITE_PROJECT_ID }}"
+          APPWRITE_API_KEY: "${{ secrets.APPWRITE_API_KEY }}"
+          APPWRITE_SITE_ID: "${{ secrets.APPWRITE_SITE_ID }}"
+        run: |
+          # Use secrets if available, otherwise fallback to known defaults
+          ENDPOINT="${APPWRITE_ENDPOINT:-https://sgp.cloud.appwrite.io/v1}"
+          PROJECT_ID="${APPWRITE_PROJECT_ID:-landsalelkproject}"
+          
+          if [ -z "$APPWRITE_API_KEY" ]; then
+            echo "❌ Error: APPWRITE_API_KEY secret is missing in GitHub Settings."
+            exit 1
+          fi
+
+          # Configure Appwrite CLI for CI (non-interactive)
+          appwrite client --endpoint "$ENDPOINT" --project-id "$PROJECT_ID" --key "$APPWRITE_API_KEY"
+          
+          # Cancel any currently processing builds to save resources
+          echo "🔄 Checking for ongoing builds..."
+          FUNCTIONS=$(appwrite functions list --json | jq -r '.functions[]."$id"' 2>/dev/null || echo "")
+          for FUNC_ID in $FUNCTIONS; do
+            ONGOING_DEPLOYMENT=$(appwrite functions list-deployments --function-id $FUNC_ID --json | jq -r '.deployments[] | select(.status == "processing" or .status == "building") | ."$id"' 2>/dev/null | head -n 1)
+            if [ ! -z "$ONGOING_DEPLOYMENT" ]; then
+              echo "⏹️ Cancelling ongoing build $ONGOING_DEPLOYMENT for function $FUNC_ID"
+              appwrite functions update-deployment-status --function-id $FUNC_ID --deployment-id $ONGOING_DEPLOYMENT || true
+            fi
+          done
+          
+          # Deploy functions
+          echo "📦 Deploying functions..."
+          FUNCTIONS=$(jq -r '.functions[]."$id"' appwrite.json)
+          for FUNC_ID in $FUNCTIONS; do
+            echo "  → Pushing function: $FUNC_ID"
+            appwrite push function --function-id $FUNC_ID --with-variables --force
+          done
+          
+          # Deploy site
+          SITE_ID="${APPWRITE_SITE_ID:-6941d9280032a28b0536}"
+          echo "🌐 Deploying site ($SITE_ID)..."
+          appwrite push site --site-id "$SITE_ID" --force
+          
+          echo "✅ Deployment complete!"
+
+      - name: "🔔 Discord Notification"
+        uses: Ilshidur/action-discord@master
+        if: always()
+        continue-on-error: true
+        env:
+          DISCORD_WEBHOOK: "${{ secrets.DISCORD_WEBHOOK }}"
+        with:
+          args: 'Deployment finished with status: {{ STATUS }} (Commit: {{ GITHUB_SHA }})'
+
+      - name: "📋 Deployment Summary"
+        if: success()
+        run: |
+          echo "## 🚀 Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Author:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # STAGING DEPLOYMENT
+  # ============================================
+  deploy-staging:
+    name: "🧪 Deploy to Staging"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+
+      - name: "⚙️ Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: "📦 Install Dependencies"
+        run: npm ci
+
+      - name: "🔧 Install Appwrite CLI"
+        run: npm install -g appwrite-cli
+
+      - name: "🚀 Deploy to Staging Appwrite"
+        env:
+          # Use Staging-specific secrets
+          APPWRITE_ENDPOINT: "${{ secrets.APPWRITE_ENDPOINT }}"
+          APPWRITE_PROJECT_ID: "${{ secrets.APPWRITE_PROJECT_ID_STAGING }}" 
+          APPWRITE_API_KEY: "${{ secrets.APPWRITE_API_KEY_STAGING }}"
+        run: |
+          ENDPOINT="${APPWRITE_ENDPOINT:-https://sgp.cloud.appwrite.io/v1}"
+          
+          # Ensure Staging Project ID is set
+          if [ -z "$APPWRITE_PROJECT_ID" ]; then
+            echo "❌ Error: APPWRITE_PROJECT_ID_STAGING secret is missing."
+            exit 1
+          fi
+          
+          if [ -z "$APPWRITE_API_KEY" ]; then
+            echo "❌ Error: APPWRITE_API_KEY_STAGING secret is missing."
+            exit 1
+          fi
+
+          echo "Using Staging Project ID: $APPWRITE_PROJECT_ID"
+
+          # Configure Appwrite CLI
+          appwrite client --endpoint "$ENDPOINT" --project-id "$APPWRITE_PROJECT_ID" --key "$APPWRITE_API_KEY"
+          
+          # Deploy functions to staging
+          echo "📦 Deploying functions to staging..."
+          appwrite push function --all --force
+          
+          # Deploy site to staging
+          echo "🌐 Deploying site to staging..."
+          # Note: Staging site ID might be different or dynamic. For now using same command but it routes to staging project.
+          # If site ID is different, we need a map or env var. 
+          # Assuming 'appwrite push site' creates/updates based on project scope.
+          appwrite push site --site-id 6941d9280032a28b0536 --force
+          
+          echo "✅ Staging Deployment complete!"

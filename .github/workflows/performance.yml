@@ -1,0 +1,32 @@
+name: Performance Audit (Lighthouse)
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run daily at midnight
+  workflow_dispatch:    # Manual trigger
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Lighthouse Audit
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: |
+            https://landsale.lk/
+            https://landsale.lk/properties
+          budgetPath: .github/lighthouse/budget.json # Optional: Define budgets
+          uploadArtifacts: true 
+          temporaryPublicStorage: true # Upload reports to temporary storage for viewing
+          
+      - name: Alert on Low Score
+        if: failure()
+        continue-on-error: true
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: "${{ secrets.DISCORD_WEBHOOK }}"
+        with:
+          args: '⚠️ Performance Alert: Lighthouse score dropped below threshold!'

@@ -1,0 +1,846 @@
+﻿
+> landsalelk@0.1.0 build
+> next build
+
+   ▲ Next.js 15.4.8
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+node.exe : 
+SyntaxError: Expected 
+double-quoted 
+property name in JSON 
+at position 1094 
+(line 38 column 1)
+At line:1 char:1
++ & "C:\Program Files\
+nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (SyntaxErro   
+ r: Ex...ne 38 col    
+umn 1):String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+    at JSON.parse 
+(<anonymous>)
+Failed to compile.
+
+./src/components/dashb
+oard/LeadCRM.jsx
+Error:   [31mx[0m 
+Merge conflict marker 
+encountered.
+    ,-[[36;1;4mC:\Use
+rs\prabh\Videos\site-n
+ew\site\src\components
+\dashboard\LeadCRM.jsx
+[0m:39:1]
+ [2m36[0m |         
+property_id: ''
+ [2m37[0m |     });
+ [2m38[0m | 
+ [2m39[0m | <<<<<<< 
+HEAD
+    : 
+[35;1m^^^^^^^[0m
+ [2m40[0m |     
+const initData = 
+useCallback(async () 
+=> {
+ [2m41[0m |         
+try {
+ [2m41[0m |         
+    setLoading(true);
+    `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+    ,-[[36;1;4mC:\Use
+rs\prabh\Videos\site-n
+ew\site\src\components
+\dashboard\LeadCRM.jsx
+[0m:84:1]
+ [2m81[0m |         
+    initData();
+ [2m82[0m |         
+}
+ [2m83[0m |     }, 
+[userId, initData]);
+ [2m84[0m | =======
+    : 
+[35;1m^^^^^^^[0m
+ [2m85[0m |     
+useEffect(() => {
+ [2m86[0m |         
+const initData = 
+async () => {
+ [2m86[0m |         
+    try {
+    `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+     ,-[[36;1;4mC:\Us
+ers\prabh\Videos\site-
+new\site\src\component
+s\dashboard\LeadCRM.js
+x[0m:129:1]
+ [2m126[0m |        
+     initData();
+ [2m127[0m |        
+ }
+ [2m128[0m |     }, 
+[userId]);
+ [2m129[0m | 
+>>>>>>> ced6621fe59b11
+61996e305a12e4cb3821b4
+ac5d
+     : 
+[35;1m^^^^^^^[0m
+ [2m130[0m | 
+ [2m131[0m |     
+const 
+handleCreateLead = 
+async (e) => {
+ [2m131[0m |        
+ e.preventDefault();
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for 
+requested module:
+./src/components/dashb
+oard/LeadCRM.jsx
+./src/app/dashboard/le
+ads/page.js
+
+./src/components/dashb
+oard/MarketingTools.js
+x
+Error:   [31mx[0m 
+Merge conflict marker 
+encountered.
+   ,-[[36;1;4mC:\User
+s\prabh\Videos\site-ne
+w\site\src\components\
+dashboard\MarketingToo
+ls.jsx[0m:4:1]
+ [2m1[0m | 'use 
+client';
+ [2m2[0m | 
+ [2m3[0m | import { 
+useState, useEffect, 
+useCallback } from 
+'react';
+ [2m4[0m | <<<<<<< 
+HEAD
+   : 
+[35;1m^^^^^^^[0m
+ [2m5[0m | import { 
+databases } from 
+'@/appwrite';
+ [2m6[0m | import { 
+DB_ID, 
+COLLECTION_LISTINGS } 
+from 
+'@/appwrite/config';
+ [2m6[0m | =======
+   `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+   ,-[[36;1;4mC:\User
+s\prabh\Videos\site-ne
+w\site\src\components\
+dashboard\MarketingToo
+ls.jsx[0m:7:1]
+ [2m4[0m | <<<<<<< 
+HEAD
+ [2m5[0m | import { 
+databases } from 
+'@/appwrite';
+ [2m6[0m | import { 
+DB_ID, 
+COLLECTION_LISTINGS } 
+from 
+'@/appwrite/config';
+ [2m7[0m | =======
+   : 
+[35;1m^^^^^^^[0m
+ [2m8[0m | import { 
+databases } from 
+'@/lib/appwrite';
+ [2m9[0m | import { 
+DB_ID, 
+COLLECTION_LISTINGS } 
+from 
+'@/lib/constants';
+ [2m9[0m | >>>>>>> c
+ed6621fe59b1161996e305
+a12e4cb3821b4ac5d
+   `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+    ,-[[36;1;4mC:\Use
+rs\prabh\Videos\site-n
+ew\site\src\components
+\dashboard\MarketingTo
+ols.jsx[0m:10:1]
+ [2m 7[0m | =======
+ [2m 8[0m | import 
+{ databases } from 
+'@/lib/appwrite';
+ [2m 9[0m | import 
+{ DB_ID, 
+COLLECTION_LISTINGS } 
+from 
+'@/lib/constants';
+ [2m10[0m | >>>>>>> 
+ced6621fe59b1161996e30
+5a12e4cb3821b4ac5d
+    : 
+[35;1m^^^^^^^[0m
+ [2m11[0m | import 
+{ Query } from 
+'appwrite';
+ [2m12[0m | import 
+{ toast } from 
+'sonner';
+ [2m12[0m | import {
+    `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+     ,-[[36;1;4mC:\Us
+ers\prabh\Videos\site-
+new\site\src\component
+s\dashboard\MarketingT
+ools.jsx[0m:163:1]
+ [2m160[0m |        
+                     
+<div 
+className="w-full 
+h-[400px] relative">
+ [2m161[0m |        
+                      
+   {/* eslint-disable-
+next-line @next/next/n
+o-img-element */}
+ [2m162[0m |        
+                      
+   {selectedListing.im
+ages && selectedListin
+g.images[0] ? (
+ [2m163[0m | 
+<<<<<<< HEAD
+     : 
+[35;1m^^^^^^^[0m
+ [2m164[0m |        
+                      
+       <img
+ [2m165[0m |        
+                      
+           src={select
+edListing.images[0]}
+ [2m165[0m |        
+                      
+           alt={select
+edListing.title || 
+'Property image'}
+     `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+     ,-[[36;1;4mC:\Us
+ers\prabh\Videos\site-
+new\site\src\component
+s\dashboard\MarketingT
+ools.jsx[0m:170:1]
+ [2m167[0m |        
+                      
+           
+className="w-full 
+h-full object-cover"
+ [2m168[0m |        
+                      
+           crossOrigin
+="anonymous"
+ [2m169[0m |        
+                      
+       />
+ [2m170[0m | =======
+     : 
+[35;1m^^^^^^^[0m
+ [2m171[0m |        
+                      
+       <div 
+className="w-full 
+h-full relative">
+ [2m172[0m |        
+                      
+           {selectedLi
+sting.images[0] && 
+typeof selectedListing
+.images[0] === 
+'string' && selectedLi
+sting.images[0].trim()
+ !== '' ? (
+ [2m172[0m |        
+                      
+               <Image
+     `----
+  [31mx[0m Expected 
+'</', got 'className'
+     ,-[[36;1;4mC:\Us
+ers\prabh\Videos\site-
+new\site\src\component
+s\dashboard\MarketingT
+ools.jsx[0m:171:1]
+ [2m168[0m |        
+                      
+           crossOrigin
+="anonymous"
+ [2m169[0m |        
+                      
+       />
+ [2m170[0m | =======
+ [2m171[0m |        
+                      
+       <div 
+className="w-full 
+h-full relative">
+     : [35;1m        
+                      
+           
+^^^^^^^^^[0m
+ [2m172[0m |        
+                      
+           {selectedLi
+sting.images[0] && 
+typeof selectedListing
+.images[0] === 
+'string' && selectedLi
+sting.images[0].trim()
+ !== '' ? (
+ [2m173[0m |        
+                      
+               <Image
+ [2m173[0m |        
+                      
+                   src
+={selectedListing.imag
+es[0]}
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for 
+requested module:
+./src/components/dashb
+oard/MarketingTools.js
+x
+./src/app/dashboard/ma
+rketing/page.js
+
+./src/components/dashb
+oard/OpenHouseSchedule
+r.jsx
+Error:   [31mx[0m 
+Merge conflict marker 
+encountered.
+   ,-[[36;1;4mC:\User
+s\prabh\Videos\site-ne
+w\site\src\components\
+dashboard\OpenHouseSch
+eduler.jsx[0m:4:1]
+ [2m1[0m | 'use 
+client';
+ [2m2[0m | 
+ [2m3[0m | import { 
+useState, useEffect, 
+useCallback } from 
+'react';
+ [2m4[0m | <<<<<<< 
+HEAD
+   : 
+[35;1m^^^^^^^[0m
+ [2m5[0m | import { 
+databases } from 
+'@/appwrite';
+ [2m6[0m | import { 
+DB_ID, 
+COLLECTION_LISTINGS } 
+from 
+'@/appwrite/config';
+ [2m6[0m | =======
+   `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+   ,-[[36;1;4mC:\User
+s\prabh\Videos\site-ne
+w\site\src\components\
+dashboard\OpenHouseSch
+eduler.jsx[0m:7:1]
+ [2m4[0m | <<<<<<< 
+HEAD
+ [2m5[0m | import { 
+databases } from 
+'@/appwrite';
+ [2m6[0m | import { 
+DB_ID, 
+COLLECTION_LISTINGS } 
+from 
+'@/appwrite/config';
+ [2m7[0m | =======
+   : 
+[35;1m^^^^^^^[0m
+ [2m8[0m | import { 
+databases } from 
+'@/lib/appwrite';
+ [2m9[0m | import { 
+DB_ID, 
+COLLECTION_LISTINGS } 
+from 
+'@/lib/constants';
+ [2m9[0m | >>>>>>> c
+ed6621fe59b1161996e305
+a12e4cb3821b4ac5d
+   `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+    ,-[[36;1;4mC:\Use
+rs\prabh\Videos\site-n
+ew\site\src\components
+\dashboard\OpenHouseSc
+heduler.jsx[0m:10:1]
+ [2m 7[0m | =======
+ [2m 8[0m | import 
+{ databases } from 
+'@/lib/appwrite';
+ [2m 9[0m | import 
+{ DB_ID, 
+COLLECTION_LISTINGS } 
+from 
+'@/lib/constants';
+ [2m10[0m | >>>>>>> 
+ced6621fe59b1161996e30
+5a12e4cb3821b4ac5d
+    : 
+[35;1m^^^^^^^[0m
+ [2m11[0m | import 
+{ Query, ID } from 
+'appwrite';
+ [2m12[0m | import 
+{ toast } from 
+'sonner';
+ [2m12[0m | import {
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for 
+requested module:
+./src/components/dashb
+oard/OpenHouseSchedule
+r.jsx
+./src/app/dashboard/op
+en-houses/page.js
+
+./src/app/admin/newsle
+tter/page.js
+Error:   [31mx[0m 
+Merge conflict marker 
+encountered.
+   ,-[[36;1;4mC:\User
+s\prabh\Videos\site-ne
+w\site\src\app\admin\n
+ewsletter\page.js[0m:
+4:1]
+ [2m1[0m | 'use 
+client';
+ [2m2[0m | 
+ [2m3[0m | import { 
+useState, useEffect, 
+useCallback } from 
+'react';
+ [2m4[0m | <<<<<<< 
+HEAD
+   : 
+[35;1m^^^^^^^[0m
+ [2m5[0m | import { 
+databases } from 
+'@/appwrite';
+ [2m6[0m | import { 
+DB_ID, COLLECTION_SUBS
+CRIBERS } from 
+'@/appwrite/config';
+ [2m6[0m | =======
+   `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+   ,-[[36;1;4mC:\User
+s\prabh\Videos\site-ne
+w\site\src\app\admin\n
+ewsletter\page.js[0m:
+7:1]
+ [2m4[0m | <<<<<<< 
+HEAD
+ [2m5[0m | import { 
+databases } from 
+'@/appwrite';
+ [2m6[0m | import { 
+DB_ID, COLLECTION_SUBS
+CRIBERS } from 
+'@/appwrite/config';
+ [2m7[0m | =======
+   : 
+[35;1m^^^^^^^[0m
+ [2m8[0m | import { 
+databases } from 
+'@/lib/appwrite';
+ [2m9[0m | import { 
+DB_ID, COLLECTION_SUBS
+CRIBERS } from 
+'@/lib/constants';
+ [2m9[0m | >>>>>>> c
+ed6621fe59b1161996e305
+a12e4cb3821b4ac5d
+   `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+    ,-[[36;1;4mC:\Use
+rs\prabh\Videos\site-n
+ew\site\src\app\admin\
+newsletter\page.js[0m
+:10:1]
+ [2m 7[0m | =======
+ [2m 8[0m | import 
+{ databases } from 
+'@/lib/appwrite';
+ [2m 9[0m | import 
+{ DB_ID, COLLECTION_SU
+BSCRIBERS } from 
+'@/lib/constants';
+ [2m10[0m | >>>>>>> 
+ced6621fe59b1161996e30
+5a12e4cb3821b4ac5d
+    : 
+[35;1m^^^^^^^[0m
+ [2m11[0m | import 
+{ Query } from 
+'appwrite';
+ [2m12[0m | import 
+{ Loader2, Download, 
+Search, CheckCircle, 
+XCircle, Clock } from 
+'lucide-react';
+ [2m12[0m | import 
+{ toast } from 
+'sonner';
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for 
+requested module:
+./src/app/admin/newsle
+tter/page.js
+
+./src/app/admin/page.j
+s
+Error:   [31mx[0m 
+Merge conflict marker 
+encountered.
+   ,-[[36;1;4mC:\User
+s\prabh\Videos\site-ne
+w\site\src\app\admin\p
+age.js[0m:3:1]
+ [2m1[0m | "use 
+client";
+ [2m2[0m | 
+ [2m3[0m | <<<<<<< 
+HEAD
+   : 
+[35;1m^^^^^^^[0m
+ [2m4[0m | import { 
+useState, useEffect, 
+useCallback } from 
+"react";
+ [2m5[0m | import 
+Image from 
+"next/image";
+ [2m5[0m | import { 
+account, storage } 
+from "@/appwrite";
+   `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+    ,-[[36;1;4mC:\Use
+rs\prabh\Videos\site-n
+ew\site\src\app\admin\
+page.js[0m:41:1]
+ [2m38[0m | import 
+{ AnalyticsDashboard 
+} from "@/components/a
+dmin/AnalyticsDashboar
+d";
+ [2m39[0m | import 
+{ databases } from 
+"@/appwrite";
+ [2m40[0m | import 
+{ Query } from 
+"appwrite";
+ [2m41[0m | =======
+    : 
+[35;1m^^^^^^^[0m
+ [2m42[0m | import 
+{ useState, useEffect 
+} from 'react';
+ [2m43[0m | import 
+{ account, storage } 
+from '@/lib/appwrite';
+ [2m43[0m | import 
+{ getPendingKYCRequest
+s, updateKYCStatus, 
+getKYCFileView } from 
+'@/lib/kyc';
+    `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+    ,-[[36;1;4mC:\Use
+rs\prabh\Videos\site-n
+ew\site\src\app\admin\
+page.js[0m:62:1]
+ [2m59[0m | import 
+Image from 
+'next/image';
+ [2m60[0m | 
+ [2m61[0m | export 
+const dynamic = 
+'force-dynamic';
+ [2m62[0m | >>>>>>> 
+ced6621fe59b1161996e30
+5a12e4cb3821b4ac5d
+    : 
+[35;1m^^^^^^^[0m
+ [2m63[0m | 
+ [2m64[0m | export 
+default function 
+AdminDashboard() {
+ [2m64[0m |   const 
+router = useRouter();
+    `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+    ,-[[36;1;4mC:\Use
+rs\prabh\Videos\site-n
+ew\site\src\app\admin\
+page.js[0m:78:1]
+ [2m75[0m |   const 
+[isAdmin, setIsAdmin] 
+= useState(false);
+ [2m76[0m |   const 
+[activeTab, 
+setActiveTab] = 
+useState("kyc");
+ [2m77[0m | 
+ [2m78[0m | <<<<<<< 
+HEAD
+    : 
+[35;1m^^^^^^^[0m
+ [2m79[0m |   const 
+checkAuth = 
+useCallback(async () 
+=> {
+ [2m80[0m |     try 
+{
+ [2m80[0m |       
+const user = await 
+account.get();
+    `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+    ,-[[36;1;4mC:\Use
+rs\prabh\Videos\site-n
+ew\site\src\app\admin\
+page.js[0m:86:1]
+ [2m83[0m |       
+// Properly check if 
+user has admin label 
+or is in admins team
+ [2m84[0m |       
+const hasAdminLabel = 
+user.labels && user.la
+bels.includes("admin")
+;
+ [2m85[0m |       
+const hasAdminRole = 
+user.prefs && 
+user.prefs.role === 
+"admin";
+ [2m86[0m | =======
+    : 
+[35;1m^^^^^^^[0m
+ [2m87[0m |     
+useEffect(() => {
+ [2m88[0m |         
+const checkAuth = 
+async () => {
+ [2m88[0m |         
+    try {
+    `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+     ,-[[36;1;4mC:\Us
+ers\prabh\Videos\site-
+new\site\src\app\admin
+\page.js[0m:118:1]
+ [2m115[0m | 
+ [2m116[0m |        
+ checkAuth();
+ [2m117[0m |     }, 
+[router]);
+ [2m118[0m | 
+>>>>>>> ced6621fe59b11
+61996e305a12e4cb3821b4
+ac5d
+     : 
+[35;1m^^^^^^^[0m
+ [2m119[0m | 
+ [2m120[0m |       
+if (!hasAdminLabel && 
+!hasAdminRole) {
+ [2m120[0m |        
+ // User is logged in 
+but not an admin
+     `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+     ,-[[36;1;4mC:\Us
+ers\prabh\Videos\site-
+new\site\src\app\admin
+\page.js[0m:188:1]
+ [2m185[0m | 
+ [2m186[0m |   if 
+(loading)
+ [2m187[0m |     
+return (
+ [2m188[0m | 
+<<<<<<< HEAD
+     : 
+[35;1m^^^^^^^[0m
+ [2m189[0m |       
+<div className="flex 
+min-h-screen 
+items-center 
+justify-center">
+ [2m190[0m |        
+ <Loader2 className="a
+nimate-spin" />
+ [2m190[0m |       
+</div>
+     `----
+  [31mx[0m Merge 
+conflict marker 
+encountered.
+     ,-[[36;1;4mC:\Us
+ers\prabh\Videos\site-
+new\site\src\app\admin
+\page.js[0m:192:1]
+ [2m189[0m |       
+<div className="flex 
+min-h-screen 
+items-center 
+justify-center">
+ [2m190[0m |        
+ <Loader2 className="a
+nimate-spin" />
+ [2m191[0m |       
+</div>
+ [2m192[0m | =======
+     : 
+[35;1m^^^^^^^[0m
+ [2m193[0m |        
+ <div className="min-h
+-screen bg-slate-50 
+py-12 px-4">
+ [2m194[0m |        
+     <div 
+className="max-w-6xl 
+mx-auto">
+ [2m194[0m |        
+         <header 
+className="mb-8">
+     `----
+  [31mx[0m Expected 
+',', got 'className'
+     ,-[[36;1;4mC:\Us
+ers\prabh\Videos\site-
+new\site\src\app\admin
+\page.js[0m:193:1]
+ [2m190[0m |        
+ <Loader2 className="a
+nimate-spin" />
+ [2m191[0m |       
+</div>
+ [2m192[0m | =======
+ [2m193[0m |        
+ <div className="min-h
+-screen bg-slate-50 
+py-12 px-4">
+     : [35;1m        
+     ^^^^^^^^^[0m
+ [2m194[0m |        
+     <div 
+className="max-w-6xl 
+mx-auto">
+ [2m195[0m |        
+         <header 
+className="mb-8">
+ [2m195[0m |        
+             <h1 
+className="text-3xl 
+font-bold 
+text-slate-900 flex 
+items-center gap-3">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for 
+requested module:
+./src/app/admin/page.j
+s
+
+
+> Build failed 
+because of webpack 
+errors

@@ -1,0 +1,6 @@
+{
+    "name": "check-subscription-expiry",
+    "main": "src/main.js",
+    "runtime": "node-18.0",
+    "type": "module"
+}

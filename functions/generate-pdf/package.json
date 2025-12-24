@@ -1,0 +1,12 @@
+{
+    "name": "generate-pdf",
+    "version": "1.0.0",
+    "description": "Generate PDF reports for digital products (investment reports, valuation reports)",
+    "main": "src/main.js",
+    "type": "module",
+    "dependencies": {
+        "node-appwrite": "^14.0.0",
+        "pdfkit": "^0.15.0",
+        "node-fetch": "^3.3.2"
+    }
+}
