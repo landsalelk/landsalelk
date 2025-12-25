@@ -177,22 +177,22 @@ export function Hero() {
       <div className="relative z-10 mx-auto w-full max-w-5xl px-4 text-center">
         <div className="animate-fade-in mb-12">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 backdrop-blur-md mb-6 shadow-xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-900/40 px-4 py-1.5 backdrop-blur-md mb-6 shadow-xl">
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
             </span>
-            <span className="text-sm font-medium text-emerald-200 tracking-wide uppercase">No.1 Real Estate Platform</span>
+            <span className="text-sm font-bold text-emerald-300 tracking-wide uppercase">No.1 Real Estate Platform</span>
           </div>
 
-          <h1 className="mb-6 text-5xl leading-tight font-extrabold text-white sm:text-7xl drop-shadow-lg tracking-tight">
+          <h1 className="mb-6 text-5xl leading-tight font-extrabold text-white sm:text-7xl tracking-tight" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
             Discover Your <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-emerald-400 to-cyan-400">
               Dream Property
             </span>
           </h1>
 
-          <p className="mx-auto max-w-2xl text-lg text-white/90 md:text-xl font-light leading-relaxed">
+          <p className="mx-auto max-w-2xl text-lg text-white/90 md:text-xl font-medium leading-relaxed" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>
             Connect with verified sellers and top agents across Sri Lanka.
             AI-powered valuations included.
           </p>
