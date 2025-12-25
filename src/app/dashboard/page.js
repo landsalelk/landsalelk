@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import {
     Home, Heart, MessageCircle,
     Eye, DollarSign,
-    ArrowUpRight, ArrowDownRight, Sparkles, Loader2
+    ArrowUpRight, ArrowDownRight, Sparkles, Loader2, Crown
 } from 'lucide-react';
 import { SavedSearchesWidget } from '@/components/dashboard/SavedSearchesWidget';
 import { LeadStatsWidget } from '@/components/dashboard/LeadStatsWidget';
