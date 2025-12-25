@@ -25,8 +25,6 @@ export default function WalletPage() {
             const userData = await account.get();
             setUser(userData);
 
-            // 1. Fetch Wallet Balance
-            // We search for a wallet document associated with this user
             const walletRes = await databases.listDocuments(
                 DB_ID,
                 COLLECTION_USER_WALLETS,
@@ -38,11 +36,9 @@ export default function WalletPage() {
                 setBalance(wallet.balance);
                 setCurrency(wallet.currency_code);
             } else {
-                // Determine if we should create a wallet? For now, assume 0.
                 setBalance(0);
             }
 
-            // 2. Fetch Transactions
             const txRes = await databases.listDocuments(
                 DB_ID,
                 COLLECTION_TRANSACTIONS,
@@ -55,7 +51,6 @@ export default function WalletPage() {
 
         } catch (error) {
             console.error('Wallet Error:', error);
-            // Only redirect to login if it's an authentication error
             if (error.code === 401 || error.type === 'general_unauthorized_scope' || error.message?.includes('Unauthorized')) {
                 router.push('/auth/login');
             } else {
@@ -85,7 +80,6 @@ export default function WalletPage() {
         }
         setProcessing(true);
         try {
-            // Create pending deposit transaction
             await databases.createDocument(DB_ID, COLLECTION_TRANSACTIONS, ID.unique(), {
                 user_id: user.$id,
                 type: 'deposit',
@@ -138,8 +132,8 @@ export default function WalletPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+            <div className="flex w-full items-center justify-center min-h-[400px]">
+                <Loader2 className="w-8 h-8 animate-spin text-[#10b981]" />
             </div>
         );
     }
@@ -309,115 +303,111 @@ export default function WalletPage() {
                     </table>
                 </div>
             </div>
+
+            {/* Deposit Modal */}
+            {showDepositModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+                        <div className="mb-6 flex items-center justify-between">
+                            <h3 className="text-xl font-bold text-slate-900">
+                                Deposit Funds
+                            </h3>
+                            <button
+                                onClick={() => setShowDepositModal(false)}
+                                className="text-slate-400 hover:text-slate-600"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-slate-700">
+                                    Amount (LKR)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    placeholder="Enter amount"
+                                    className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500"
+                                />
+                            </div>
+                            <p className="text-sm text-slate-500">
+                                After initiating, you'll receive bank transfer details via
+                                email.
+                            </p>
+                            <button
+                                onClick={handleDeposit}
+                                disabled={processing}
+                                className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+                            >
+                                {processing ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <ArrowUpRight className="h-4 w-4" />
+                                )}
+                                {processing ? "Processing..." : "Initiate Deposit"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Withdraw Modal */}
+            {showWithdrawModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+                        <div className="mb-6 flex items-center justify-between">
+                            <h3 className="text-xl font-bold text-slate-900">
+                                Withdraw Funds
+                            </h3>
+                            <button
+                                onClick={() => setShowWithdrawModal(false)}
+                                className="text-slate-400 hover:text-slate-600"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
+                                Available Balance:{" "}
+                                <span className="font-bold text-emerald-600">
+                                    {formatCurrency(balance)}
+                                </span>
+                            </div>
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-slate-700">
+                                    Amount (LKR)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    placeholder="Enter amount"
+                                    max={balance}
+                                    className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500"
+                                />
+                            </div>
+                            <p className="text-sm text-slate-500">
+                                Withdrawals are processed within 2-3 business days to your
+                                registered bank account.
+                            </p>
+                            <button
+                                onClick={handleWithdraw}
+                                disabled={processing}
+                                className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+                            >
+                                {processing ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <ArrowDownLeft className="h-4 w-4" />
+                                )}
+                                {processing ? "Processing..." : "Request Withdrawal"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
-
-            {/* Deposit Modal */ }
-    {
-        showDepositModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-                <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                    <div className="mb-6 flex items-center justify-between">
-                        <h3 className="text-xl font-bold text-slate-900">
-                            Deposit Funds
-                        </h3>
-                        <button
-                            onClick={() => setShowDepositModal(false)}
-                            className="text-slate-400 hover:text-slate-600"
-                        >
-                            <X className="h-5 w-5" />
-                        </button>
-                    </div>
-                    <div className="space-y-4">
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-slate-700">
-                                Amount (LKR)
-                            </label>
-                            <input
-                                type="number"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                placeholder="Enter amount"
-                                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500"
-                            />
-                        </div>
-                        <p className="text-sm text-slate-500">
-                            After initiating, you'll receive bank transfer details via
-                            email.
-                        </p>
-                        <button
-                            onClick={handleDeposit}
-                            disabled={processing}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
-                        >
-                            {processing ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <ArrowUpRight className="h-4 w-4" />
-                            )}
-                            {processing ? "Processing..." : "Initiate Deposit"}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-
-    {/* Withdraw Modal */ }
-    {
-        showWithdrawModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-                <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                    <div className="mb-6 flex items-center justify-between">
-                        <h3 className="text-xl font-bold text-slate-900">
-                            Withdraw Funds
-                        </h3>
-                        <button
-                            onClick={() => setShowWithdrawModal(false)}
-                            className="text-slate-400 hover:text-slate-600"
-                        >
-                            <X className="h-5 w-5" />
-                        </button>
-                    </div>
-                    <div className="space-y-4">
-                        <div className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
-                            Available Balance:{" "}
-                            <span className="font-bold text-emerald-600">
-                                {formatCurrency(balance)}
-                            </span>
-                        </div>
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-slate-700">
-                                Amount (LKR)
-                            </label>
-                            <input
-                                type="number"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                placeholder="Enter amount"
-                                max={balance}
-                                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500"
-                            />
-                        </div>
-                        <p className="text-sm text-slate-500">
-                            Withdrawals are processed within 2-3 business days to your
-                            registered bank account.
-                        </p>
-                        <button
-                            onClick={handleWithdraw}
-                            disabled={processing}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
-                        >
-                            {processing ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <ArrowDownLeft className="h-4 w-4" />
-                            )}
-                            {processing ? "Processing..." : "Request Withdrawal"}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )
-    }
     );
 }
