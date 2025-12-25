@@ -174,145 +174,179 @@ export function Hero() {
       <div className="animate-float absolute top-20 left-10 h-64 w-64 rounded-full bg-emerald-500/10 blur-[100px]" />
       <div className="animate-float-delayed absolute right-10 bottom-20 h-80 w-80 rounded-full bg-blue-500/10 blur-[100px]" />
 
-      <div className="relative z-10 mx-auto w-full max-w-5xl px-4 text-center">
-        <div className="animate-fade-in mb-12">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-900/40 px-4 py-1.5 backdrop-blur-md mb-6 shadow-xl">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-            </span>
-            <span className="text-sm font-bold text-emerald-300 tracking-wide uppercase">No.1 Real Estate Platform</span>
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4">
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
+          {/* Left Side - Text & Search */}
+          <div className="flex-1 text-center lg:text-left animate-fade-in">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-900/40 px-4 py-1.5 backdrop-blur-md mb-6 shadow-xl">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+              </span>
+              <span className="text-sm font-bold text-emerald-300 tracking-wide uppercase">No.1 Real Estate Platform</span>
+            </div>
+
+            <h1 className="mb-6 text-4xl leading-tight font-extrabold text-white sm:text-5xl lg:text-6xl tracking-tight" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+              Discover Your <br className="hidden sm:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-emerald-400 to-cyan-400">
+                Dream Property
+              </span>
+            </h1>
+
+            <p className="mx-auto lg:mx-0 max-w-xl text-lg text-white/90 md:text-xl font-medium leading-relaxed mb-8" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>
+              Connect with verified sellers and top agents across Sri Lanka. AI-powered valuations included.
+            </p>
+
+            {/* Feature Pills */}
+            <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-8">
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
+                <Sparkles className="h-4 w-4 text-emerald-400" />
+                <span className="text-sm font-medium text-white/90">AI Valuations</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
+                <MapPin className="h-4 w-4 text-cyan-400" />
+                <span className="text-sm font-medium text-white/90">25 Districts</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
+                <Home className="h-4 w-4 text-blue-400" />
+                <span className="text-sm font-medium text-white/90">1000+ Listings</span>
+              </div>
+            </div>
           </div>
 
-          <h1 className="mb-6 text-5xl leading-tight font-extrabold text-white sm:text-7xl tracking-tight" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-            Discover Your <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-emerald-400 to-cyan-400">
-              Dream Property
-            </span>
-          </h1>
-
-          <p className="mx-auto max-w-2xl text-lg text-white/90 md:text-xl font-medium leading-relaxed" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>
-            Connect with verified sellers and top agents across Sri Lanka.
-            AI-powered valuations included.
-          </p>
+          {/* Right Side - Illustration */}
+          <div className="flex-1 relative animate-fade-in hidden lg:block">
+            <div className="relative">
+              {/* Glow Effect Behind Image */}
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 blur-3xl scale-110 rounded-full" />
+              <img
+                src="/images/hero-illustration.png"
+                alt="Real Estate Platform Illustration"
+                className="relative z-10 w-full max-w-lg mx-auto drop-shadow-2xl animate-float"
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Search Box */}
-        <div className="search-box-hero animate-fade-in mx-auto max-w-4xl">
-          {/* Tab Pills */}
-          <div className="mb-3 flex gap-2 p-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all ${activeTab === tab.id
-                  ? "bg-slate-900 text-white shadow-md"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-              >
-                <tab.icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        <div className="mt-8 animate-fade-in">
 
-          {/* Search Input */}
-          <div className="flex flex-col gap-4 p-2 md:flex-row">
-            <div className="search-input-wrapper relative flex-grow">
-              <MapPin
-                className="mr-2 h-5 w-5 text-[#34d399]"
-                strokeWidth={2.5}
-              />
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                onFocus={() =>
-                  mounted && recentSearches.length > 0 && setShowRecent(true)
-                }
-                placeholder="City, Province, or Postal Code..."
-                className="w-full bg-transparent py-3 font-bold text-slate-700 placeholder-slate-500 outline-none"
-                aria-label="Search properties"
-                aria-haspopup="listbox"
-              />
-
-              {/* Recent Searches Dropdown */}
-              {showRecent && recentSearches.length > 0 && (
-                <div
-                  ref={dropdownRef}
-                  className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-xl"
-                  role="listbox"
-                  aria-label="Recent searches"
+          {/* Search Box */}
+          <div className="search-box-hero animate-fade-in mx-auto max-w-4xl">
+            {/* Tab Pills */}
+            <div className="mb-3 flex gap-2 p-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all ${activeTab === tab.id
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
                 >
-                  <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2">
-                    <span className="flex items-center gap-1 text-xs font-bold text-slate-500">
-                      <Clock className="h-3 w-3" />
-                      Recent Searches
-                    </span>
-                    <button
-                      onClick={clearAllRecent}
-                      className="text-xs font-semibold text-slate-400 transition-colors hover:text-red-500"
-                    >
-                      Clear all
-                    </button>
-                  </div>
-                  <ul className="py-1">
-                    {recentSearches.map((item, idx) => (
-                      <li
-                        key={`${item.query}-${idx}`}
-                        role="option"
-                        aria-selected={false}
-                        className="group flex cursor-pointer items-center justify-between px-4 py-2.5 hover:bg-slate-50"
-                        onClick={() => handleRecentClick(item)}
+                  <tab.icon className="h-4 w-4" />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Search Input */}
+            <div className="flex flex-col gap-4 p-2 md:flex-row">
+              <div className="search-input-wrapper relative flex-grow">
+                <MapPin
+                  className="mr-2 h-5 w-5 text-[#34d399]"
+                  strokeWidth={2.5}
+                />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  onFocus={() =>
+                    mounted && recentSearches.length > 0 && setShowRecent(true)
+                  }
+                  placeholder="City, Province, or Postal Code..."
+                  className="w-full bg-transparent py-3 font-bold text-slate-700 placeholder-slate-500 outline-none"
+                  aria-label="Search properties"
+                  aria-haspopup="listbox"
+                />
+
+                {/* Recent Searches Dropdown */}
+                {showRecent && recentSearches.length > 0 && (
+                  <div
+                    ref={dropdownRef}
+                    className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-xl"
+                    role="listbox"
+                    aria-label="Recent searches"
+                  >
+                    <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2">
+                      <span className="flex items-center gap-1 text-xs font-bold text-slate-500">
+                        <Clock className="h-3 w-3" />
+                        Recent Searches
+                      </span>
+                      <button
+                        onClick={clearAllRecent}
+                        className="text-xs font-semibold text-slate-400 transition-colors hover:text-red-500"
                       >
-                        <div className="flex items-center gap-3">
-                          <Search className="h-4 w-4 text-slate-400" />
-                          <span className="font-medium text-slate-700">
-                            {item.query}
-                          </span>
-                          <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-400">
-                            {item.type}
-                          </span>
-                        </div>
-                        <button
-                          onClick={(e) => removeRecentSearch(item.query, e)}
-                          className="p-1 text-slate-400 opacity-0 transition-all group-hover:opacity-100 hover:text-red-500"
-                          aria-label={`Remove ${item.query} from recent searches`}
+                        Clear all
+                      </button>
+                    </div>
+                    <ul className="py-1">
+                      {recentSearches.map((item, idx) => (
+                        <li
+                          key={`${item.query}-${idx}`}
+                          role="option"
+                          aria-selected={false}
+                          className="group flex cursor-pointer items-center justify-between px-4 py-2.5 hover:bg-slate-50"
+                          onClick={() => handleRecentClick(item)}
                         >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                          <div className="flex items-center gap-3">
+                            <Search className="h-4 w-4 text-slate-400" />
+                            <span className="font-medium text-slate-700">
+                              {item.query}
+                            </span>
+                            <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-400">
+                              {item.type}
+                            </span>
+                          </div>
+                          <button
+                            onClick={(e) => removeRecentSearch(item.query, e)}
+                            className="p-1 text-slate-400 opacity-0 transition-all group-hover:opacity-100 hover:text-red-500"
+                            aria-label={`Remove ${item.query} from recent searches`}
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={handleSearch}
+                className="btn-primary flex items-center justify-center gap-2 px-10 py-4 text-base"
+              >
+                <Search className="h-5 w-5" />
+                Search
+              </button>
+            </div>
+
+            {/* Trending Searches */}
+            <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-100 p-3 text-xs">
+              <span className="font-bold text-slate-900">Trending:</span>
+              {["Colombo 7", "Kandy Lands", "Galle Fort", "Negombo"].map(
+                (loc) => (
+                  <button
+                    key={loc}
+                    onClick={() => handleTrendingClick(loc)}
+                    className="font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full transition-all hover:bg-emerald-100 hover:text-emerald-700"
+                  >
+                    {loc}
+                  </button>
+                ),
               )}
             </div>
-            <button
-              onClick={handleSearch}
-              className="btn-primary flex items-center justify-center gap-2 px-10 py-4 text-base"
-            >
-              <Search className="h-5 w-5" />
-              Search
-            </button>
-          </div>
-
-          {/* Trending Searches */}
-          <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-100 p-3 text-xs">
-            <span className="font-bold text-slate-900">Trending:</span>
-            {["Colombo 7", "Kandy Lands", "Galle Fort", "Negombo"].map(
-              (loc) => (
-                <button
-                  key={loc}
-                  onClick={() => handleTrendingClick(loc)}
-                  className="font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full transition-all hover:bg-emerald-100 hover:text-emerald-700"
-                >
-                  {loc}
-                </button>
-              ),
-            )}
           </div>
         </div>
 
