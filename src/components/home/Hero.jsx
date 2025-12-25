@@ -215,16 +215,68 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Right Side - Illustration */}
-          <div className="flex-1 relative animate-fade-in hidden lg:block">
-            <div className="relative">
-              {/* Glow Effect Behind Image */}
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-cyan-500/30 blur-3xl scale-110 rounded-full" />
+          {/* Right Side - Multi-Layer Visual Scene */}
+          <div className="flex-1 relative animate-fade-in hidden lg:block min-h-[500px]">
+            {/* Glow Effect Behind */}
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 blur-3xl scale-110 rounded-full" />
+
+            {/* Main Illustration */}
+            <div className="relative z-10">
               <img
                 src="/images/hero-illustration.png"
                 alt="Real Estate Platform Illustration"
-                className="relative z-10 w-full max-w-lg mx-auto drop-shadow-2xl animate-float"
+                className="w-full max-w-lg mx-auto drop-shadow-2xl animate-float"
               />
+            </div>
+
+            {/* Floating Property Card 1 - Top Right */}
+            <div className="absolute top-8 right-4 z-20 animate-float-delayed">
+              <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-4 border border-white/50 w-56">
+                <div className="h-24 rounded-xl bg-gradient-to-br from-emerald-100 to-cyan-100 mb-3 flex items-center justify-center">
+                  <Home className="h-10 w-10 text-emerald-600" />
+                </div>
+                <div className="text-sm font-bold text-slate-800">Modern Villa</div>
+                <div className="text-xs text-slate-500 flex items-center gap-1 mt-1">
+                  <MapPin className="h-3 w-3" /> Colombo 7
+                </div>
+                <div className="text-lg font-bold text-emerald-600 mt-2">LKR 45M</div>
+              </div>
+            </div>
+
+            {/* Floating Stats Card - Bottom Left */}
+            <div className="absolute bottom-16 left-0 z-20 animate-float" style={{ animationDelay: '1s' }}>
+              <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-4 border border-white/50">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center">
+                    <Sparkles className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-500">AI Valuation</div>
+                    <div className="text-lg font-bold text-slate-800">LKR 48.5M</div>
+                    <div className="text-xs text-emerald-600 font-medium">+7.8% Market Value</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Floating Verified Badge - Top Left */}
+            <div className="absolute top-20 left-8 z-20 animate-pulse-slow">
+              <div className="bg-emerald-500 text-white rounded-full px-4 py-2 shadow-lg flex items-center gap-2">
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm font-bold">Verified Seller</span>
+              </div>
+            </div>
+
+            {/* Floating Location Ping - Bottom Right */}
+            <div className="absolute bottom-32 right-12 z-20">
+              <div className="relative">
+                <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-30" />
+                <div className="relative bg-emerald-500 text-white rounded-full p-3 shadow-lg">
+                  <MapPin className="h-5 w-5" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
