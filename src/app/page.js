@@ -113,7 +113,7 @@ export default function HomePage() {
       <Hero />
 
       {/* Premium Categories - Horizontal Scroll Snap */}
-      <section className="relative z-10 -mt-24 pb-16">
+      <section className="relative z-10 mt-8 pb-16">
         <div className="mx-auto max-w-[1400px] px-4">
           <div className="bg-white/80 backdrop-blur-xl border border-white/40 shadow-2xl rounded-3xl p-6 md:p-10">
             <div className="mb-6 flex items-center justify-between">
