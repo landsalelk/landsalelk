@@ -88,6 +88,7 @@ export default function HomePage() {
       href: "/properties?type=land",
       count: categoryCounts.lands,
       color: "bg-green-50 text-green-600",
+      image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80",
     },
     {
       name: "Houses",
@@ -95,6 +96,7 @@ export default function HomePage() {
       href: "/properties?type=sale",
       count: categoryCounts.houses,
       color: "bg-blue-50 text-blue-600",
+      image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80",
     },
     {
       name: "Apartments",
@@ -102,6 +104,7 @@ export default function HomePage() {
       href: "/properties?type=apartment",
       count: categoryCounts.apartments,
       color: "bg-purple-50 text-purple-600",
+      image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80",
     },
   ];
 
@@ -123,16 +126,22 @@ export default function HomePage() {
             <div className="flex gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory">
               {categories.map((cat, idx) => (
                 <Link key={idx} href={cat.href} className="snap-start shrink-0">
-                  <div className="group relative h-48 w-72 cursor-pointer overflow-hidden rounded-2xl bg-slate-100 transition-all hover:w-80 hover:shadow-xl">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-20 transition-opacity group-hover:opacity-30`} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="group relative h-48 w-72 cursor-pointer overflow-hidden rounded-2xl transition-all hover:w-80 hover:shadow-xl">
+                    {/* Background Image */}
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
                     <div className="absolute bottom-0 left-0 p-6">
                       <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white">
                         <cat.icon className="h-5 w-5" />
                       </div>
                       <h3 className="text-xl font-bold text-white mb-1">{cat.name}</h3>
-                      <p className="text-white/80 text-sm font-medium">
+                      <p className="text-white/90 text-sm font-medium">
                         {loading ? "..." : cat.count > 0 ? `${cat.count} Listings` : "Coming Soon"}
                       </p>
                     </div>
