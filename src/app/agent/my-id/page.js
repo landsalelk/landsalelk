@@ -147,8 +147,8 @@ export default function MyAgentIDPage() {
                             <div className="space-y-4">
                                 {/* KYC Status */}
                                 <div className={`p-4 rounded-2xl border-2 ${isKYCDone
-                                        ? 'border-emerald-200 bg-emerald-50'
-                                        : 'border-slate-200 bg-slate-50'
+                                    ? 'border-emerald-200 bg-emerald-50'
+                                    : 'border-slate-200 bg-slate-50'
                                     }`}>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
@@ -169,7 +169,7 @@ export default function MyAgentIDPage() {
                                             <span className="text-emerald-600 font-bold text-sm">Done ✓</span>
                                         ) : (
                                             <Link
-                                                href="/agent/kyc"
+                                                href="/kyc"
                                                 className="px-4 py-2 bg-emerald-500 text-white rounded-lg font-bold text-sm hover:bg-emerald-600 transition-colors"
                                             >
                                                 Start KYC
@@ -180,8 +180,8 @@ export default function MyAgentIDPage() {
 
                                 {/* Training Status */}
                                 <div className={`p-4 rounded-2xl border-2 ${isTrainingDone
-                                        ? 'border-emerald-200 bg-emerald-50'
-                                        : 'border-slate-200 bg-slate-50'
+                                    ? 'border-emerald-200 bg-emerald-50'
+                                    : 'border-slate-200 bg-slate-50'
                                     }`}>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">

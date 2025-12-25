@@ -63,7 +63,7 @@ function SearchContent() {
             <Filter className="h-5 w-5 text-[#10b981]" />
             <h3 className="text-lg font-bold text-slate-800">Filters</h3>
           </div>
-          <PropertyFilters filters={filters} onChange={setFilters} />
+          <PropertyFilters filters={filters} onChange={setFilters} resultsCount={properties.length} />
         </div>
       </aside>
 

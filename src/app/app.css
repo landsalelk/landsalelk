@@ -54,6 +54,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Improve placeholder text contrast for better accessibility */
+input::placeholder,
+textarea::placeholder {
+  color: #64748b;
+  /* slate-500 for better contrast */
+  opacity: 1;
+}
+
 /* ============================================
    ACCESSIBILITY - FOCUS INDICATORS
    ============================================ */
@@ -501,7 +509,8 @@ h6 {
    NAVIGATION PILL TABS
    ============================================ */
 .nav-pills {
-  display: flex;
+  display: none;
+  /* Hidden by default, shown via lg:flex */
   align-items: center;
   gap: 0.25rem;
   background: rgba(255, 255, 255, 0.5);
@@ -509,6 +518,13 @@ h6 {
   border-radius: 9999px;
   border: 1px solid white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Show nav-pills only on large screens (1024px+) */
+@media (min-width: 1024px) {
+  .nav-pills {
+    display: flex;
+  }
 }
 
 .nav-pill {
@@ -526,7 +542,8 @@ h6 {
 }
 
 .nav-pill:not(.active) {
-  color: #64748b;
+  color: #334155;
+  /* slate-700 for better contrast */
 }
 
 .nav-pill:not(.active):hover {
@@ -553,8 +570,8 @@ h6 {
 }
 
 .spec-chip-baths {
-  background-color: #faf5ff;
-  color: #9333ea;
+  background-color: #f3e8ff;
+  color: #7c3aed;
 }
 
 .spec-chip-size {
@@ -682,16 +699,25 @@ h6 {
    ============================================ */
 .mobile-bottom-nav {
   position: fixed;
-  bottom: 1.5rem;
-  left: 1.5rem;
-  right: 1.5rem;
-  background: rgba(255, 255, 255, 0.9);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  z-index: 50;
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  z-index: 45;
+  /* Below navbar (50) but above content */
   padding: 0.75rem 1.5rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Add padding to main content on mobile to prevent bottom nav overlap */
+@media (max-width: 1023px) {
+  main {
+    padding-bottom: 100px !important;
+  }
 }
 
 .mobile-nav-btn {
@@ -818,4 +844,150 @@ h6 {
 
 .safe-area-top {
   padding-top: env(safe-area-inset-top, 0);
+}
+
+/* ============================================
+   TOUCH TARGET MINIMUM SIZE (Accessibility)
+   ============================================ */
+.touch-target-min {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Ensure all interactive elements have minimum touch target */
+button,
+a,
+[role="button"],
+input[type="checkbox"],
+input[type="radio"],
+select {
+  min-height: 44px;
+}
+
+/* Smaller items that need explicit sizing */
+.touch-target-sm {
+  min-width: 36px;
+  min-height: 36px;
+}
+
+/* ============================================
+   FORM VALIDATION ANIMATIONS
+   ============================================ */
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Form error highlight */
+.form-field-error {
+  border-color: #dc2626 !important;
+  background-color: #fef2f2 !important;
+  animation: shake 0.5s ease-in-out;
+}
+
+/* ============================================
+   IMPROVED CONTRAST (WCAG AA Compliant)
+   ============================================ */
+/* Body text minimum contrast */
+.text-muted {
+  color: #64748b;
+  /* Meets WCAG AA on white */
+}
+
+/* Placeholder text */
+::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
+/* Disabled states */
+.disabled-muted {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   CARD HOVER REFINEMENT (Less Jarring)
+   ============================================ */
+.card-hover-subtle {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover-subtle:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================
+   SKELETON LOADING (Slower, Less Distracting)
+   ============================================ */
+.skeleton-slow {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 2s ease-in-out infinite;
+}
+
+/* ============================================
+   FOCUS RING IMPROVEMENTS
+   ============================================ */
+.focus-ring {
+  transition: box-shadow 0.15s ease;
+}
+
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+/* ============================================
+   MOBILE BOTTOM PADDING (For Sticky Bars)
+   ============================================ */
+.pb-sticky-bar {
+  padding-bottom: 6rem;
+  /* 96px for sticky contact bar */
+}
+
+@media (min-width: 1024px) {
+  .pb-sticky-bar {
+    padding-bottom: 0;
+  }
+}
+
+/* ============================================
+   IMAGE LOADING PLACEHOLDER
+   ============================================ */
+.img-loading-bg {
+  background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 100%);
+}
+
+/* ============================================
+   TOAST POSITIONING (Mobile Bottom)
+   ============================================ */
+@media (max-width: 640px) {
+  [data-sonner-toaster] {
+    bottom: 80px !important;
+    top: auto !important;
+  }
 }

@@ -62,9 +62,9 @@ export default function LegalServicesPage() {
             Get a certified copy of the Folio (Paththiru) from the Land Registry
             to verify ownership history.
           </p>
-          <button className="text-sm font-bold text-blue-600 hover:underline">
+          <Link href="/submit-lead?type=title-search" className="text-sm font-bold text-blue-600 hover:underline">
             Request Search &rarr;
-          </button>
+          </Link>
         </div>
 
         <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
@@ -78,9 +78,9 @@ export default function LegalServicesPage() {
             Have a verified lawyer review the deed (Sinnakkara, Bim Saviya) for
             any encumbrances or caveats.
           </p>
-          <button className="text-sm font-bold text-emerald-600 hover:underline">
+          <a href="#lawyers-section" className="text-sm font-bold text-emerald-600 hover:underline">
             Find a Lawyer &rarr;
-          </button>
+          </a>
         </div>
 
         <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
@@ -94,14 +94,14 @@ export default function LegalServicesPage() {
             Standardized Sales & Purchase Agreements (SPA) drafted by legal
             professionals.
           </p>
-          <button className="text-sm font-bold text-purple-600 hover:underline">
+          <Link href="/submit-lead?type=legal-drafting" className="text-sm font-bold text-purple-600 hover:underline">
             View Templates &rarr;
-          </button>
+          </Link>
         </div>
       </div>
 
       {/* Trusted Lawyers Section */}
-      <div className="mx-auto max-w-6xl">
+      <div id="lawyers-section" className="mx-auto max-w-6xl scroll-mt-8">
         <h2 className="mb-8 text-2xl font-bold text-slate-900">
           Verified Panel Lawyers & Agents
         </h2>

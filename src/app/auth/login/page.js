@@ -31,12 +31,12 @@ export default function LoginPage() {
   // Check session on mount
   useEffect(() => {
     const checkSession = async () => {
-        try {
-            await account.get();
-            router.replace('/dashboard');
-        } catch (error) {
-            // Not logged in
-        }
+      try {
+        await account.get();
+        router.replace('/dashboard');
+      } catch (error) {
+        // Not logged in
+      }
     };
     checkSession();
   }, [router]);
@@ -205,12 +205,12 @@ export default function LoginPage() {
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-lg transition-transform group-hover:scale-110">
               <MapPin className="h-6 w-6 text-[#10b981]" />
             </div>
-            <span className="text-2xl font-bold text-white">
-              LandSale<span className="text-yellow-300">.lk</span>
+            <span className="text-2xl font-bold text-slate-800">
+              LandSale<span className="text-emerald-600">.lk</span>
             </span>
           </Link>
-          <h1 className="mt-6 text-2xl font-bold text-white">Welcome Back!</h1>
-          <p className="mt-2 text-white/70">Sign in to continue</p>
+          <h1 className="mt-6 text-2xl font-bold text-slate-800">Welcome Back!</h1>
+          <p className="mt-2 text-slate-600">Sign in to continue</p>
         </div>
 
         {/* Form */}
@@ -293,11 +293,10 @@ export default function LoginPage() {
                   required
                   aria-invalid={errors.email ? "true" : "false"}
                   aria-describedby={errors.email ? "email-error" : undefined}
-                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-4 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${
-                    errors.email
-                      ? "border-red-400 focus:border-red-500"
-                      : "border-transparent focus:border-[#6ee7b7]"
-                  }`}
+                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-4 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${errors.email
+                    ? "border-red-400 focus:border-red-500"
+                    : "border-transparent focus:border-[#6ee7b7]"
+                    }`}
                 />
               </div>
               {errors.email && (
@@ -336,11 +335,10 @@ export default function LoginPage() {
                   aria-describedby={
                     errors.password ? "password-error" : undefined
                   }
-                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-12 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${
-                    errors.password
-                      ? "border-red-400 focus:border-red-500"
-                      : "border-transparent focus:border-[#6ee7b7]"
-                  }`}
+                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-12 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${errors.password
+                    ? "border-red-400 focus:border-red-500"
+                    : "border-transparent focus:border-[#6ee7b7]"
+                    }`}
                 />
                 <button
                   type="button"
@@ -495,13 +493,13 @@ export default function LoginPage() {
         </div>
 
         {/* Terms */}
-        <div className="mt-6 text-center text-sm text-white/60">
+        <div className="mt-6 text-center text-sm text-slate-500">
           By signing in, you agree to our{" "}
-          <Link href="/terms" className="text-yellow-300 hover:underline">
+          <Link href="/terms" className="text-emerald-600 hover:underline">
             Terms
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="text-yellow-300 hover:underline">
+          <Link href="/privacy" className="text-emerald-600 hover:underline">
             Privacy Policy
           </Link>
         </div>

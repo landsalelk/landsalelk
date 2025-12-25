@@ -12,8 +12,11 @@ import {
   Move,
   Scale,
   MessageCircle,
+  Clock,
 } from "lucide-react";
 import { useComparison } from "@/context/ComparisonContext";
+import { formatRelativeTime } from "@/lib/dateUtils";
+import { formatShortPrice } from "@/lib/utils";
 
 export function PropertyCard({ property }) {
   const { addToCompare, compareList } = useComparison() || {};
@@ -30,14 +33,14 @@ export function PropertyCard({ property }) {
     area,
     perch_size,
     badge,
+    $createdAt,
   } = property || {};
 
   const isInCompare = compareList?.some((p) => p.$id === $id);
 
   // Smart image extraction: Try primary_image, then images array, then fallback
   const getImageUrl = () => {
-    const fallback =
-      "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
+    const fallback = "/images/property-placeholder.svg";
     const endpoint =
       process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT ||
       "https://sgp.cloud.appwrite.io/v1";
@@ -123,19 +126,12 @@ export function PropertyCard({ property }) {
     perches: perch_size || specs.perch_size || null,
   };
 
-  const formatPrice = (val, cur) => {
-    return new Intl.NumberFormat("en-LK", {
-      style: "currency",
-      currency: cur || "LKR",
-      maximumFractionDigits: 0,
-    }).format(val);
-  };
+
 
   const propertyId = $id || property?.$id || "demo";
   const isLand = type?.toLowerCase() === "land";
   const [imgError, setImgError] = useState(false);
-  const fallbackImage =
-    "https://images.unsplash.com/photo-1600596542815-2a429b05e6ca?q=80&w=2072&auto=format&fit=crop";
+  const fallbackImage = "/images/property-placeholder.svg";
   const displayImage = imgError ? fallbackImage : image;
 
   const status = property?.status;
@@ -143,9 +139,9 @@ export function PropertyCard({ property }) {
 
   return (
     <Link href={`/properties/${propertyId}`} className="group block">
-      <div className="glass-card animate-fade-in flex h-full cursor-pointer flex-col min-[450px]:flex-row items-stretch overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl md:flex-col md:rounded-[2rem]">
+      <div className="glass-card animate-fade-in flex h-full cursor-pointer flex-col min-[450px]:flex-row items-stretch overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl md:flex-col md:rounded-[2rem]">
         {/* Image */}
-        <div className="relative m-2 h-48 w-auto shrink-0 overflow-hidden rounded-xl min-[450px]:h-auto min-[450px]:w-[130px] md:m-2 md:aspect-[4/3] md:w-auto md:rounded-[1.5rem]">
+        <div className="relative m-2 h-48 w-auto shrink-0 overflow-hidden rounded-xl img-loading-bg min-[450px]:h-auto min-[450px]:w-[130px] md:m-2 md:aspect-[4/3] md:w-auto md:rounded-[1.5rem]">
           <Image
             src={displayImage || fallbackImage}
             alt={`${displayTitle || "Property"} - ${type} in ${displayLocation}`}
@@ -196,7 +192,7 @@ export function PropertyCard({ property }) {
               }
             }}
             aria-label={`Share ${displayTitle} on WhatsApp`}
-            className="absolute top-2 right-2 z-20 scale-75 rounded-full bg-[#25D366] p-2 text-white shadow-lg transition-colors hover:bg-[#128C7E] md:right-auto md:left-2 md:scale-100"
+            className="absolute bottom-2 right-2 z-20 scale-75 rounded-full bg-[#25D366] p-2 text-white shadow-lg transition-colors hover:bg-[#128C7E] md:top-2 md:bottom-auto md:right-auto md:left-2 md:scale-100"
             title="Chat on WhatsApp"
           >
             <MessageCircle className="h-5 w-5" aria-hidden="true" />
@@ -215,8 +211,8 @@ export function PropertyCard({ property }) {
             }
             aria-pressed={isInCompare}
             className={`absolute top-14 right-2 z-20 scale-75 rounded-full p-2 transition-colors md:right-4 md:scale-100 ${isInCompare
-                ? "bg-emerald-500 text-white"
-                : "bg-black/30 text-white backdrop-blur-sm hover:bg-white hover:text-emerald-600"
+              ? "bg-emerald-500 text-white"
+              : "bg-black/30 text-white backdrop-blur-sm hover:bg-white hover:text-emerald-600"
               }`}
             title={isInCompare ? "Added to Compare" : "Compare"}
           >
@@ -226,7 +222,7 @@ export function PropertyCard({ property }) {
           {/* Price Overlay - Desktop Only */}
           <div className="absolute bottom-4 left-4 hidden text-white md:block">
             <p className="text-xl font-bold drop-shadow-md">
-              {formatPrice(price, currency)}
+              {formatShortPrice(price, currency)}
             </p>
           </div>
         </div>
@@ -239,7 +235,7 @@ export function PropertyCard({ property }) {
               {type}
             </span>
             <p className="text-base font-bold text-slate-900">
-              {formatPrice(price, currency)}
+              {formatShortPrice(price, currency)}
             </p>
           </div>
 
@@ -250,6 +246,10 @@ export function PropertyCard({ property }) {
             <div className="mt-1.5 flex items-center text-xs font-medium text-slate-500 md:text-sm">
               <MapPin className="text-emerald-600 mr-1 h-3 w-3 flex-shrink-0 md:h-4 md:w-4" />
               <span className="truncate">{displayLocation}</span>
+            </div>
+            <div className="mt-1 flex items-center text-sm text-slate-500">
+              <Clock className="mr-1 h-3 w-3" />
+              <span>{formatRelativeTime($createdAt)}</span>
             </div>
           </div>
 

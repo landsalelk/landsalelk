@@ -21,15 +21,15 @@ export default function CookiePolicy() {
 
                 {/* Content */}
                 <div className="bg-white rounded-3xl p-8 md:p-12 shadow-lg border border-slate-100 space-y-8">
-                    
+
                     <section>
                         <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
                             <Eye className="w-6 h-6 text-emerald-600" />
                             What Are Cookies?
                         </h2>
                         <p className="text-slate-600 leading-relaxed">
-                            Cookies are small text files that are placed on your device when you visit our website. 
-                            They help us provide you with a better experience by remembering your preferences, 
+                            Cookies are small text files that are placed on your device when you visit our website.
+                            They help us provide you with a better experience by remembering your preferences,
                             analyzing how you use our site, and enabling certain features.
                         </p>
                     </section>
@@ -43,28 +43,28 @@ export default function CookiePolicy() {
                             <div className="p-4 bg-slate-50 rounded-xl">
                                 <h3 className="font-bold text-slate-800 mb-2">Essential Cookies</h3>
                                 <p className="text-slate-600 text-sm">
-                                    Required for the website to function. They enable basic functions like page navigation 
+                                    Required for the website to function. They enable basic functions like page navigation
                                     and access to secure areas. The website cannot function properly without these cookies.
                                 </p>
                             </div>
                             <div className="p-4 bg-slate-50 rounded-xl">
                                 <h3 className="font-bold text-slate-800 mb-2">Analytics Cookies</h3>
                                 <p className="text-slate-600 text-sm">
-                                    Help us understand how visitors interact with our website by collecting and reporting 
+                                    Help us understand how visitors interact with our website by collecting and reporting
                                     information anonymously. This helps us improve our website.
                                 </p>
                             </div>
                             <div className="p-4 bg-slate-50 rounded-xl">
                                 <h3 className="font-bold text-slate-800 mb-2">Functional Cookies</h3>
                                 <p className="text-slate-600 text-sm">
-                                    Enable enhanced functionality and personalization, such as remembering your 
+                                    Enable enhanced functionality and personalization, such as remembering your
                                     language preference or the region you are in.
                                 </p>
                             </div>
                             <div className="p-4 bg-slate-50 rounded-xl">
                                 <h3 className="font-bold text-slate-800 mb-2">Marketing Cookies</h3>
                                 <p className="text-slate-600 text-sm">
-                                    Used to track visitors across websites to display relevant advertisements. 
+                                    Used to track visitors across websites to display relevant advertisements.
                                     These are only set with your consent.
                                 </p>
                             </div>
@@ -112,7 +112,7 @@ export default function CookiePolicy() {
                         <p className="text-slate-600 leading-relaxed">
                             If you have any questions about our Cookie Policy, please contact us at:
                         </p>
-                        <p className="text-emerald-600 font-semibold mt-2">hello@landsale.lk</p>
+                        <p className="text-emerald-600 font-semibold mt-2">support@landsale.lk</p>
                     </section>
 
                     {/* Related Links */}

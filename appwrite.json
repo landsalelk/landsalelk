@@ -4131,6 +4131,39 @@
                     "array": false
                 },
                 {
+                    "key": "nic_front_id",
+                    "type": "string",
+                    "required": false,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "nic_back_id",
+                    "type": "string",
+                    "required": false,
+                    "size": 255,
+                    "array": false
+                },
+                {
+                    "key": "request_type",
+                    "type": "string",
+                    "required": false,
+                    "size": 50,
+                    "array": false
+                },
+                {
+                    "key": "submitted_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false
+                },
+                {
+                    "key": "reviewed_at",
+                    "type": "datetime",
+                    "required": false,
+                    "array": false
+                },
+                {
                     "key": "notes",
                     "type": "string",
                     "required": false,
@@ -4149,9 +4182,26 @@
             "enabled": true,
             "rowSecurity": false,
             "$permissions": [
-                "read(\"any\")"
+                "read(\"any\")",
+                "create(\"users\")",
+                "update(\"users\")"
             ],
-            "indexes": []
+            "indexes": [
+                {
+                    "key": "status_idx",
+                    "type": "key",
+                    "attributes": [
+                        "status"
+                    ]
+                },
+                {
+                    "key": "user_idx",
+                    "type": "key",
+                    "attributes": [
+                        "user_id"
+                    ]
+                }
+            ]
         },
         {
             "$id": "land_offices",
@@ -4479,6 +4529,7 @@
                 "read(\"any\")",
                 "create(\"users\")",
                 "update(\"users\")",
+                "update(\"label:admin\")",
                 "delete(\"users\")"
             ],
             "databaseId": "landsalelkdb",

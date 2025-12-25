@@ -5,7 +5,9 @@ import { useParams } from "next/navigation";
 import { getAgencyBySlug } from "@/lib/agency";
 import { databases, Query } from "@/lib/appwrite";
 import { DB_ID, COLLECTION_LISTINGS, COLLECTION_AGENTS } from "@/appwrite/config";
+import { formatShortPrice } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 import {
     Building2,
     ShieldCheck,
@@ -129,11 +131,7 @@ export default function AgencyPublicProfile() {
         );
     }
 
-    const formatPrice = (price) => {
-        if (price >= 10000000) return `${(price / 10000000).toFixed(1)}Cr`;
-        if (price >= 100000) return `${(price / 100000).toFixed(1)}L`;
-        return price.toLocaleString();
-    };
+    const formatPrice = (price) => formatShortPrice(price, 'LKR');
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -144,9 +142,11 @@ export default function AgencyPublicProfile() {
                         {/* Logo */}
                         <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
                             {agency.logo_url ? (
-                                <img
+                                <Image
                                     src={agency.logo_url}
                                     alt={agency.name}
+                                    width={96}
+                                    height={96}
                                     className="h-24 w-24 rounded-xl object-cover"
                                 />
                             ) : (
@@ -292,10 +292,12 @@ export default function AgencyPublicProfile() {
                                         >
                                             <div className="aspect-[16/10] overflow-hidden bg-slate-100">
                                                 {listing.images?.[0] ? (
-                                                    <img
+                                                    <Image
                                                         src={listing.images[0]}
                                                         alt={listing.title}
-                                                        className="h-full w-full object-cover group-hover:scale-105 transition-transform"
+                                                        fill
+                                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                        className="object-cover group-hover:scale-105 transition-transform"
                                                     />
                                                 ) : (
                                                     <div className="flex h-full items-center justify-center">
@@ -336,9 +338,11 @@ export default function AgencyPublicProfile() {
                                         >
                                             <div className="h-14 w-14 rounded-full bg-slate-100 flex items-center justify-center">
                                                 {agent.avatar_url ? (
-                                                    <img
+                                                    <Image
                                                         src={agent.avatar_url}
                                                         alt={agent.name}
+                                                        width={56}
+                                                        height={56}
                                                         className="h-14 w-14 rounded-full object-cover"
                                                     />
                                                 ) : (

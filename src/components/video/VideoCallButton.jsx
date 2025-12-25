@@ -9,12 +9,20 @@ import { Video, VideoOff, Mic, MicOff, Phone, PhoneOff, Users, MessageCircle, Ma
 // - Daily.co
 // - Jitsi Meet (open-source, free)
 
-export function VideoCallButton({ agentName, agentId, propertyTitle }) {
+export function VideoCallButton({ agentName, agentId, propertyTitle, isVerified, onVerify }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isScheduling, setIsScheduling] = useState(false);
     const [scheduledDate, setScheduledDate] = useState('');
     const [scheduledTime, setScheduledTime] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
+
+    const handleOpen = () => {
+        if (!isVerified && onVerify) {
+            onVerify();
+            return;
+        }
+        setIsModalOpen(true);
+    };
 
     const handleSchedule = (e) => {
         e.preventDefault();
@@ -40,7 +48,7 @@ export function VideoCallButton({ agentName, agentId, propertyTitle }) {
         <>
             {/* Trigger Button */}
             <button
-                onClick={() => setIsModalOpen(true)}
+                onClick={handleOpen}
                 className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-purple-500/20 hover:shadow-xl transition-all flex items-center justify-center gap-2"
             >
                 <Video className="w-5 h-5" />

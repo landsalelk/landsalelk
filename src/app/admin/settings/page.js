@@ -136,22 +136,20 @@ export default function AdminSettingsPage() {
                 <div className="flex gap-2 mb-6">
                     <button
                         onClick={() => setActiveTab('general')}
-                        className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
-                            activeTab === 'general' 
-                                ? 'bg-emerald-600 text-white' 
+                        className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${activeTab === 'general'
+                                ? 'bg-emerald-600 text-white'
                                 : 'bg-white text-gray-600 hover:bg-gray-50'
-                        }`}
+                            }`}
                     >
                         <SettingsIcon className="w-4 h-4" />
                         General
                     </button>
                     <button
                         onClick={() => setActiveTab('seo')}
-                        className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
-                            activeTab === 'seo' 
-                                ? 'bg-emerald-600 text-white' 
+                        className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${activeTab === 'seo'
+                                ? 'bg-emerald-600 text-white'
                                 : 'bg-white text-gray-600 hover:bg-gray-50'
-                        }`}
+                            }`}
                     >
                         <Globe className="w-4 h-4" />
                         SEO Meta
@@ -162,7 +160,7 @@ export default function AdminSettingsPage() {
                 {activeTab === 'general' && (
                     <div className="bg-white rounded-xl p-6 shadow-sm">
                         <h2 className="text-lg font-semibold mb-6">General Settings</h2>
-                        
+
                         <div className="space-y-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -199,7 +197,7 @@ export default function AdminSettingsPage() {
                                     value={settings.contact_phone?.value || ''}
                                     onChange={(e) => handleSettingChange('contact_phone', e.target.value)}
                                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
-                                    placeholder="+94 11 234 5678"
+                                    placeholder="+94 75 474 4474"
                                 />
                             </div>
 

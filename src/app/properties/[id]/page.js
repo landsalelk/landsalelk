@@ -17,7 +17,7 @@ import { StickyGallery } from '@/components/property/StickyGallery';
 import { ScrollMap } from '@/components/property/ScrollMap';
 import AuctionCard from '@/components/property/AuctionCard';
 import { FadeIn, FadeInItem } from '@/components/animations/FadeIn';
-import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2, Train, Globe, Banknote, ChevronLeft, ChevronRight, X, HandCoins } from 'lucide-react';
+import { MapPin, BedDouble, Bath, Square, ShieldCheck, AlertTriangle, FileText, CheckCircle, User, Phone, MessageCircle, Share2, Heart, Trees, Loader2, Train, Globe, Banknote, ChevronLeft, ChevronRight, X, HandCoins, Clock, Bell } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -26,6 +26,13 @@ import { DB_ID, COLLECTION_LISTING_OFFERS, COLLECTION_AGENTS } from '@/appwrite/
 import { ID, Query } from 'appwrite';
 import { incrementViewCount } from '@/app/actions/analytics';
 import { track } from '@/lib/track';
+import { formatDate } from '@/lib/dateUtils';
+import { formatShortPrice } from '@/lib/utils';
+import { Breadcrumb } from '@/components/ui/Breadcrumb';
+import { sanitizeHTML } from '@/lib/sanitize';
+import { LeadCaptureModal } from '@/components/property/LeadCaptureModal';
+import { SavedSearchModal } from '@/components/property/SavedSearchModal';
+import { checkVerificationCookie } from '@/app/actions/leadOtp';
 
 export default function PropertyDetailsPage() {
     const { id } = useParams();
@@ -46,14 +53,98 @@ export default function PropertyDetailsPage() {
     const [isSubmittingOffer, setIsSubmittingOffer] = useState(false);
     const [showNumber, setShowNumber] = useState(false);
 
+    // Lead capture modal state
+    const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+    const [leadContactType, setLeadContactType] = useState('whatsapp'); // 'whatsapp' or 'call'
+    const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+
+    // Saved Search State
+    const [isSavedSearchOpen, setIsSavedSearchOpen] = useState(false);
+
     // Initial offer amount set to listing price
     useEffect(() => {
         if (property?.price) setOfferAmount(property.price);
     }, [property]);
 
+    // Exit Intent Trigger
+    useEffect(() => {
+        const handleMouseLeave = (e) => {
+            if (e.clientY <= 0) {
+                // User is moving mouse to top of browser (tabs/back button)
+                const shown = sessionStorage.getItem('exit_intent_shown');
+                if (!shown && !isSavedSearchOpen) {
+                    setIsSavedSearchOpen(true);
+                    sessionStorage.setItem('exit_intent_shown', 'true');
+                }
+            }
+        };
+
+        document.addEventListener('mouseleave', handleMouseLeave);
+        return () => document.removeEventListener('mouseleave', handleMouseLeave);
+    }, [isSavedSearchOpen]);
+
+    // Check if buyer phone is already verified (localStorage)
+    useEffect(() => {
+        const checkVerification = async () => {
+            try {
+                // Tier 1: Check if user is logged in
+                try {
+                    const session = await account.get();
+                    if (session && (session.phone || session.phone_verification)) {
+                        setIsPhoneVerified(true);
+                        return;
+                    }
+                } catch (err) {
+                    // Not logged in, continue to Tier 2
+                }
+
+                // Tier 2: Check for HTTP-only cookie (Server Action)
+                const cookieResult = await checkVerificationCookie();
+                if (cookieResult?.verified) {
+                    setIsPhoneVerified(true);
+                    return;
+                }
+
+                // Tier 3: Legacy local storage check (Fallback)
+                const stored = localStorage.getItem('landsale_verified_phone');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data.expires > Date.now()) {
+                        setIsPhoneVerified(true);
+                    }
+                }
+            } catch (e) {
+                console.error('Error checking phone verification:', e);
+            }
+        };
+
+        checkVerification();
+    }, []);
+
     const contactPhone = property?.contact_phone || property?.phone || null;
 
-    const handleWhatsApp = () => {
+    // Handle verified callback from modal
+    const handlePhoneVerified = (verifiedPhone) => {
+        setIsPhoneVerified(true);
+        // Now perform the original action
+        if (leadContactType === 'whatsapp') {
+            performWhatsApp();
+        } else if (leadContactType === 'show_number') {
+            if (!showNumber) {
+                track('cta_contact_clicked', { listing_id: id, channel: 'show_number' });
+            }
+            setShowNumber(true);
+        } else if (leadContactType === 'call') {
+            performCall();
+        } else if (leadContactType === 'offer') {
+            setIsOfferOpen(true);
+        } else if (leadContactType === 'video_call') {
+            toast.success("Phone verified! Click Video Call again to schedule.");
+        }
+    };
+
+    // Actual WhatsApp action (after verification)
+    const performWhatsApp = () => {
         track('cta_contact_clicked', { listing_id: id, channel: 'whatsapp' });
 
         const number = contactPhone ? String(contactPhone).replace(/\s+/g, '') : '';
@@ -69,6 +160,18 @@ export default function PropertyDetailsPage() {
         window.open(waUrl, '_blank', 'noopener,noreferrer');
     };
 
+    // Handler that checks verification first
+    const handleWhatsApp = () => {
+        if (isPhoneVerified) {
+            performWhatsApp();
+        } else {
+            setLeadContactType('whatsapp');
+            setIsLeadModalOpen(true);
+        }
+    };
+
+
+
     const getCleanedPhoneNumber = () => {
         return contactPhone ? String(contactPhone).replace(/\s+/g, '') : '';
     };
@@ -77,7 +180,8 @@ export default function PropertyDetailsPage() {
         return contactPhone || '+94 77 XXX XXXX';
     };
 
-    const handleCall = () => {
+    // Actual call action (after verification)
+    const performCall = () => {
         track('cta_contact_clicked', { listing_id: id, channel: 'call' });
 
         const number = getCleanedPhoneNumber();
@@ -86,6 +190,50 @@ export default function PropertyDetailsPage() {
             return;
         }
         window.location.href = `tel:${number}`;
+    };
+
+    // Handler that checks verification first for call
+    const handleCall = () => {
+        if (isPhoneVerified) {
+            performCall();
+        } else {
+            setLeadContactType('call');
+            setIsLeadModalOpen(true);
+        }
+    };
+
+    // Handler for showing phone number (also requires verification)
+    // Handler for showing phone number (also requires verification)
+    const handleShowNumber = () => {
+        if (!isPhoneVerified) {
+            setLeadContactType('show_number');
+            setIsLeadModalOpen(true);
+            return;
+        }
+
+        if (!showNumber) {
+            track('cta_contact_clicked', { listing_id: id, channel: 'show_number' });
+        }
+        setShowNumber(!showNumber);
+    };
+
+    const handleMakeOfferClick = () => {
+        if (!isPhoneVerified) {
+            setLeadContactType('offer');
+            setIsLeadModalOpen(true);
+            return;
+        }
+        setIsOfferOpen(true);
+    };
+
+    const handleVideoCallVerification = () => {
+        if (!isPhoneVerified) {
+            setLeadContactType('video_call');
+            setIsLeadModalOpen(true);
+        } else {
+            // Already verified? maybe just show toast
+            toast.success("Phone verified! You can schedule the call.");
+        }
     };
 
     const handleMakeOffer = async (e) => {
@@ -214,7 +362,7 @@ export default function PropertyDetailsPage() {
     }
 
     // Formatting helpers
-    const formatPrice = (val) => new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(val);
+    const formatPrice = (val) => formatShortPrice(val, 'LKR');
 
     // Handle Save/Unsave
     const handleSave = async () => {
@@ -348,6 +496,13 @@ export default function PropertyDetailsPage() {
 
             {/* Main Content Area */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 lg:mt-8">
+                {/* Breadcrumb - Desktop only */}
+                <div className="hidden lg:block">
+                    <Breadcrumb items={[
+                        { label: 'Properties', href: '/properties' },
+                        { label: parseSafe(property.title, 'Property Details'), href: null }
+                    ]} />
+                </div>
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
                     {/* Left Column: Property Info (Scrollable) */}
@@ -361,6 +516,9 @@ export default function PropertyDetailsPage() {
                                     <div className="flex items-center text-slate-500">
                                         <MapPin className="w-5 h-5 mr-2 text-emerald-500" />
                                         {parseSafe(property.location, "Location not specified")}
+                                        <span className="mx-2">•</span>
+                                        <Clock className="w-4 h-4 mr-1 text-slate-400" />
+                                        <span className="text-sm">{formatDate(property.$createdAt)}</span>
                                     </div>
                                 </div>
                                 <div className="text-left md:text-right">
@@ -406,9 +564,10 @@ export default function PropertyDetailsPage() {
 
                             <div className="pt-6">
                                 <h3 className="font-bold text-slate-900 mb-4 text-lg">Description</h3>
-                                <p className="text-slate-600 leading-relaxed whitespace-pre-line">
-                                    {parseSafe(property.description, "No description provided.")}
-                                </p>
+                                <div
+                                    className="text-slate-600 leading-relaxed prose prose-slate max-w-none"
+                                    dangerouslySetInnerHTML={{ __html: sanitizeHTML(parseSafe(property.description, "No description provided.")) }}
+                                />
                             </div>
                         </FadeIn>
 
@@ -570,12 +729,7 @@ export default function PropertyDetailsPage() {
                                         <MessageCircle className="w-5 h-5" /> Chat via WhatsApp
                                     </button>
                                     <button
-                                        onClick={() => {
-                                            if (!showNumber) {
-                                                track('cta_contact_clicked', { listing_id: id, channel: 'show_number' });
-                                            }
-                                            setShowNumber(!showNumber);
-                                        }}
+                                        onClick={handleShowNumber}
                                         className={`w-full py-3 ${showNumber ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white text-slate-700 border-slate-200'} border rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2`}
                                     >
                                         {showNumber ? (
@@ -592,7 +746,7 @@ export default function PropertyDetailsPage() {
                                     </button>
 
                                     <button
-                                        onClick={() => setIsOfferOpen(true)}
+                                        onClick={handleMakeOfferClick}
                                         className="w-full py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
                                     >
                                         <HandCoins className="w-5 h-5" /> Make an Offer
@@ -602,6 +756,8 @@ export default function PropertyDetailsPage() {
                                         agentName={property.contact_name || "Agent"}
                                         agentId={property.user_id}
                                         propertyTitle={property.title}
+                                        isVerified={isPhoneVerified}
+                                        onVerify={handleVideoCallVerification}
                                     />
                                 </div>
 
@@ -612,8 +768,50 @@ export default function PropertyDetailsPage() {
                                     <div className="flex justify-center">
                                         <ReportListingButton listingId={property.$id} listingTitle={property.title} />
                                     </div>
+
+                                    <div
+                                        onClick={() => setIsSavedSearchOpen(true)}
+                                        className="mt-6 flex items-center justify-center gap-2 text-sm text-emerald-600 font-bold cursor-pointer hover:underline"
+                                    >
+                                        <Bell className="w-4 h-4" />
+                                        Get alerts for similar lands
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Schema Markup */}
+                            <script
+                                type="application/ld+json"
+                                dangerouslySetInnerHTML={{
+                                    __html: JSON.stringify({
+                                        "@context": "https://schema.org",
+                                        "@type": ["RealEstateListing", property.listing_type === 'sale' ? "Product" : "Offer"],
+                                        "name": property.title,
+                                        "description": parseSafe(property.description, ""),
+                                        "image": images,
+                                        "url": `https://landsale.lk/properties/${id}`,
+                                        "datePosted": property.$createdAt,
+                                        "offers": {
+                                            "@type": "Offer",
+                                            "price": property.price,
+                                            "priceCurrency": "LKR",
+                                            "availability": "https://schema.org/InStock"
+                                        },
+                                        "address": {
+                                            "@type": "PostalAddress",
+                                            "addressLocality": parseSafe(property.location, "Sri Lanka"),
+                                            "addressCountry": "LK"
+                                        },
+                                        "numberOfRooms": property.beds || undefined,
+                                        "numberOfBathroomsTotal": property.baths || undefined,
+                                        "floorSize": {
+                                            "@type": "QuantitativeValue",
+                                            "value": property.area,
+                                            "unitCode": "SQF" // Approximate unit code
+                                        }
+                                    })
+                                }}
+                            />
 
                             {/* AI Valuation (Moved here to be sticky with agent) */}
                             <ValuationCard property={property} />
@@ -663,12 +861,7 @@ export default function PropertyDetailsPage() {
                         </button>
                     </div>
                     <button
-                        onClick={() => {
-                            if (!showNumber) {
-                                track('cta_contact_clicked', { listing_id: id, channel: 'show_number' });
-                            }
-                            setShowNumber(!showNumber);
-                        }}
+                        onClick={handleShowNumber}
                         className={`mt-3 w-full py-2 text-sm font-bold ${showNumber ? 'text-emerald-600' : 'text-slate-600'}`}
                     >
                         {showNumber ? (
@@ -685,6 +878,27 @@ export default function PropertyDetailsPage() {
                     </p>
                 </div>
             </div>
+
+            {/* Lead Capture Modal for Phone Verification */}
+            <LeadCaptureModal
+                isOpen={isLeadModalOpen}
+                onClose={() => setIsLeadModalOpen(false)}
+                onVerified={handlePhoneVerified}
+                listingId={id}
+                listingTitle={parseSafe(property?.title, 'Property')}
+                sellerPhone={contactPhone}
+                sellerName={property?.contact_name}
+                contactType={leadContactType}
+            />
+
+            {/* Saved Search Modal */}
+            <SavedSearchModal
+                isOpen={isSavedSearchOpen}
+                onClose={() => setIsSavedSearchOpen(false)}
+                initialLocation={parseSafe(property?.location, '')}
+                initialType={property?.land_type}
+                initialPrice={property?.price}
+            />
 
             {/* Make Offer Modal */}
             {

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Image from "next/image";
 import {
   MapPin,
   Home,
@@ -339,6 +340,10 @@ export default function CreateListingPage() {
     setAgentScanning(false);
   };
 
+  const handleSaveDraft = async () => {
+    await submitListing(null, true);
+  };
+
   const submitListing = async (e, asDraft = false) => {
     if (e) e.preventDefault();
     setSubmitting(true);
@@ -402,6 +407,39 @@ export default function CreateListingPage() {
           getStr("agreed_commission") || formData.agreed_commission,
         service_fee: getStr("service_fee") || formData.service_fee,
       };
+
+      // Validation Logic (Inserted)
+      if (!asDraft) {
+        if (!mergedFormData.title) {
+          toast.error("Please enter a title");
+          setSubmitting(false);
+          return;
+        }
+        if (!mergedFormData.price) {
+          toast.error("Please enter a price");
+          setSubmitting(false);
+          return;
+        }
+        if (!mergedFormData.contact_phone) {
+          toast.error("Please enter a contact phone number");
+          setSubmitting(false);
+          return;
+        }
+        if (!mergedFormData.location) {
+          toast.error("Please select a location");
+          setSubmitting(false);
+          return;
+        }
+      } else {
+        // Draft Validation
+        if (!mergedFormData.title) {
+          // Optional: Auto-generate title if missing? 
+          // For now, let's require at least a title so the user can find it later.
+          toast.error("Please enter a Title to save as draft");
+          setSubmitting(false);
+          return;
+        }
+      }
 
       const imageIds = [];
       const legalDocIds = [];
@@ -504,7 +542,7 @@ export default function CreateListingPage() {
   };
 
   const handleSubmit = (e) => submitListing(e, false);
-  const handleSaveDraft = (e) => submitListing(e, true);
+  // handleSaveDraft is defined above at line 343
 
   const nextStep = () => {
     if (step === 1 && isAgent) {
@@ -1142,10 +1180,12 @@ export default function CreateListingPage() {
                       className="group relative aspect-square overflow-hidden rounded-2xl"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
+                      <Image
                         src={URL.createObjectURL(img)}
                         alt={`Uploaded image ${i + 1}`}
-                        className="h-full w-full object-cover"
+                        fill
+                        unoptimized
+                        className="object-cover"
                       />
                       <button
                         type="button"
@@ -1183,10 +1223,12 @@ export default function CreateListingPage() {
                     <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-4">
                       {legalDocs.map((file, idx) => (
                         <div key={idx} className="relative aspect-[3/4] overflow-hidden rounded-xl border border-slate-200">
-                          <img
+                          <Image
                             src={URL.createObjectURL(file)}
                             alt="Legal Doc"
-                            className="h-full w-full object-cover"
+                            fill
+                            unoptimized
+                            className="object-cover"
                           />
                           <button
                             type="button"
@@ -1426,17 +1468,16 @@ export default function CreateListingPage() {
                     )}
                   </button>
 
-                  {isAgent && (
-                    <button
-                      type="button"
-                      onClick={handleSaveDraft}
-                      disabled={submitting}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 py-4 font-bold text-slate-600 transition-colors hover:bg-slate-200"
-                    >
-                      <Save className="h-5 w-5" />
-                      Save as Draft
-                    </button>
-                  )}
+                  {/* Save as Draft - Available for ALL users now */}
+                  <button
+                    type="button"
+                    onClick={handleSaveDraft}
+                    disabled={submitting}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-100 py-4 font-bold text-slate-600 transition-colors hover:bg-slate-200"
+                  >
+                    <Save className="h-5 w-5" />
+                    Save as Draft
+                  </button>
                 </div>
               </div>
             )}

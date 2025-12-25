@@ -2,12 +2,14 @@
 
 import { Sparkles, TrendingUp, Info } from 'lucide-react';
 import { estimateValue } from '@/lib/valuation';
+import { formatShortPrice } from '@/lib/utils';
 
 export function ValuationCard({ property }) {
     if (!property) return null;
 
     const { low, high, confidence } = estimateValue(property);
-    const format = (v) => new Intl.NumberFormat('en-LK', { style: 'currency', currency: 'LKR', maximumFractionDigits: 0 }).format(v);
+    // Use short format: 4.5M instead of LKR 4,500,000
+    const format = (v) => formatShortPrice(v, 'LKR');
 
     return (
         <div className="bg-gradient-to-br from-indigo-900 to-slate-900 p-6 rounded-3xl shadow-xl text-white relative overflow-hidden group">

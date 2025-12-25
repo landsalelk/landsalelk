@@ -60,13 +60,14 @@ export default function AIChatWindow() {
     };
 
     return (
-        <div className="fixed bottom-6 left-6 z-[9999] font-sans">
+        <div className="fixed bottom-24 left-4 z-[9999] font-sans md:bottom-6 md:left-6">
             {/* Toggle Button */}
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
                     data-testid="ai-chat-toggle"
                     className="group flex items-center gap-2 px-4 py-3 bg-slate-900 hover:bg-black text-white rounded-full shadow-2xl transition-all hover:scale-105 opacity-100 scale-100 ai-chat-toggle"
+                    aria-label="Open AI Chat Assistant"
                 >
                     <div className="relative">
                         <Bot className="w-6 h-6 bot-icon" />
@@ -75,8 +76,8 @@ export default function AIChatWindow() {
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                         </span>
                     </div>
-                    <span className="font-bold text-sm hidden group-hover:block transition-all">Ask AI Assistant</span>
-                    <span className="sr-only">AI Chat</span>
+                    <span className="font-bold text-sm hidden md:block">Ask AI</span>
+                    <span className="sr-only">AI Chat Assistant</span>
                 </button>
             )}
 

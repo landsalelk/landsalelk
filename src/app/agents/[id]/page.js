@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { databases, ID, account } from '@/appwrite';
+import { databases, ID, account, Query } from '@/appwrite';
 import { DB_ID, COLLECTION_AGENTS, COLLECTION_LISTINGS } from '@/appwrite/config';
 import { toast } from 'sonner';
 import { DigitalAgentID, AgentQRBadge } from '@/components/agent/DigitalAgentID';

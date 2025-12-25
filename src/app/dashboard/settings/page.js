@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import {
     User, Lock, Bell, Loader2, Save, Shield, Camera, Trash2, AlertTriangle, LogOut
 } from "lucide-react";
+import Image from "next/image";
 import { BUCKET_AVATARS } from "@/appwrite/config";
 
 
@@ -299,10 +300,11 @@ export default function SettingsPage() {
                                     <div className="relative">
                                         <div className="h-24 w-24 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
                                             {avatarUrl ? (
-                                                <img
+                                                <Image
                                                     src={avatarUrl}
                                                     alt={name}
-                                                    className="h-full w-full object-cover"
+                                                    fill
+                                                    className="object-cover"
                                                 />
                                             ) : (
                                                 user?.name?.charAt(0).toUpperCase() || "U"

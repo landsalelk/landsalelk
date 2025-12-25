@@ -40,6 +40,7 @@ export function NewsletterForm() {
                 required
                 disabled={submitting}
                 placeholder="Enter your email"
+                aria-label="Email address for newsletter subscription"
                 className="flex-1 px-6 py-4 bg-white rounded-2xl border border-slate-200 outline-none focus:border-[#10b981] font-medium disabled:opacity-50"
             />
             <button

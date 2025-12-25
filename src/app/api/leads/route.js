@@ -56,7 +56,7 @@ export async function POST(request) {
                     COLLECTION_AGENTS,
                     [
                         Query.search('service_areas', location), // Assuming service_areas is a searchable text or array
-                        Query.equal('status', 'active'),
+                        Query.equal('status', 'approved'),
                         Query.limit(1)
                     ]
                 );
@@ -75,7 +75,7 @@ export async function POST(request) {
                     DB_ID,
                     COLLECTION_AGENTS,
                     [
-                        Query.equal('status', 'active'),
+                        Query.equal('status', 'approved'),
                         Query.limit(1),
                         Query.orderDesc('$createdAt') // Or random if possible, but for now just newest
                     ]

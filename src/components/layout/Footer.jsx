@@ -12,6 +12,7 @@ import {
   Twitter,
   Instagram,
   Youtube,
+  Linkedin,
 } from "lucide-react";
 
 export default function Footer() {
@@ -38,27 +39,32 @@ export default function Footer() {
             </p>
 
             {/* Social Icons */}
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               {[
                 {
                   Icon: Facebook,
-                  url: "https://facebook.com/landsalelk",
+                  url: "https://web.facebook.com/landsalelkweb",
                   label: "Follow us on Facebook",
                 },
                 {
                   Icon: Twitter,
-                  url: "https://twitter.com/landsalelk",
-                  label: "Follow us on Twitter",
+                  url: "https://x.com/landsalelk",
+                  label: "Follow us on X",
                 },
                 {
                   Icon: Instagram,
-                  url: "https://instagram.com/landsalelk",
+                  url: "https://instagram.com/landsale.lk",
                   label: "Follow us on Instagram",
                 },
                 {
                   Icon: Youtube,
-                  url: "https://youtube.com/@landsalelk",
+                  url: "https://www.youtube.com/@LandSale.lkwebsite",
                   label: "Subscribe on YouTube",
+                },
+                {
+                  Icon: Linkedin,
+                  url: "https://linkedin.com/company/74720589",
+                  label: "Connect on LinkedIn",
                 },
               ].map((social, idx) => (
                 <a
@@ -69,7 +75,7 @@ export default function Footer() {
                   aria-label={social.label}
                   className="hover:bg-primary-500 touch-target flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-colors hover:text-white"
                 >
-                  <social.Icon className="h-4 w-4" aria-hidden="true" />
+                  <social.Icon className="h-5 w-5" aria-hidden="true" />
                 </a>
               ))}
             </div>
@@ -186,76 +192,43 @@ export default function Footer() {
                   Terms of Service
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/admin"
-                  className="hover:text-primary-500 text-slate-500 transition-colors"
-                >
-                  Admin Portal
-                </Link>
-              </li>
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* Contact */}
           <div>
             <h4 className="mb-5 text-lg font-bold text-slate-900">
-              Stay Updated
+              Contact Us
             </h4>
             <p className="mb-4 text-sm font-medium text-slate-500">
-              Get the latest listings and market insights.
+              Have questions? We're here to help.
             </p>
-            <form
-              className="flex gap-2"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const email = e.target.email.value;
-                if (email) {
-                  import("sonner").then(({ toast }) => {
-                    toast.success("Subscribed! You'll get updates.");
-                  });
-                  e.target.reset();
-                }
-              }}
-            >
-              <label htmlFor="footer-newsletter-email" className="sr-only">
-                Email address
-              </label>
-              <input
-                type="email"
-                id="footer-newsletter-email"
-                name="email"
-                required
-                placeholder="Enter your email..."
-                className="focus:border-primary-400 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium transition-all outline-none focus:bg-white"
-              />
-              <button
-                type="submit"
-                className="bg-primary-500 hover:bg-primary-600 touch-target rounded-xl p-3 font-bold text-white shadow-lg transition-all"
-                aria-label="Subscribe to newsletter"
-              >
-                <Send className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </form>
 
-            {/* Contact */}
-            <div className="mt-6 space-y-2 text-sm">
+            <div className="space-y-3 text-sm">
               <a
-                href="tel:+94112345678"
+                href="tel:+94754744474"
                 className="hover:text-primary-500 touch-target flex items-center gap-2 py-1 font-medium text-slate-500 transition-colors"
-                aria-label="Call us at +94 11 234 5678"
+                aria-label="Call us at +94 75 474 4474"
               >
-                <Phone className="h-4 w-4" aria-hidden="true" /> +94 11 234 5678
+                <Phone className="h-4 w-4" aria-hidden="true" /> +94 75 474 4474
               </a>
               <a
-                href="mailto:hello@landsale.lk"
+                href="mailto:support@landsale.lk"
                 className="hover:text-primary-500 touch-target flex items-center gap-2 py-1 font-medium text-slate-500 transition-colors"
-                aria-label="Email us at hello@landsale.lk"
+                aria-label="Email us at support@landsale.lk"
               >
                 <Mail className="h-4 w-4" aria-hidden="true" />{" "}
-                hello@landsale.lk
+                support@landsale.lk
               </a>
             </div>
+
+            <Link
+              href="/submit-lead"
+              className="mt-6 inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-100 transition-colors"
+            >
+              <Send className="h-4 w-4" />
+              Submit a Property Request
+            </Link>
           </div>
         </div>
 

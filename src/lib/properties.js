@@ -58,6 +58,10 @@ export async function searchProperties(filters = {}) {
     }
 
     // 2. Property Type (Sale/Rent/Land)
+    if (filters.location) {
+        queries.push(Query.search('location', filters.location));
+    }
+
     if (filters.type && filters.type !== 'all') {
         const type = filters.type.toLowerCase();
         if (type === 'land') {

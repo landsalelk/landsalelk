@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { submitKYC, getKYCStatus } from '@/lib/kyc';
-import { UploadCloud, ShieldCheck, FileText, CheckCircle, Clock, AlertTriangle, Loader2 } from 'lucide-react';
+import { UploadCloud, ShieldCheck, FileText, CheckCircle, Clock, AlertTriangle, Loader2, Home, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 export default function KYCPage() {
     const [status, setStatus] = useState(null); // null, pending, approved, rejected
@@ -13,16 +14,25 @@ export default function KYCPage() {
     const [files, setFiles] = useState({ front: null, back: null });
 
     useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (loading) {
+                setLoading(false);
+                toast.error('Taking too long. Please refresh the page.');
+            }
+        }, 15000); // 15 second timeout
+
         async function check() {
             const doc = await getKYCStatus();
             if (doc) {
                 setStatus(doc.status);
-                setKycDocId(doc.$id); // Store document ID for reference
+                setKycDocId(doc.$id);
             }
             setLoading(false);
         }
         check();
-    }, []);
+
+        return () => clearTimeout(timeout);
+    }, [loading]);
 
     const handleFileChange = (e, side) => {
         if (e.target.files && e.target.files[0]) {
@@ -72,8 +82,16 @@ export default function KYCPage() {
                         </div>
                         <h2 className="text-2xl font-bold text-slate-900 mb-2">Verification In Progress</h2>
                         <p className="text-slate-500 mb-6">Our team is reviewing your documents. This usually takes 24 hours.</p>
-                        <div className="bg-slate-50 p-4 rounded-xl text-sm text-slate-600">
+                        <div className="bg-slate-50 p-4 rounded-xl text-sm text-slate-600 mb-6">
                             Your Reference ID: <span className="font-mono font-bold">KYC-{kycDocId ? kycDocId.slice(-8).toUpperCase() : 'PENDING'}</span>
+                        </div>
+                        <div className="flex gap-3 justify-center">
+                            <Link href="/" className="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors">
+                                <Home className="w-4 h-4" /> Go Home
+                            </Link>
+                            <Link href="/profile" className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors">
+                                My Profile <ArrowRight className="w-4 h-4" />
+                            </Link>
                         </div>
                     </div>
                 )}
@@ -85,7 +103,15 @@ export default function KYCPage() {
                             <ShieldCheck className="w-10 h-10 text-emerald-600" />
                         </div>
                         <h2 className="text-2xl font-bold text-slate-900 mb-2">You are Verified!</h2>
-                        <p className="text-slate-500">You now have full access to list properties and contact agents.</p>
+                        <p className="text-slate-500 mb-6">You now have full access to list properties and contact agents.</p>
+                        <div className="flex gap-3 justify-center">
+                            <Link href="/" className="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors">
+                                <Home className="w-4 h-4" /> Go Home
+                            </Link>
+                            <Link href="/properties/create" className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors">
+                                Post Property <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </div>
                     </div>
                 )}
 

@@ -13,14 +13,18 @@ import {
     LayoutDashboard, Home, Heart, MessageCircle, Settings, Plus,
     TrendingUp, Eye, Users, DollarSign, ShieldCheck, Clock,
     AlertCircle, ChevronRight, Bell, Search, LogOut, Loader2,
-    BarChart3, ArrowUpRight, ArrowDownRight, Sparkles, Wallet, HandCoins, Calendar, RefreshCw
+    BarChart3, ArrowUpRight, ArrowDownRight, Sparkles, Wallet, HandCoins, Calendar, RefreshCw, Crown
 } from 'lucide-react';
 import { ListingAnalytics } from '@/components/dashboard/ListingAnalytics';
+import { SavedSearchesWidget } from '@/components/dashboard/SavedSearchesWidget';
+import { LeadStatsWidget } from '@/components/dashboard/LeadStatsWidget';
 import { databases } from '@/lib/appwrite';
 import { renewProperty } from '@/lib/properties';
 import { DB_ID, COLLECTION_LISTING_OFFERS, COLLECTION_MESSAGES, COLLECTION_AGENTS } from '@/appwrite/config';
 import { Query } from 'appwrite';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { PayHereButton } from '@/components/payments/PayHereButton';
+import { saveTransaction } from '@/lib/transactions';
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -46,7 +50,7 @@ export default function DashboardPage() {
     // Stats based on actual data
     const stats = {
         totalViews: totalViews,
-        viewsChange: 0, // Real-time views are now tracked via 'views_count' in listings
+        viewsChange: 0,
         totalInquiries: inquiriesStats.total,
         inquiriesChange: inquiriesStats.change,
         totalListings: listings.length,
@@ -99,7 +103,7 @@ export default function DashboardPage() {
                         databases.listDocuments(
                             DB_ID,
                             COLLECTION_MESSAGES,
-                            [Query.equal('receiver_id', userData.$id), Query.limit(1)] // Just need total
+                            [Query.equal('receiver_id', userData.$id), Query.limit(1)]
                         ),
                         databases.listDocuments(
                             DB_ID,
@@ -152,25 +156,23 @@ export default function DashboardPage() {
                     // 2. Offers Received (for my listings)
                     if (userListings.length > 0) {
                         const listingIds = userListings.map(l => l.$id);
-                        // Appwrite limitation: Query.equal('listing_id', array) works? 
-                        // If array is too big, might fail. For now assume it works for < 100 listings.
-                        const receivedOffersRes = await databases.listDocuments(
-                            DB_ID,
-                            COLLECTION_LISTING_OFFERS,
-                            [Query.equal('listing_id', listingIds), Query.orderDesc('created_at')]
-                        );
-                        setOffersReceived(receivedOffersRes.documents);
+                        if (listingIds.length > 0) {
+                            const receivedOffersRes = await databases.listDocuments(
+                                DB_ID,
+                                COLLECTION_LISTING_OFFERS,
+                                [Query.equal('listing_id', listingIds), Query.orderDesc('created_at')]
+                            );
+                            setOffersReceived(receivedOffersRes.documents);
+                        }
                     }
                 } catch (e) {
                     console.error("Error fetching offers:", e);
                 }
             } catch (error) {
                 console.error(error);
-                // Only redirect to login if it's an authentication error
                 if (error.code === 401 || error.type === 'general_unauthorized_scope' || error.message?.includes('Unauthorized')) {
                     router.push('/auth/login');
                 } else {
-                    // For other errors, show error but don't redirect
                     toast.error('Failed to load dashboard data. Please refresh the page.');
                 }
             } finally {
@@ -195,7 +197,6 @@ export default function DashboardPage() {
         } catch (err) {
             console.error(err);
             toast.error("Failed to save preferences");
-            // Revert on error
             setNotifications(notifications);
         }
     };
@@ -242,7 +243,6 @@ export default function DashboardPage() {
         try {
             await renewProperty(listingId);
             toast.success("Listing renewed successfully!");
-            // Update local state to reflect new created_at
             setListings(prev => prev.map(l =>
                 l.$id === listingId ? { ...l, created_at: new Date().toISOString() } : l
             ));
@@ -254,7 +254,6 @@ export default function DashboardPage() {
     const navItems = [
         { id: 'overview', label: 'Overview', icon: LayoutDashboard },
         { id: 'listings', label: 'My Listings', icon: Home },
-        // Show Agent tools only if agent profile exists
         ...(agent ? [
             { id: 'leads', label: 'Leads CRM', icon: Users, link: '/dashboard/leads' },
             { id: 'marketing', label: 'Marketing', icon: Sparkles, link: '/dashboard/marketing' },
@@ -263,6 +262,7 @@ export default function DashboardPage() {
         { id: 'offers', label: 'Offers', icon: HandCoins },
         { id: 'wallet', label: 'My Wallet', icon: Wallet, link: '/dashboard/wallet' },
         { id: 'favorites', label: 'Saved Homes', icon: Heart },
+        { id: 'premium', label: 'Go Premium', icon: Crown },
         { id: 'messages', label: 'Messages', icon: MessageCircle, link: '/messages' },
         { id: 'settings', label: 'Settings', icon: Settings, link: '/dashboard/settings' },
     ];
@@ -365,7 +365,6 @@ export default function DashboardPage() {
                             Post New Listing
                         </Link>
 
-                        {/* Become an Agent CTA (for non-agents) */}
                         {!agent && (
                             <Link
                                 href="/auth/register/agent"
@@ -379,7 +378,6 @@ export default function DashboardPage() {
 
                     {/* Main Content */}
                     <main className="flex-1">
-                        {/* Overview Section */}
                         {activeSection === 'overview' && (
                             <div className="space-y-6 animate-fade-in">
                                 <div className="flex items-center justify-between">
@@ -394,52 +392,66 @@ export default function DashboardPage() {
 
                                 {/* Stats Grid */}
                                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <div className="glass-card rounded-2xl p-5">
+                                    {/* Widget 1: Lead Stats (Priority for Agents) */}
+                                    {agent ? (
+                                        <LeadStatsWidget userId={user?.$id} agentId={agent?.$id} />
+                                    ) : (
+                                        <div className="glass-card rounded-2xl p-5">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="p-2 bg-emerald-100 rounded-lg">
+                                                    <MessageCircle className="w-5 h-5 text-emerald-600" />
+                                                </div>
+                                                <span className={`text-xs font-bold flex items-center gap-1 ${stats.inquiriesChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                    {stats.inquiriesChange >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                                                    {Math.abs(stats.inquiriesChange)}%
+                                                </span>
+                                            </div>
+                                            <div className="text-2xl font-bold text-slate-800">{stats.totalInquiries}</div>
+                                            <div className="text-sm text-slate-500">Inquiries</div>
+                                        </div>
+                                    )}
+
+                                    {/* Widget 2: Total Views */}
+                                    <div className="glass-card rounded-2xl p-5 flex flex-col justify-between">
                                         <div className="flex items-center justify-between mb-3">
                                             <div className="p-2 bg-blue-100 rounded-lg">
                                                 <Eye className="w-5 h-5 text-blue-600" />
                                             </div>
-                                            <span className={`text-xs font-bold flex items-center gap-1 ${stats.viewsChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                {stats.viewsChange >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                                                {Math.abs(stats.viewsChange)}%
-                                            </span>
                                         </div>
-                                        <div className="text-2xl font-bold text-slate-800">{stats.totalViews.toLocaleString()}</div>
-                                        <div className="text-sm text-slate-500">Total Views</div>
+                                        <div>
+                                            <div className="text-2xl font-bold text-slate-800">{stats.totalViews.toLocaleString()}</div>
+                                            <div className="text-sm text-slate-500">Total Views</div>
+                                        </div>
                                     </div>
 
-                                    <div className="glass-card rounded-2xl p-5">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="p-2 bg-emerald-100 rounded-lg">
-                                                <MessageCircle className="w-5 h-5 text-emerald-600" />
+                                    {/* Widget 3: Saved Searches (Demand) / Saved Homes */}
+                                    {agent ? (
+                                        <SavedSearchesWidget userListings={listings} />
+                                    ) : (
+                                        <div className="glass-card rounded-2xl p-5 flex flex-col justify-between">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="p-2 bg-red-100 rounded-lg">
+                                                    <Heart className="w-5 h-5 text-red-500" />
+                                                </div>
                                             </div>
-                                            <span className={`text-xs font-bold flex items-center gap-1 ${stats.inquiriesChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                {stats.inquiriesChange >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                                                {Math.abs(stats.inquiriesChange)}%
-                                            </span>
+                                            <div>
+                                                <div className="text-2xl font-bold text-slate-800">{stats.savedHomes}</div>
+                                                <div className="text-sm text-slate-500">Saved Homes</div>
+                                            </div>
                                         </div>
-                                        <div className="text-2xl font-bold text-slate-800">{stats.totalInquiries}</div>
-                                        <div className="text-sm text-slate-500">Inquiries</div>
-                                    </div>
+                                    )}
 
-                                    <div className="glass-card rounded-2xl p-5">
+                                    {/* Widget 4: Active Listings */}
+                                    <div className="glass-card rounded-2xl p-5 flex flex-col justify-between">
                                         <div className="flex items-center justify-between mb-3">
                                             <div className="p-2 bg-purple-100 rounded-lg">
                                                 <Home className="w-5 h-5 text-purple-600" />
                                             </div>
                                         </div>
-                                        <div className="text-2xl font-bold text-slate-800">{stats.totalListings}</div>
-                                        <div className="text-sm text-slate-500">Active Listings</div>
-                                    </div>
-
-                                    <div className="glass-card rounded-2xl p-5">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="p-2 bg-red-100 rounded-lg">
-                                                <Heart className="w-5 h-5 text-red-500" />
-                                            </div>
+                                        <div>
+                                            <div className="text-2xl font-bold text-slate-800">{stats.totalListings}</div>
+                                            <div className="text-sm text-slate-500">Active Listings</div>
                                         </div>
-                                        <div className="text-2xl font-bold text-slate-800">{stats.savedHomes}</div>
-                                        <div className="text-sm text-slate-500">Saved Homes</div>
                                     </div>
                                 </div>
 
@@ -498,7 +510,6 @@ export default function DashboardPage() {
                             </div>
                         )}
 
-                        {/* Listings Section */}
                         {activeSection === 'listings' && (
                             <div className="space-y-6 animate-fade-in">
                                 <div className="flex items-center justify-between">
@@ -525,7 +536,6 @@ export default function DashboardPage() {
                                                 <div key={prop.$id} className="relative group">
                                                     <PropertyCard property={prop} />
 
-                                                    {/* Expiration Badge */}
                                                     {(isExpiring || isExpired) && (
                                                         <div className={`absolute top-3 left-3 px-2 py-1 rounded text-xs font-bold shadow-sm z-10 ${isExpired ? 'bg-red-500 text-white' : 'bg-amber-500 text-white'
                                                             }`}>
@@ -576,12 +586,10 @@ export default function DashboardPage() {
                             </div>
                         )}
 
-                        {/* Offers Section */}
                         {activeSection === 'offers' && (
                             <div className="space-y-8 animate-fade-in">
                                 <h1 className="text-2xl font-bold text-slate-800">Offer Management</h1>
 
-                                {/* Offers Received */}
                                 <div className="glass-card rounded-2xl p-6">
                                     <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                                         <ArrowDownRight className="w-5 h-5 text-emerald-500" />
@@ -647,7 +655,6 @@ export default function DashboardPage() {
                                     )}
                                 </div>
 
-                                {/* Offers Sent */}
                                 <div className="glass-card rounded-2xl p-6">
                                     <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                                         <ArrowUpRight className="w-5 h-5 text-blue-500" />
@@ -694,7 +701,6 @@ export default function DashboardPage() {
                             </div>
                         )}
 
-                        {/* Favorites Section */}
                         {activeSection === 'favorites' && (
                             <div className="space-y-6 animate-fade-in">
                                 <h1 className="text-2xl font-bold text-slate-800">Saved Homes</h1>
@@ -718,6 +724,56 @@ export default function DashboardPage() {
                                         </Link>
                                     </div>
                                 )}
+                            </div>
+                        )}
+
+                        {/* Premium Section */}
+                        {activeSection === 'premium' && (
+                            <div className="animate-fade-in">
+                                <div className="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-3xl p-12 text-center relative overflow-hidden text-white">
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl -mr-20 -mt-20"></div>
+                                    <div className="relative z-10">
+                                        <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                            <Crown className="w-8 h-8 text-amber-400" />
+                                        </div>
+                                        <h3 className="text-2xl font-bold mb-2">Become a Premium Member</h3>
+                                        <p className="text-slate-300 mb-8 max-w-md mx-auto">Get verified badge, priority support, and 5x more visibility on your listings.</p>
+
+                                        <div className="mb-8">
+                                            <span className="text-4xl font-bold">LKR 5,000</span>
+                                            <span className="text-slate-400"> / year</span>
+                                        </div>
+
+                                        <div className="flex justify-center">
+                                            <PayHereButton
+                                                orderId={`SUB-${user?.$id}-${Date.now()}`}
+                                                items="Premium Membership"
+                                                amount={5000}
+                                                customer={{
+                                                    first_name: user?.name?.split(' ')[0] || 'User',
+                                                    last_name: user?.name?.split(' ').slice(1).join(' ') || 'User',
+                                                    email: user?.email || '',
+                                                    phone: user?.phone || '0777123456',
+                                                }}
+                                                onSuccess={async (orderId) => {
+                                                    toast.success("Payment Successful! Welcome to Premium.");
+                                                    try {
+                                                        await saveTransaction({
+                                                            userId: user.$id,
+                                                            amount: 5000,
+                                                            status: 'success',
+                                                            referenceId: orderId,
+                                                            type: 'subscription'
+                                                        });
+                                                    } catch (e) {
+                                                        console.error("Failed to save transaction", e);
+                                                    }
+                                                }}
+                                                onDismiss={() => toast.info("Payment Cancelled")}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 

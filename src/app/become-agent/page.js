@@ -107,10 +107,10 @@ export default function BecomeAgentPage() {
                             <BadgeCheck className="w-4 h-4" />
                             Join 500+ Verified Agents
                         </div>
-                        <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                        <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight drop-shadow-lg">
                             Become a Verified<br />Property Agent
                         </h1>
-                        <p className="text-xl md:text-2xl text-emerald-100 mb-8 max-w-2xl mx-auto">
+                        <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto drop-shadow-md">
                             Join Sri Lanka&apos;s fastest-growing real estate platform.
                             Get exclusive leads, earn more commissions, and grow your career.
                         </p>

@@ -64,14 +64,14 @@ export function GamaralaChat() {
             {/* Trigger Button */}
             <button
                 onClick={() => setIsOpen(true)}
-                className={`fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 ${isOpen ? 'scale-0 opacity-0' : 'bg-[#10b981] text-white scale-100 opacity-100'}`}
+                className={`fixed bottom-24 right-6 z-40 p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 lg:bottom-6 ${isOpen ? 'scale-0 opacity-0' : 'bg-[#10b981] text-white scale-100 opacity-100'}`}
             >
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse"></div>
                 <Bot className="w-8 h-8" />
             </button>
 
             {/* Chat Window */}
-            <div className={`fixed bottom-6 right-6 z-50 w-80 md:w-96 bg-white rounded-3xl shadow-2xl border border-slate-100 transition-all duration-300 transform origin-bottom-right flex flex-col overflow-hidden ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-8 pointer-events-none'}`} style={{ maxHeight: '600px', height: '80vh' }}>
+            <div className={`fixed bottom-24 right-4 left-4 z-40 lg:bottom-6 lg:right-6 lg:left-auto lg:w-96 bg-white rounded-3xl shadow-2xl border border-slate-100 transition-all duration-300 transform origin-bottom-right flex flex-col overflow-hidden ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-8 pointer-events-none'}`} style={{ maxHeight: '70vh' }}>
 
                 {/* Header */}
                 <div className="bg-[#10b981] p-4 flex items-center justify-between text-white">
@@ -132,9 +132,9 @@ export function GamaralaChat() {
                         </button>
                     </div>
                     <div className="text-center mt-2">
-                         <span className="text-[10px] text-slate-400 flex items-center justify-center gap-1">
+                        <span className="text-[10px] text-slate-400 flex items-center justify-center gap-1">
                             <Sparkles className="w-3 h-3" /> Powered by LandSale Intelligence
-                         </span>
+                        </span>
                     </div>
                 </form>
             </div>

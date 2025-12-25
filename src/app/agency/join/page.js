@@ -7,6 +7,7 @@ import { getInvitationByToken, acceptAgentInvitation, rejectAgentInvitation } fr
 import { toast } from 'sonner';
 import { Loader2, Building2, ShieldCheck, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 function JoinPageContent() {
     const searchParams = useSearchParams();
@@ -163,9 +164,11 @@ function JoinPageContent() {
                 {/* Agency Logo/Icon */}
                 <div className="text-center mb-6">
                     {invitation.agency_logo ? (
-                        <img
+                        <Image
                             src={invitation.agency_logo}
                             alt={invitation.agency_name}
+                            width={80}
+                            height={80}
                             className="w-20 h-20 rounded-2xl mx-auto object-cover shadow-md"
                         />
                     ) : (

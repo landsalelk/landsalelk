@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { getFilterOptions } from '@/lib/properties';
 import { Search, Filter, X } from 'lucide-react';
 
-export function PropertyFilters({ filters, onChange }) {
+export function PropertyFilters({ filters, onChange, resultsCount = null }) {
     const [isOpen, setIsOpen] = useState(false);
     const options = getFilterOptions();
 
@@ -51,18 +51,18 @@ export function PropertyFilters({ filters, onChange }) {
 
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="font-bold text-xl text-slate-800 md:text-lg">Filters</h3>
-                        
+
                         <div className="flex items-center gap-2">
-                             {/* Mobile Close */}
+                            {/* Mobile Close */}
                             <button
                                 onClick={() => setIsOpen(false)}
                                 className="md:hidden p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
                             >
                                 <X className="w-5 h-5 text-slate-500" />
                             </button>
-                            
+
                             {/* Clear All (Desktop/Visible) */}
-                            <button 
+                            <button
                                 onClick={() => onChange({})}
                                 className="text-xs font-semibold text-red-500 hover:text-red-600 px-2 py-1 rounded hover:bg-red-50 transition-colors"
                             >
@@ -183,11 +183,30 @@ export function PropertyFilters({ filters, onChange }) {
 
                         <button
                             onClick={() => onChange({})}
-                            className="w-full py-2 text-sm text-slate-500 hover:text-red-500 font-medium transition-colors"
+                            className="w-full py-2 text-sm text-slate-500 hover:text-red-500 font-medium transition-colors hidden md:block"
                         >
                             Reset Filters
                         </button>
 
+                    </div>
+
+                    {/* Sticky Apply Button (Mobile Only) */}
+                    <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 md:hidden safe-area-bottom">
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => onChange({})}
+                                className="flex-1 py-3 px-4 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors"
+                            >
+                                Reset
+                            </button>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="flex-[2] py-3 px-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <Filter className="w-4 h-4" />
+                                {resultsCount !== null ? `Show ${resultsCount} Results` : 'Apply Filters'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -163,7 +163,7 @@ export function Hero() {
   };
 
   return (
-    <div className="relative flex min-h-[700px] flex-col items-center justify-center overflow-hidden pt-32 pb-24">
+    <div className="relative flex min-h-[700px] flex-col items-center justify-center overflow-hidden pt-24 pb-24">
       {/* Premium Aurora Background */}
       <div className="live-gradient absolute inset-0 z-0">
         <div className="aurora-beam" />
@@ -182,17 +182,17 @@ export function Hero() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span className="text-sm font-medium text-emerald-300 tracking-wide uppercase">No.1 Real Estate Platform</span>
+            <span className="text-sm font-medium text-emerald-200 tracking-wide uppercase">No.1 Real Estate Platform</span>
           </div>
 
-          <h1 className="mb-6 text-5xl leading-tight font-extrabold text-white sm:text-7xl drop-shadow-sm tracking-tight">
+          <h1 className="mb-6 text-5xl leading-tight font-extrabold text-white sm:text-7xl drop-shadow-lg tracking-tight">
             Discover Your <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-cyan-300">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
               Dream Property
             </span>
           </h1>
 
-          <p className="mx-auto max-w-2xl text-lg text-slate-300 md:text-xl font-light leading-relaxed">
+          <p className="mx-auto max-w-2xl text-lg text-white/90 md:text-xl font-light leading-relaxed">
             Connect with verified sellers and top agents across Sri Lanka.
             AI-powered valuations included.
           </p>
@@ -207,8 +207,8 @@ export function Hero() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all ${activeTab === tab.id
-                    ? "bg-slate-900 text-white shadow-md"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                  ? "bg-slate-900 text-white shadow-md"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                   }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -234,7 +234,7 @@ export function Hero() {
                   mounted && recentSearches.length > 0 && setShowRecent(true)
                 }
                 placeholder="City, Province, or Postal Code..."
-                className="w-full bg-transparent py-3 font-bold text-slate-700 placeholder-slate-400 outline-none"
+                className="w-full bg-transparent py-3 font-bold text-slate-700 placeholder-slate-500 outline-none"
                 aria-label="Search properties"
                 aria-haspopup="listbox"
               />
@@ -300,14 +300,14 @@ export function Hero() {
           </div>
 
           {/* Trending Searches */}
-          <div className="mt-2 flex flex-wrap gap-3 border-t border-slate-100 p-3 text-xs">
+          <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-100 p-3 text-xs">
             <span className="font-bold text-slate-900">Trending:</span>
             {["Colombo 7", "Kandy Lands", "Galle Fort", "Negombo"].map(
               (loc) => (
                 <button
                   key={loc}
                   onClick={() => handleTrendingClick(loc)}
-                  className="font-bold text-slate-500 transition-colors hover:text-[#10b981]"
+                  className="font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full transition-all hover:bg-emerald-100 hover:text-emerald-700"
                 >
                   {loc}
                 </button>
@@ -331,7 +331,7 @@ export function Hero() {
               <div className="mb-1 text-2xl font-bold text-white md:text-3xl">
                 {stat.value}
               </div>
-              <div className="text-sm font-medium text-white/70">
+              <div className="text-sm font-medium text-slate-300">
                 {stat.label}
               </div>
             </div>

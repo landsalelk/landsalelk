@@ -75,12 +75,12 @@ export default function RegisterPage() {
 
   useEffect(() => {
     const checkSession = async () => {
-        try {
-            await account.get();
-            router.replace('/dashboard');
-        } catch (error) {
-            // Not logged in
-        }
+      try {
+        await account.get();
+        router.replace('/dashboard');
+      } catch (error) {
+        // Not logged in
+      }
     };
     checkSession();
   }, [router]);
@@ -309,14 +309,14 @@ export default function RegisterPage() {
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-lg transition-transform group-hover:scale-110">
               <MapPin className="h-6 w-6 text-[#10b981]" />
             </div>
-            <span className="text-2xl font-bold text-white">
-              LandSale<span className="text-yellow-300">.lk</span>
+            <span className="text-2xl font-bold text-slate-800">
+              LandSale<span className="text-emerald-600">.lk</span>
             </span>
           </Link>
-          <h1 className="mt-6 text-2xl font-bold text-white">
+          <h1 className="mt-6 text-2xl font-bold text-slate-800">
             Join Our Community
           </h1>
-          <p className="mt-2 text-white/70">Create your free account</p>
+          <p className="mt-2 text-slate-600">Create your free account</p>
         </div>
 
         {/* Form */}
@@ -395,11 +395,10 @@ export default function RegisterPage() {
                   autoComplete="name"
                   aria-invalid={errors.name ? "true" : "false"}
                   aria-describedby={errors.name ? "name-error" : undefined}
-                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-4 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${
-                    errors.name
-                      ? "border-red-400 focus:border-red-500"
-                      : "border-transparent focus:border-[#6ee7b7]"
-                  }`}
+                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-4 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${errors.name
+                    ? "border-red-400 focus:border-red-500"
+                    : "border-transparent focus:border-[#6ee7b7]"
+                    }`}
                 />
               </div>
               {errors.name && (
@@ -438,11 +437,10 @@ export default function RegisterPage() {
                   autoComplete="email"
                   aria-invalid={errors.email ? "true" : "false"}
                   aria-describedby={errors.email ? "email-error" : undefined}
-                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-4 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${
-                    errors.email
-                      ? "border-red-400 focus:border-red-500"
-                      : "border-transparent focus:border-[#6ee7b7]"
-                  }`}
+                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-4 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${errors.email
+                    ? "border-red-400 focus:border-red-500"
+                    : "border-transparent focus:border-[#6ee7b7]"
+                    }`}
                 />
               </div>
               {errors.email && (
@@ -481,11 +479,10 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   aria-invalid={errors.password ? "true" : "false"}
                   aria-describedby="password-requirements password-error"
-                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-12 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${
-                    errors.password
-                      ? "border-red-400 focus:border-red-500"
-                      : "border-transparent focus:border-[#6ee7b7]"
-                  }`}
+                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-12 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${errors.password
+                    ? "border-red-400 focus:border-red-500"
+                    : "border-transparent focus:border-[#6ee7b7]"
+                    }`}
                 />
                 <button
                   type="button"
@@ -516,13 +513,12 @@ export default function RegisterPage() {
                       />
                     </div>
                     <span
-                      className={`text-xs font-bold capitalize ${
-                        passwordStrength.strength === "strong"
-                          ? "text-emerald-600"
-                          : passwordStrength.strength === "medium"
-                            ? "text-yellow-600"
-                            : "text-red-500"
-                      }`}
+                      className={`text-xs font-bold capitalize ${passwordStrength.strength === "strong"
+                        ? "text-emerald-600"
+                        : passwordStrength.strength === "medium"
+                          ? "text-yellow-600"
+                          : "text-red-500"
+                        }`}
                     >
                       {passwordStrength.strength}
                     </span>
@@ -605,13 +601,12 @@ export default function RegisterPage() {
                       ? "confirm-password-error"
                       : undefined
                   }
-                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-12 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${
-                    errors.confirmPassword
-                      ? "border-red-400 focus:border-red-500"
-                      : confirmPassword && password === confirmPassword
-                        ? "border-emerald-400 focus:border-emerald-500"
-                        : "border-transparent focus:border-[#6ee7b7]"
-                  }`}
+                  className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-12 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${errors.confirmPassword
+                    ? "border-red-400 focus:border-red-500"
+                    : confirmPassword && password === confirmPassword
+                      ? "border-emerald-400 focus:border-emerald-500"
+                      : "border-transparent focus:border-[#6ee7b7]"
+                    }`}
                 />
                 <button
                   type="button"
@@ -633,11 +628,10 @@ export default function RegisterPage() {
               {/* Real-time password match indicator */}
               {confirmPassword && !errors.confirmPassword && (
                 <p
-                  className={`mt-1.5 flex items-center gap-1 text-sm font-medium ${
-                    password === confirmPassword
-                      ? "text-emerald-600"
-                      : "text-amber-600"
-                  }`}
+                  className={`mt-1.5 flex items-center gap-1 text-sm font-medium ${password === confirmPassword
+                    ? "text-emerald-600"
+                    : "text-amber-600"
+                    }`}
                 >
                   {password === confirmPassword ? (
                     <>
@@ -784,13 +778,13 @@ export default function RegisterPage() {
         </div>
 
         {/* Terms */}
-        <div className="mt-6 text-center text-sm text-white/60">
+        <div className="mt-6 text-center text-sm text-slate-500">
           By signing up, you agree to our{" "}
-          <Link href="/terms" className="text-yellow-300 hover:underline">
+          <Link href="/terms" className="text-emerald-600 hover:underline">
             Terms
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="text-yellow-300 hover:underline">
+          <Link href="/privacy" className="text-emerald-600 hover:underline">
             Privacy Policy
           </Link>
         </div>

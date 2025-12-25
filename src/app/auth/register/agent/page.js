@@ -16,6 +16,7 @@ export default function AgentRegistrationPage() {
     const [step, setStep] = useState(1);
     const [submitting, setSubmitting] = useState(false);
     const [checking, setChecking] = useState(true);
+    const [isGuest, setIsGuest] = useState(false); // [NEW] For showing login prompt
     const [successModal, setSuccessModal] = useState(false); // [NEW]
     const [nicFile, setNicFile] = useState(null);
     const [formData, setFormData] = useState({
@@ -45,8 +46,10 @@ export default function AgentRegistrationPage() {
                 }
             } catch (error) {
                 console.error("Profile check failed:", error);
-                // Don't block registration on check failure, unless it's a critical auth error
-                if (error.code === 401) router.push('/auth/login');
+                // Show informative guest mode instead of silent redirect
+                if (error.code === 401) {
+                    setIsGuest(true);
+                }
             } finally {
                 setChecking(false);
             }
@@ -138,6 +141,73 @@ export default function AgentRegistrationPage() {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50">
                 <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+            </div>
+        );
+    }
+
+    // Guest mode - show informative page instead of silent redirect
+    if (isGuest) {
+        return (
+            <div className="min-h-screen bg-slate-50 py-12 px-4 pt-24 animate-fade-in">
+                <div className="max-w-xl mx-auto">
+                    <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center">
+                        <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Briefcase className="w-10 h-10" />
+                        </div>
+
+                        <h1 className="text-2xl font-bold text-slate-900 mb-2">Become a Verified Agent</h1>
+                        <p className="text-slate-500 mb-8">
+                            Join Sri Lanka's largest real estate network and connect with buyers looking for properties.
+                        </p>
+
+                        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 text-left mb-8">
+                            <h3 className="font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                                <ShieldCheck className="w-5 h-5" />
+                                Agent Benefits
+                            </h3>
+                            <ul className="space-y-3 text-sm text-emerald-700">
+                                <li className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                    <span>Get exclusive buyer leads sent directly to you</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                    <span>Verified Agent badge for increased trust</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                    <span>Featured placement on agent listings</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                    <span>Analytics dashboard for your properties</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-8 text-left">
+                            <p className="text-sm text-amber-800">
+                                <strong>Note:</strong> You need to have an account to apply as an agent.
+                                Please sign in or create an account to continue with your application.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <button
+                                onClick={() => router.push('/auth/login?redirect=/auth/register/agent')}
+                                className="flex-1 py-3 px-6 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors"
+                            >
+                                Sign In
+                            </button>
+                            <button
+                                onClick={() => router.push('/auth/register?redirect=/auth/register/agent')}
+                                className="flex-1 py-3 px-6 bg-slate-100 text-slate-700 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+                            >
+                                Create Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }

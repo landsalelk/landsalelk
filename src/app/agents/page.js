@@ -103,8 +103,8 @@ export default function AgentsPage() {
                                         </div>
 
                                         {/* Info */}
-                                        <h3 className="text-xl font-bold text-slate-800 group-hover:text-[#10b981] transition-colors">
-                                            {agent.name}
+                                        <h3 className="text-xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
+                                            {agent.name || 'Agent'}
                                         </h3>
                                         <p className="text-[#10b981] font-bold text-sm uppercase tracking-wide mb-2">
                                             {agent.specialization || 'Real Estate Agent'}

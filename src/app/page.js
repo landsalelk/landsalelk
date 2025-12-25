@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Hero } from "@/components/home/Hero";
 import { PropertyCard } from "@/components/property/PropertyCard";
 import { NewsletterForm } from "@/components/home/NewsletterForm";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { databases } from "@/lib/appwrite";
 import { DB_ID, COLLECTION_LISTINGS } from "@/appwrite/config";
 import { Query } from "appwrite";
@@ -132,7 +133,7 @@ export default function HomePage() {
                       </div>
                       <h3 className="text-xl font-bold text-white mb-1">{cat.name}</h3>
                       <p className="text-white/80 text-sm font-medium">
-                        {loading ? "..." : `${cat.count} Listings`}
+                        {loading ? "..." : cat.count > 0 ? `${cat.count} Listings` : "Coming Soon"}
                       </p>
                     </div>
                   </div>
@@ -195,8 +196,14 @@ export default function HomePage() {
                 </div>
               ))
             ) : (
-              <div className="col-span-4 text-center py-12 text-slate-500">
-                No featured properties found at the moment.
+              <div className="col-span-4">
+                <EmptyState
+                  type="listings"
+                  title="No Properties Yet"
+                  description="Be the first to list your property and reach thousands of buyers."
+                  actionText="Post Your Property"
+                  actionHref="/properties/create"
+                />
               </div>
             )}
           </div>

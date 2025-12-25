@@ -59,7 +59,7 @@ export function PayHereButton({ amount, orderId, items, customer, onSuccess, onD
                 currency: "LKR",
                 hash: hash,
                 first_name: customer?.first_name || "Customer",
-                last_name: customer?.last_name || "",
+                last_name: customer?.last_name || ".",
                 email: customer?.email, // Required - no fake fallback
                 phone: customer?.phone || "",
                 address: customer?.address || "Sri Lanka",

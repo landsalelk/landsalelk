@@ -61,7 +61,8 @@ export default function CookieConsent() {
       role="dialog"
       aria-labelledby="cookie-consent-title"
       aria-describedby="cookie-consent-description"
-      className="safe-area-bottom fixed right-0 bottom-0 left-0 z-40 border-t border-slate-200 bg-white p-4 shadow-lg md:p-6"
+      className="safe-area-bottom fixed right-0 bottom-0 left-0 z-[60] border-t border-slate-200 bg-white p-4 shadow-lg md:p-6 lg:bottom-0"
+      style={{ bottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="mx-auto flex max-w-7xl flex-col items-start gap-4 md:flex-row md:items-center">
         <div className="flex flex-1 items-start gap-3">
@@ -84,7 +85,7 @@ export default function CookieConsent() {
               All", you consent to our use of cookies.
               <Link
                 href="/cookies"
-                className="ml-1 text-emerald-600 hover:underline"
+                className="ml-1 font-semibold text-emerald-600 hover:underline"
               >
                 Learn more
               </Link>

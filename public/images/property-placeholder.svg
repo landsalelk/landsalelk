@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ecfdf5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d1fae5;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgGradient)"/>
+  
+  <!-- Pattern Overlay -->
+  <g opacity="0.1">
+    <circle cx="100" cy="100" r="60" fill="#10b981"/>
+    <circle cx="700" cy="500" r="80" fill="#10b981"/>
+    <circle cx="400" cy="50" r="40" fill="#10b981"/>
+  </g>
+  
+  <!-- House Icon -->
+  <g transform="translate(350, 200)">
+    <path d="M50 0 L100 40 L100 90 L0 90 L0 40 Z" fill="#10b981" opacity="0.9"/>
+    <rect x="15" y="50" width="25" height="40" fill="#ecfdf5"/>
+    <rect x="55" y="55" width="30" height="25" fill="#ecfdf5"/>
+  </g>
+  
+  <!-- Pin Icon -->
+  <g transform="translate(370, 210)">
+    <circle cx="30" cy="25" r="8" fill="none" stroke="white" stroke-width="2"/>
+    <path d="M30 33 L30 45" stroke="white" stroke-width="2"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="400" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="bold" fill="#334155" text-anchor="middle">
+    LandSale.lk
+  </text>
+  <text x="400" y="375" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#64748b" text-anchor="middle">
+    Image Coming Soon
+  </text>
+  
+  <!-- Camera Icon -->
+  <g transform="translate(375, 400)">
+    <rect x="5" y="10" width="40" height="25" rx="3" fill="#94a3b8"/>
+    <circle cx="25" cy="22" r="8" fill="#64748b"/>
+    <rect x="18" y="5" width="14" height="6" rx="2" fill="#94a3b8"/>
+  </g>
+</svg>

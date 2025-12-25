@@ -23,7 +23,7 @@ export async function submitKYC(data) {
             data.nicBack
         );
 
-        // 2. Create KYC Request Doc
+        // 2. Create KYC Request Doc (matching schema requirements)
         const kycDoc = await databases.createDocument(
             DB_ID,
             COLLECTION_KYC,
@@ -31,6 +31,8 @@ export async function submitKYC(data) {
             {
                 user_id: user.$id,
                 status: 'pending',
+                document_type: 'nic', // Required field
+                file_id: frontUpload.$id, // Required field - use front ID
                 nic_front_id: frontUpload.$id,
                 nic_back_id: backUpload.$id,
                 request_type: data.type || 'verify_identity',

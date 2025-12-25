@@ -314,12 +314,12 @@ export default function SubmitLeadPage() {
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-lg transition-transform group-hover:scale-110">
               <MapPin className="h-6 w-6 text-[#10b981]" />
             </div>
-            <span className="text-2xl font-bold text-white">
-              LandSale<span className="text-yellow-300">.lk</span>
+            <span className="text-2xl font-bold text-slate-800">
+              LandSale<span className="text-emerald-600">.lk</span>
             </span>
           </Link>
-          <h1 className="mt-6 text-3xl font-bold text-white">Submit a Lead</h1>
-          <p className="mt-2 text-white/70">
+          <h1 className="mt-6 text-3xl font-bold text-slate-800">Submit a Lead</h1>
+          <p className="mt-2 text-slate-600">
             Tell us what you need. We&apos;ll route your request to a verified
             agent.
           </p>
@@ -367,13 +367,12 @@ export default function SubmitLeadPage() {
                     autoComplete="name"
                     aria-invalid={errors.name ? "true" : "false"}
                     aria-describedby={errors.name ? "name-error" : undefined}
-                    className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-4 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${
-                      errors.name
+                    className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-4 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${errors.name
                         ? "border-red-400 focus:border-red-500"
                         : touched.name && name.trim().length >= 2
                           ? "border-emerald-400 focus:border-emerald-500"
                           : "border-transparent focus:border-[#6ee7b7]"
-                    }`}
+                      }`}
                   />
                 </div>
                 {errors.name && (
@@ -415,13 +414,12 @@ export default function SubmitLeadPage() {
                     aria-describedby={
                       errors.phone ? "phone-error" : "phone-hint"
                     }
-                    className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-4 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${
-                      errors.phone
+                    className={`w-full rounded-2xl border-2 bg-slate-50 py-4 pr-4 pl-12 font-bold text-slate-700 transition-all outline-none focus:bg-white ${errors.phone
                         ? "border-red-400 focus:border-red-500"
                         : touched.phone && validatePhoneNumber(phone)
                           ? "border-emerald-400 focus:border-emerald-500"
                           : "border-transparent focus:border-[#6ee7b7]"
-                    }`}
+                      }`}
                   />
                 </div>
                 {errors.phone ? (
