@@ -143,6 +143,14 @@ export default function Footer() {
               </li>
               <li>
                 <Link
+                  href="/blog"
+                  className="hover:text-primary-500 text-slate-500 transition-colors"
+                >
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/submit-lead"
                   className="hover:text-primary-500 text-slate-500 transition-colors"
                 >

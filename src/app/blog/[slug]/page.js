@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { getBlogPostBySlug, getBlogPosts } from '@/lib/content';
 import { sanitizeHTML } from '@/lib/sanitize';
 import { Calendar, Clock, ArrowLeft, Facebook, Twitter } from 'lucide-react';
+import { marked } from 'marked';
 
 export default function BlogPostPage({ params }) {
     const { slug } = use(params);
@@ -121,8 +122,8 @@ export default function BlogPostPage({ params }) {
 
                 {/* Content */}
                 <div
-                    className="prose prose-lg max-w-none prose-emerald prose-headings:font-bold prose-a:text-emerald-600"
-                    dangerouslySetInnerHTML={{ __html: sanitizeHTML(post.content || post.body || '') }}
+                    className="prose prose-lg max-w-none prose-emerald prose-headings:font-bold prose-a:text-emerald-600 prose-p:mb-6 prose-p:leading-relaxed prose-li:mb-2 prose-ul:my-6 prose-img:rounded-xl prose-table:w-full prose-table:shadow-sm prose-table:border prose-table:rounded-lg prose-table:overflow-hidden prose-th:bg-gray-50 prose-th:p-4 prose-td:p-4 prose-blockquote:not-italic prose-blockquote:font-normal prose-blockquote:bg-emerald-50/50 prose-blockquote:border-l-4 prose-blockquote:border-emerald-500 prose-blockquote:rounded-r-lg prose-blockquote:py-2 prose-blockquote:px-5 prose-blockquote:my-8"
+                    dangerouslySetInnerHTML={{ __html: sanitizeHTML(marked.parse(post.content || post.body || '')) }}
                 />
 
                 {/* Share */}

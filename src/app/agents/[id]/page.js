@@ -234,7 +234,7 @@ export default function AgentProfilePage() {
 
                         {/* Right: Digital ID Card */}
                         <div className="w-full lg:w-auto">
-                            <DigitalAgentID agent={agent} showDownload={true} />
+                            {/* <DigitalAgentID agent={agent} showDownload={true} /> */}
                         </div>
                     </div>
                 </div>
@@ -254,7 +254,7 @@ export default function AgentProfilePage() {
                         )}
 
                         {/* Agent Badges */}
-                        <AgentBadges userId={agent.user_id} />
+                        {/* <AgentBadges userId={agent.user_id} /> */}
 
                         {/* Credentials */}
                         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">

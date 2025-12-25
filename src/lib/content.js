@@ -6,8 +6,32 @@ import {
     COLLECTION_CMS_PAGES,
     COLLECTION_BLOG_POSTS,
     COLLECTION_FAQS,
-    COLLECTION_SETTINGS
+    COLLECTION_SETTINGS,
+    APPWRITE_ENDPOINT,
+    BUCKET_LISTING_IMAGES
 } from '@/appwrite/config';
+
+const PROJECT_ID = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || 'landsalelkproject';
+
+/**
+ * Get Image View URL
+ */
+function getImageUrl(fileId) {
+    if (!fileId) return null;
+    if (fileId.startsWith('http')) return fileId;
+    return `${APPWRITE_ENDPOINT}/storage/buckets/${BUCKET_LISTING_IMAGES}/files/${fileId}/view?project=${PROJECT_ID}`;
+}
+
+/**
+ * Transform blog post data
+ */
+function transformPost(post) {
+    return {
+        ...post,
+        cover_image: getImageUrl(post.cover_image) || getImageUrl(post.featured_image) || null,
+        featured_image: getImageUrl(post.cover_image) || getImageUrl(post.featured_image) || null
+    };
+}
 
 // ================================
 // CMS PAGES
@@ -65,7 +89,7 @@ export async function getBlogPosts(limit = 10, offset = 0) {
             ]
         );
         return {
-            posts: response.documents,
+            posts: response.documents.map(transformPost),
             total: response.total
         };
     } catch (error) {
@@ -84,7 +108,7 @@ export async function getBlogPostBySlug(slug) {
             COLLECTION_BLOG_POSTS,
             [Query.equal('slug', slug)]
         );
-        return response.documents[0] || null;
+        return response.documents[0] ? transformPost(response.documents[0]) : null;
     } catch (error) {
         console.error('Error fetching blog post:', error);
         return null;
@@ -104,7 +128,7 @@ export async function getFeaturedPosts(limit = 3) {
                 Query.limit(limit)
             ]
         );
-        return response.documents;
+        return response.documents.map(transformPost);
     } catch (error) {
         console.error('Error fetching featured posts:', error);
         return [];
